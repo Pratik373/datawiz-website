@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDAC C-CAT Mock Test</title>
+
+<style>
+:root{
+    --navy:#0b2545;
+    --blue:#1769d2;
+    --green:#12783d;
+    --red:#b42318;
+    --amber:#946200;
+    --bg:#f4f7fb;
+    --line:#d8e1ee;
+    --text:#182230;
+}
+
+*{box-sizing:border-box}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+}
+
+header{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    position:sticky;
+    top:0;
+    z-index:5;
+}
+
+header h1{
+    font-size:20px;
+    margin:0;
+}
+
+.timer-wrap{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.timer{
+    border:1px solid rgba(255,255,255,0.32);
+    padding:8px 10px;
+    border-radius:6px;
+    font-weight:bold;
+    min-width:132px;
+    text-align:center;
+}
+
+.timer.active{
+    background:white;
+    color:var(--navy);
+}
+
+.container{
+    width:min(1180px,94%);
+    margin:auto;
+    padding:22px 0 40px;
+}
+
+.panel{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:22px;
+    box-shadow:0 2px 8px rgba(16,24,40,0.06);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:14px;
+}
+
+.mini-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+    background:#fbfdff;
+}
+
+.mini-card h3{
+    margin:0 0 8px;
+    color:var(--navy);
+}
+
+.mini-card ul{
+    margin:8px 0 0;
+    padding-left:20px;
+}
+
+.top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+
+button{
+    background:var(--blue);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    font-size:16px;
+    border-radius:7px;
+    cursor:pointer;
+}
+
+button:hover{background:#0d55b5}
+button:disabled{opacity:0.6;cursor:not-allowed}
+
+#examScreen,
+#resultScreen{display:none}
+
+.exam-layout{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:18px;
+}
+
+.sidebar{
+    position:sticky;
+    top:88px;
+    align-self:start;
+}
+
+.section-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.section-tabs button{
+    padding:10px;
+    font-size:14px;
+}
+
+.section-tabs button.active{background:var(--navy)}
+
+.section-tabs button:disabled{
+    background:#edf2f7;
+    color:#667085;
+    border:1px solid var(--line);
+}
+
+.nav-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+}
+
+.nav-btn{
+    padding:8px 0;
+    font-size:13px;
+    background:white;
+    color:var(--text);
+    border:1px solid var(--line);
+}
+
+.nav-btn.answered{
+    background:#e8f6ee;
+    border-color:#8bd2a8;
+    color:var(--green);
+}
+
+.section-title{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    border-radius:8px;
+    margin:0 0 16px;
+}
+
+.question-card{
+    background:white;
+    margin-bottom:16px;
+    padding:18px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    box-shadow:0 2px 6px rgba(16,24,40,0.04);
+}
+
+.question{
+    font-size:18px;
+    margin-bottom:12px;
+    font-weight:bold;
+}
+
+.topic{
+    display:inline-block;
+    margin-bottom:10px;
+    color:#475467;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.option{
+    display:block;
+    margin-bottom:9px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    cursor:pointer;
+    background:white;
+}
+
+.option:hover{background:#eef5ff}
+
+.code{
+    background:#1f2937;
+    color:#f3f4f6;
+    padding:13px;
+    border-radius:6px;
+    overflow:auto;
+    margin-bottom:12px;
+    white-space:pre;
+}
+
+.answer-review{
+    display:block;
+    margin-top:12px;
+    padding:12px;
+    border-radius:6px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+}
+
+.correct-answer{color:var(--green);font-weight:bold}
+.wrong-answer{color:var(--red);font-weight:bold}
+.skipped-answer{color:var(--amber);font-weight:bold}
+
+.result-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin:16px 0 20px;
+}
+
+.score-box{
+    background:#fbfdff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+}
+
+.score-box strong{
+    display:block;
+    font-size:24px;
+    margin-top:4px;
+}
+
+@media(max-width:760px){
+    header{align-items:flex-start;flex-direction:column}
+    .timer-wrap{justify-content:flex-start}
+    .exam-layout{grid-template-columns:1fr}
+    .sidebar{position:static}
+}
+</style>
+</head>
+
+<body>
+<header>
+    <h1>CDAC C-CAT Mock Test - Full 100 Question Paper</h1>
+    <div class="timer-wrap">
+        <div id="timerA" class="timer">Section A: 60:00</div>
+        <div id="timerB" class="timer">Section B: 60:00</div>
+    </div>
+</header>
+
+<main class="container">
+    <section id="startScreen" class="panel">
+        <h2>Actual C-CAT Pattern - Section A + Section B</h2>
+        <div class="grid">
+            <div class="mini-card">
+                <h3>Section A</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>English: 10</li>
+                    <li>Quantitative Aptitude: 15</li>
+                    <li>Logical Reasoning: 15</li>
+                    <li>Computer Fundamentals + Programming Basics: 10</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Section B</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>C Programming: 20</li>
+                    <li>Data Structures: 10</li>
+                    <li>OOP using C++: 8</li>
+                    <li>Operating Systems: 6</li>
+                    <li>Computer Networks: 6</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Marking</h3>
+                <p>Correct Answer: +3</p>
+                <p>Wrong Answer: -1</p>
+                <p>Unanswered: 0</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button onclick="startExam()">Start Exam</button>
+        </div>
+    </section>
+
+    <section id="examScreen">
+        <div class="exam-layout">
+            <aside class="sidebar panel">
+                <div class="section-tabs">
+                    <button id="tabA" class="active" onclick="showSection('A')">Section A</button>
+                    <button id="tabB" onclick="showSection('B')">Section B</button>
+                </div>
+                <h3>Question Navigation</h3>
+                <div id="navPanel" class="nav-grid"></div>
+                <div class="top-actions">
+                    <button id="submitBtn" onclick="submitCurrentSection()">Submit Section A & Go to Section B</button>
+                </div>
+            </aside>
+            <section>
+                <div id="questions"></div>
+            </section>
+        </div>
+    </section>
+
+    <section id="resultScreen" class="panel">
+        <h2>Exam Result</h2>
+        <div id="resultSummary" class="result-summary"></div>
+        <div class="top-actions">
+            <button onclick="reattemptExam()">Reattempt Exam</button>
+        </div>
+        <h2>Question Review & Answer Key</h2>
+        <div id="reviewQuestions"></div>
+    </section>
+</main>
+
+<script>
+const questions = [
+{id:1,section:"A",topic:"English",q:"Choose the synonym of OBSCURE:",o:["Bright","Vague","Clear","Famous"],a:1},
+{id:2,section:"A",topic:"English",q:"Choose the antonym of FRAGILE:",o:["Weak","Delicate","Strong","Tiny"],a:2},
+{id:3,section:"A",topic:"English",q:"Fill in the blank: He _____ to school every day.",o:["go","goes","going","gone"],a:1},
+{id:4,section:"A",topic:"English",q:"Choose the correctly spelled word:",o:["Accomodation","Acommodation","Accommodation","Accommdation"],a:2},
+{id:5,section:"A",topic:"English",q:"One word substitute for 'A person who knows many languages':",o:["Linguist","Philosopher","Scientist","Orator"],a:0},
+{id:6,section:"A",topic:"English",q:"Choose the correct sentence:",o:["She do not like coffee","She does not likes coffee","She does not like coffee","She not like coffee"],a:2},
+{id:7,section:"A",topic:"English",q:"Meaning of idiom 'Hit the nail on the head':",o:["Hit hard","Exactly correct","Miss the target","Build something"],a:1},
+{id:8,section:"A",topic:"English",q:"Choose passive voice: 'They completed the project.'",o:["The project completed them","The project was completed by them","The project has completed","They were completed"],a:1},
+{id:9,section:"A",topic:"English",q:"Choose the correct preposition: He is good ___ mathematics.",o:["in","on","at","for"],a:2},
+{id:10,section:"A",topic:"English",q:"Choose the synonym of BRIEF:",o:["Long","Short","Wide","Thick"],a:1},
+{id:11,section:"A",topic:"Quantitative Aptitude",q:"25% of 480 is:",o:["100","110","120","140"],a:2},
+{id:12,section:"A",topic:"Quantitative Aptitude",q:"A train running at 72 km/hr crosses a pole in 10 sec. What is its length?",o:["100 m","150 m","200 m","250 m"],a:2},
+{id:13,section:"A",topic:"Quantitative Aptitude",q:"Simple interest on Rs.1000 at 10% for 2 years:",o:["100","150","200","250"],a:2},
+{id:14,section:"A",topic:"Quantitative Aptitude",q:"If x + 5 = 15, x =",o:["5","10","15","20"],a:1},
+{id:15,section:"A",topic:"Quantitative Aptitude",q:"Average of 10, 20, 30:",o:["10","20","30","40"],a:1},
+{id:16,section:"A",topic:"Quantitative Aptitude",q:"LCM of 12 and 18:",o:["24","30","36","48"],a:2},
+{id:17,section:"A",topic:"Quantitative Aptitude",q:"Profit percentage if CP = 500 and SP = 600:",o:["10%","15%","20%","25%"],a:2},
+{id:18,section:"A",topic:"Quantitative Aptitude",q:"2, 4, 8, 16, ?",o:["24","30","32","64"],a:2},
+{id:19,section:"A",topic:"Quantitative Aptitude",q:"Pipe A fills a tank in 10 hrs and Pipe B in 15 hrs. Together they fill it in:",o:["5 hrs","6 hrs","8 hrs","12 hrs"],a:1},
+{id:20,section:"A",topic:"Quantitative Aptitude",q:"Square root of 144 is:",o:["10","11","12","14"],a:2},
+{id:21,section:"A",topic:"Quantitative Aptitude",q:"Probability of head in one coin toss:",o:["0","1","1/2","2"],a:2},
+{id:22,section:"A",topic:"Quantitative Aptitude",q:"Area of a square with side 5:",o:["10","20","25","30"],a:2},
+{id:23,section:"A",topic:"Quantitative Aptitude",q:"If speed doubles, time becomes:",o:["Double","Half","Triple","Same"],a:1},
+{id:24,section:"A",topic:"Quantitative Aptitude",q:"Solve: 15 x 4",o:["45","50","60","75"],a:2},
+{id:25,section:"A",topic:"Quantitative Aptitude",q:"HCF of 18 and 24:",o:["4","6","8","12"],a:1},
+{id:26,section:"A",topic:"Logical Reasoning",q:"Find the odd one: 3, 5, 7, 9, 11",o:["3","5","9","11"],a:2},
+{id:27,section:"A",topic:"Logical Reasoning",q:"A is brother of B. B is sister of C. What is A's relation to C?",o:["Brother","Sister","Uncle","Father"],a:0},
+{id:28,section:"A",topic:"Logical Reasoning",q:"1, 4, 9, 16, ?",o:["20","24","25","30"],a:2},
+{id:29,section:"A",topic:"Logical Reasoning",q:"If CAT = 24, DOG = ?",o:["26","30","32","40"],a:0},
+{id:30,section:"A",topic:"Logical Reasoning",q:"Clock angle at 3:00:",o:["0 degree","45 degree","90 degree","180 degree"],a:2},
+{id:31,section:"A",topic:"Logical Reasoning",q:"Choose missing: A, C, E, ?",o:["F","G","H","I"],a:1},
+{id:32,section:"A",topic:"Logical Reasoning",q:"Find next: 2, 6, 12, 20, 30, ?",o:["36","40","42","48"],a:2},
+{id:33,section:"A",topic:"Logical Reasoning",q:"Mirror image of LEFT:",o:["TFEL","LEFT","FELT","TLEF"],a:0},
+{id:34,section:"A",topic:"Logical Reasoning",q:"Find the odd one:",o:["Circle","Square","Triangle","Apple"],a:3},
+{id:35,section:"A",topic:"Logical Reasoning",q:"If all men are human, which statement follows?",o:["All humans are men","Some humans are men","No men are humans","None"],a:1},
+{id:36,section:"A",topic:"Logical Reasoning",q:"Coding: CAT = DBU. DOG = ?",o:["EPH","DPH","EOG","FQI"],a:0},
+{id:37,section:"A",topic:"Logical Reasoning",q:"Find next: 5, 10, 20, 40, ?",o:["50","60","80","100"],a:2},
+{id:38,section:"A",topic:"Logical Reasoning",q:"If SOUTH = 12345 then SO =",o:["12","23","45","34"],a:0},
+{id:39,section:"A",topic:"Logical Reasoning",q:"Find the odd one:",o:["January","March","May","Tuesday"],a:3},
+{id:40,section:"A",topic:"Logical Reasoning",q:"Direction opposite to EAST:",o:["North","South","West","Up"],a:2},
+{id:41,section:"A",topic:"Computer Fundamentals",q:"CPU stands for:",o:["Central Process Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"],a:1},
+{id:42,section:"A",topic:"Computer Fundamentals",q:"RAM is:",o:["Permanent","Volatile","Optical","External"],a:1},
+{id:43,section:"A",topic:"Computer Fundamentals",q:"Which is an input device?",o:["Monitor","Printer","Keyboard","Speaker"],a:2},
+{id:44,section:"A",topic:"Computer Fundamentals",q:"Binary number system base:",o:["2","8","10","16"],a:0},
+{id:45,section:"A",topic:"Computer Fundamentals",q:"HTML stands for:",o:["Hyper Text Markup Language","High Text Machine Language","Hyper Tool Markup Language","None"],a:0},
+{id:46,section:"A",topic:"Computer Fundamentals",q:"Which is an operating system?",o:["Linux","Oracle","Python","Chrome"],a:0},
+{id:47,section:"A",topic:"Computer Fundamentals",q:"Full form of URL:",o:["Uniform Resource Locator","Universal Resource Link","Uniform Reference Link","Unique Resource Locator"],a:0},
+{id:48,section:"A",topic:"Computer Fundamentals",q:"Which memory is fastest?",o:["RAM","ROM","Cache","HDD"],a:2},
+{id:49,section:"A",topic:"Computer Fundamentals",q:"1 Byte =",o:["4 bits","8 bits","16 bits","32 bits"],a:1},
+{id:50,section:"A",topic:"Computer Fundamentals",q:"Which language is machine independent?",o:["Assembly","Java","Machine Language","Binary"],a:1},
+{id:51,section:"B",topic:"C Programming",q:"Output?",code:"int x=5;\nprintf(\"%d\",x++);",o:["5","6","Error","Garbage"],a:0},
+{id:52,section:"B",topic:"C Programming",q:"Which loop executes at least once?",o:["for","while","do-while","none"],a:2},
+{id:53,section:"B",topic:"C Programming",q:"Which operator gives address?",o:["*","&","%","#"],a:1},
+{id:54,section:"B",topic:"C Programming",q:"Header for malloc():",o:["stdio.h","string.h","stdlib.h","math.h"],a:2},
+{id:55,section:"B",topic:"C Programming",q:"Array index starts from:",o:["0","1","-1","Depends"],a:0},
+{id:56,section:"B",topic:"C Programming",q:"Which function finds string length?",o:["strcpy","strlen","strcat","strcmp"],a:1},
+{id:57,section:"B",topic:"C Programming",q:"Recursion means:",o:["Function calling itself","Loop","Array","Pointer"],a:0},
+{id:58,section:"B",topic:"C Programming",q:"Which symbol ends statement?",o:[":",";",".","/"],a:1},
+{id:59,section:"B",topic:"C Programming",q:"Which datatype stores decimal?",o:["int","char","float","long"],a:2},
+{id:60,section:"B",topic:"C Programming",q:"Infinite loop:",o:["for(;;)","while(1)","Both","None"],a:2},
+{id:61,section:"B",topic:"C Programming",q:"Output?",code:"printf(\"%d\",10>5 && 5<2);",o:["0","1","Error","10"],a:0},
+{id:62,section:"B",topic:"C Programming",q:"Which keyword exits loop?",o:["continue","break","stop","return"],a:1},
+{id:63,section:"B",topic:"C Programming",q:"Pointer stores:",o:["Value","Address","Character","Index"],a:1},
+{id:64,section:"B",topic:"C Programming",q:"C is:",o:["Object-oriented only","Procedural","Functional","Scripting only"],a:1},
+{id:65,section:"B",topic:"C Programming",q:"Which function compares strings?",o:["strcpy","strcat","strcmp","strlen"],a:2},
+{id:66,section:"B",topic:"C Programming",q:"Format specifier for integer:",o:["%c","%f","%d","%s"],a:2},
+{id:67,section:"B",topic:"C Programming",q:"Which operator is modulus?",o:["/","//","%","mod"],a:2},
+{id:68,section:"B",topic:"C Programming",q:"Output?",code:"int a=10;\nprintf(\"%d\",++a);",o:["10","11","12","Error"],a:1},
+{id:69,section:"B",topic:"C Programming",q:"Which datatype stores single character?",o:["int","float","char","string"],a:2},
+{id:70,section:"B",topic:"C Programming",q:"Main function usually returns:",o:["char","int","float","void"],a:1},
+{id:71,section:"B",topic:"Data Structures",q:"LIFO structure:",o:["Queue","Stack","Tree","Graph"],a:1},
+{id:72,section:"B",topic:"Data Structures",q:"FIFO structure:",o:["Queue","Stack","Heap","Tree"],a:0},
+{id:73,section:"B",topic:"Data Structures",q:"Binary search requires:",o:["Sorted array","Unsorted array","Linked list","Stack"],a:0},
+{id:74,section:"B",topic:"Data Structures",q:"Worst case linear search:",o:["O(1)","O(log n)","O(n)","O(n^2)"],a:2},
+{id:75,section:"B",topic:"Data Structures",q:"DFS uses:",o:["Queue","Stack","Heap","Array"],a:1},
+{id:76,section:"B",topic:"Data Structures",q:"BFS uses:",o:["Queue","Stack","Tree","Heap"],a:0},
+{id:77,section:"B",topic:"Data Structures",q:"Merge sort complexity:",o:["O(n^2)","O(log n)","O(n log n)","O(n)"],a:2},
+{id:78,section:"B",topic:"Data Structures",q:"Stack overflow occurs when:",o:["Stack empty","Stack full","Queue full","Heap empty"],a:1},
+{id:79,section:"B",topic:"Data Structures",q:"Tree with maximum two children:",o:["AVL","Binary Tree","Heap","Graph"],a:1},
+{id:80,section:"B",topic:"Data Structures",q:"Linked list stores data in:",o:["Continuous memory","Non-continuous memory","Only integers","Only chars"],a:1},
+{id:81,section:"B",topic:"OOP using C++",q:"Wrapping data and methods:",o:["Inheritance","Encapsulation","Polymorphism","Abstraction"],a:1},
+{id:82,section:"B",topic:"OOP using C++",q:"Ability to take many forms:",o:["Inheritance","Encapsulation","Polymorphism","Class"],a:2},
+{id:83,section:"B",topic:"OOP using C++",q:"Parent class is called:",o:["Child","Derived","Base","Object"],a:2},
+{id:84,section:"B",topic:"OOP using C++",q:"Constructor is used to:",o:["Delete object","Initialize object","Copy object","Destroy object"],a:1},
+{id:85,section:"B",topic:"OOP using C++",q:"Runtime polymorphism:",o:["Overloading","Overriding","Constructor","Operator"],a:1},
+{id:86,section:"B",topic:"OOP using C++",q:"Access specifier with maximum restriction:",o:["public","protected","private","default"],a:2},
+{id:87,section:"B",topic:"OOP using C++",q:"Object is:",o:["Blueprint","Instance of class","Function","Method"],a:1},
+{id:88,section:"B",topic:"OOP using C++",q:"C++ supports:",o:["OOP","POP","Both","None"],a:2},
+{id:89,section:"B",topic:"Operating Systems",q:"Which scheduling minimizes average waiting time?",o:["FCFS","SJF","RR","Priority"],a:1},
+{id:90,section:"B",topic:"Operating Systems",q:"Thrashing occurs due to:",o:["High CPU","High paging","Deadlock","Scheduling"],a:1},
+{id:91,section:"B",topic:"Operating Systems",q:"Fastest memory:",o:["RAM","ROM","Cache","HDD"],a:2},
+{id:92,section:"B",topic:"Operating Systems",q:"Deadlock requires:",o:["Mutual exclusion","Hold and wait","Circular wait","All"],a:3},
+{id:93,section:"B",topic:"Operating Systems",q:"Round Robin uses:",o:["Priority","Time quantum","Semaphore","Paging"],a:1},
+{id:94,section:"B",topic:"Operating Systems",q:"Semaphore is used for:",o:["Searching","Synchronization","Paging","Sorting"],a:1},
+{id:95,section:"B",topic:"Networking",q:"OSI model layers:",o:["5","6","7","8"],a:2},
+{id:96,section:"B",topic:"Networking",q:"HTTP uses port:",o:["20","21","80","443"],a:2},
+{id:97,section:"B",topic:"Networking",q:"IPv6 bits:",o:["32","64","128","256"],a:2},
+{id:98,section:"B",topic:"Networking",q:"Router connects:",o:["Computers","Networks","Files","Printers"],a:1},
+{id:99,section:"B",topic:"Networking",q:"TCP is:",o:["Connectionless","Connection-oriented","Wireless","None"],a:1},
+{id:100,section:"B",topic:"Networking",q:"DNS converts:",o:["IP to MAC","Domain to IP","Port to IP","MAC to IP"],a:1}
+];
+
+let currentSection = "A";
+let examStarted = false;
+let examSubmitted = false;
+let sectionALocked = false;
+let timeLeft = {A:60*60,B:60*60};
+let timerInterval = null;
+
+function startExam(){
+    examStarted = true;
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("examScreen").style.display = "block";
+    showSection("A");
+    updateSubmitButton();
+    timerInterval = setInterval(tickTimer,1000);
+}
+
+function showSection(section){
+    if(section === "A" && sectionALocked && !examSubmitted){
+        return;
+    }
+    currentSection = section;
+    document.getElementById("tabA").classList.toggle("active",section==="A");
+    document.getElementById("tabB").classList.toggle("active",section==="B");
+    document.getElementById("tabA").disabled = sectionALocked && !examSubmitted;
+    document.getElementById("timerA").classList.toggle("active",section==="A");
+    document.getElementById("timerB").classList.toggle("active",section==="B");
+    renderQuestions();
+    renderNav();
+    updateSubmitButton();
+}
+
+function renderQuestions(){
+    const visibleQuestions = questions.filter(q => q.section === currentSection);
+    const title = currentSection === "A"
+        ? "Section A: English, Aptitude, Reasoning, Computer Fundamentals"
+        : "Section B: C Programming, Data Structures, OOP, OS, Networking";
+    let html = `<h2 class="section-title">${title}</h2>`;
+
+    visibleQuestions.forEach(q => {
+        html += `
+        <div class="question-card" id="card${q.id}">
+            <span class="topic">${q.topic}</span>
+            <div class="question">Q${q.id}. ${q.q}</div>
+            ${q.code ? `<div class="code">${q.code}</div>` : ""}
+        `;
+
+        q.o.forEach((opt,i) => {
+            const checked = getSelected(q.id) === i ? "checked" : "";
+            html += `
+            <label class="option">
+                <input type="radio" name="q${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id},${i})">
+                ${String.fromCharCode(65+i)}) ${opt}
+            </label>`;
+        });
+
+        html += `</div>`;
+    });
+
+    document.getElementById("questions").innerHTML = html;
+}
+
+function renderNav(){
+    const visibleQuestions = questions.filter(q => q.section === currentSection);
+    let html = "";
+    visibleQuestions.forEach(q => {
+        const answered = getSelected(q.id) !== null ? "answered" : "";
+        html += `<button class="nav-btn ${answered}" onclick="goToQuestion(${q.id})">${q.id}</button>`;
+    });
+    document.getElementById("navPanel").innerHTML = html;
+}
+
+function saveAnswer(id,value){
+    localStorage.setItem("ccat_q"+id,value);
+    renderNav();
+}
+
+function getSelected(id){
+    const value = localStorage.getItem("ccat_q"+id);
+    return value === null ? null : Number(value);
+}
+
+function goToQuestion(id){
+    const question = questions.find(q => q.id === id);
+    if(question.section !== currentSection){
+        showSection(question.section);
+    }
+    setTimeout(() => {
+        document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"});
+    },50);
+}
+
+function tickTimer(){
+    if(!examStarted || examSubmitted){
+        return;
+    }
+    timeLeft[currentSection]--;
+    updateTimers();
+    if(timeLeft[currentSection] <= 0){
+        timeLeft[currentSection] = 0;
+        if(currentSection === "A"){
+            submitCurrentSection();
+        }
+        else{
+            submitExam();
+        }
+    }
+}
+
+function updateTimers(){
+    document.getElementById("timerA").innerHTML = "Section A: " + formatTime(timeLeft.A);
+    document.getElementById("timerB").innerHTML = "Section B: " + formatTime(timeLeft.B);
+}
+
+function formatTime(seconds){
+    const min = Math.floor(seconds/60);
+    const sec = seconds%60;
+    return `${min}:${sec<10 ? "0" : ""}${sec}`;
+}
+
+function updateSubmitButton(){
+    const submitBtn = document.getElementById("submitBtn");
+    if(currentSection === "A"){
+        submitBtn.innerHTML = "Submit Section A & Go to Section B";
+    }
+    else{
+        submitBtn.innerHTML = "Submit Exam";
+    }
+}
+
+function submitCurrentSection(){
+    if(currentSection === "A"){
+        sectionALocked = true;
+        timeLeft.A = Math.max(timeLeft.A,0);
+        showSection("B");
+        window.scrollTo({top:0,behavior:"smooth"});
+        return;
+    }
+
+    submitExam();
+}
+
+function submitExam(){
+    if(examSubmitted){
+        return;
+    }
+    examSubmitted = true;
+    clearInterval(timerInterval);
+    document.getElementById("submitBtn").disabled = true;
+
+    let score = 0;
+    let correct = 0;
+    let wrong = 0;
+    let attempted = 0;
+    let sectionScore = {A:0,B:0};
+    let sectionCorrect = {A:0,B:0};
+
+    questions.forEach(q => {
+        const selected = getSelected(q.id);
+        if(selected !== null){
+            attempted++;
+            if(selected === q.a){
+                score += 3;
+                sectionScore[q.section] += 3;
+                correct++;
+                sectionCorrect[q.section]++;
+            }
+            else{
+                score -= 1;
+                sectionScore[q.section] -= 1;
+                wrong++;
+            }
+        }
+    });
+
+    const unanswered = questions.length - attempted;
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = `
+        <div class="score-box">Total Score<strong>${score}/300</strong></div>
+        <div class="score-box">Correct<strong>${correct}</strong></div>
+        <div class="score-box">Wrong<strong>${wrong}</strong></div>
+        <div class="score-box">Unanswered<strong>${unanswered}</strong></div>
+        <div class="score-box">Section A<strong>${sectionScore.A}/150</strong><span>${sectionCorrect.A}/50 correct</span></div>
+        <div class="score-box">Section B<strong>${sectionScore.B}/150</strong><span>${sectionCorrect.B}/50 correct</span></div>
+    `;
+
+    renderReview();
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderReview(){
+    let html = "";
+    ["A","B"].forEach(section => {
+        html += `<h2 class="section-title">Section ${section} Answer Key</h2>`;
+        questions.filter(q => q.section === section).forEach(q => {
+            const selected = getSelected(q.id);
+            const selectedText = selected === null ? "Not attempted" : `${String.fromCharCode(65+selected)}) ${q.o[selected]}`;
+            const correctText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
+            const statusClass = selected === null ? "skipped-answer" : selected === q.a ? "correct-answer" : "wrong-answer";
+            html += `
+            <div class="question-card">
+                <span class="topic">${q.topic}</span>
+                <div class="question">Q${q.id}. ${q.q}</div>
+                ${q.code ? `<div class="code">${q.code}</div>` : ""}
+                <div class="answer-review">
+                    <div>Your Answer: <span class="${statusClass}">${selectedText}</span></div>
+                    <div>Correct Answer: <span class="correct-answer">${correctText}</span></div>
+                </div>
+            </div>`;
+        });
+    });
+    document.getElementById("reviewQuestions").innerHTML = html;
+}
+
+function reattemptExam(){
+    questions.forEach(q => {
+        localStorage.removeItem("ccat_q"+q.id);
+    });
+
+    clearInterval(timerInterval);
+    currentSection = "A";
+    examStarted = false;
+    examSubmitted = false;
+    sectionALocked = false;
+    timeLeft = {A:60*60,B:60*60};
+    timerInterval = null;
+
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("tabA").disabled = false;
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "none";
+    document.getElementById("startScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = "";
+    document.getElementById("reviewQuestions").innerHTML = "";
+
+    updateTimers();
+    updateSubmitButton();
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+updateTimers();
+</script>
+</body>
+</html>
