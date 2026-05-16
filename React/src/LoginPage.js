@@ -152,7 +152,13 @@ export default function LoginPage() {
     setGoogleLoading(true); clearMessages();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/CCATMOCK.html` },
+      options: { 
+        redirectTo: `${window.location.origin}/CCATMOCK.html`,
+        queryParams: {
+          prompt: 'select_account',
+          access_type: 'offline'
+        }
+      },
     });
     if (error) {
       if (error.message?.toLowerCase().includes('provider') || error.status === 400) {
