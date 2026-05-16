@@ -57,14 +57,28 @@ export default function LoginPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       // Don't auto-redirect if we're handling a password recovery token
       if (session && session.user?.recovery_sent_at === undefined) {
-        window.location.href = '/CCATMOCK.html';
+        const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectTo) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          navigate(redirectTo);
+        } else {
+          window.location.href = '/CCATMOCK.html';
+        }
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         // PASSWORD_RECOVERY means the reset link was clicked — let /reset-password handle it
         if (event === 'PASSWORD_RECOVERY') return;
-        if (session) window.location.href = '/CCATMOCK.html';
+        if (session) {
+          const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+          if (redirectTo) {
+            sessionStorage.removeItem('redirectAfterLogin');
+            navigate(redirectTo);
+          } else {
+            window.location.href = '/CCATMOCK.html';
+          }
+        }
       }
     );
     return () => subscription.unsubscribe();
@@ -105,8 +119,14 @@ export default function LoginPage() {
         setMessageType('error');
       }
     } else {
-      // Successful login redirect
-      window.location.href = '/CCATMOCK.html';
+      // Successful login redirect — go back to study material if that was the intent
+      const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectTo) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectTo);
+      } else {
+        window.location.href = '/CCATMOCK.html';
+      }
     }
     setLoading(false);
   };
@@ -150,10 +170,15 @@ export default function LoginPage() {
   /* ── Google OAuth ── */
   const handleGoogleLogin = async () => {
     setGoogleLoading(true); clearMessages();
+    const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
+    const redirectTarget = savedRedirect
+      ? `${window.location.origin}${savedRedirect}`
+      : `${window.location.origin}/CCATMOCK.html`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { 
-        redirectTo: `${window.location.origin}/CCATMOCK.html`,
+      options: {
+        redirectTo: redirectTarget,
         queryParams: {
           prompt: 'select_account',
           access_type: 'offline'
