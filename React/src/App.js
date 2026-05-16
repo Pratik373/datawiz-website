@@ -4,6 +4,8 @@ import './App.css';
 import { supabase } from './supabaseClient';
 import LoginPage from './LoginPage';
 import ResetPassword from './ResetPassword';
+import StudyMaterial from './StudyMaterial';
+
 
 /* ═══════════════════════════════════════════
    Landing Page (Home)
@@ -77,6 +79,22 @@ function Home() {
     }
   };
 
+  const handleMaterialClick = (e, fileUrl) => {
+    e.preventDefault();
+    if (!user) {
+      // Not logged in, redirect to login page
+      navigate('/login');
+      return;
+    }
+    
+    // Logged in, open the file
+    if (fileUrl === '#') {
+      alert('PDF link will be updated soon!');
+    } else {
+      window.open(fileUrl, '_blank');
+    }
+  };
+
   return (
     <div className="App">
       <header className="hero">
@@ -88,8 +106,10 @@ function Home() {
             </div>
             <div className="nav-links">
               <a href="#about">About</a>
+              <a href="#materials">Study Materials</a>
               <a href="#subscribe">Mock Test</a>
               <a href="#social">Follow</a>
+
 
               {/* ── Login / Logout button ── */}
               {user ? (
@@ -148,6 +168,37 @@ function Home() {
                 <li>🎯 Real-world project implementations</li>
                 <li>🚀 Career tips &amp; opportunities</li>
               </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Study Materials Promo Section */}
+      <section id="materials" className="materials-promo">
+        <div className="container">
+          <div className="materials-promo-inner">
+            <div className="materials-promo-left">
+              <span className="materials-promo-badge">📚 15 Books</span>
+              <h2>CDAC C-CAT Study Materials</h2>
+              <p>
+                Access our curated collection of 15 essential books for C-CAT preparation —
+                including programming, OS, networks, aptitude &amp; more.
+                Login to view &amp; download PDFs for free.
+              </p>
+              <div className="materials-promo-tags">
+                {['C Programming', 'OS', 'Networks', 'Aptitude', 'Digital Design', 'AI'].map(tag => (
+                  <span key={tag} className="promo-tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+            <div className="materials-promo-right">
+              <button
+                id="study-material-btn"
+                className="materials-promo-btn"
+                onClick={() => navigate('/study-material')}
+              >
+                Browse Study Materials →
+              </button>
             </div>
           </div>
         </div>
@@ -262,6 +313,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/study-material" element={<StudyMaterial />} />
       </Routes>
     </BrowserRouter>
   );
