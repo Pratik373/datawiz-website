@@ -4,6 +4,7 @@ import './App.css';
 import { supabase } from './supabaseClient';
 import LoginPage from './LoginPage';
 import ResetPassword from './ResetPassword';
+import PricingSection from './PricingSection';
 
 /* ═══════════════════════════════════════════
    Landing Page (Home)
@@ -240,6 +241,8 @@ function Home() {
           </div>
         </div>
       </section>
+
+      <PricingSection />
 
       {/* Footer */}
       <footer className="footer">
