@@ -79,22 +79,6 @@ function Home() {
     }
   };
 
-  const handleMaterialClick = (e, fileUrl) => {
-    e.preventDefault();
-    if (!user) {
-      // Not logged in, redirect to login page
-      navigate('/login');
-      return;
-    }
-    
-    // Logged in, open the file
-    if (fileUrl === '#') {
-      alert('PDF link will be updated soon!');
-    } else {
-      window.open(fileUrl, '_blank');
-    }
-  };
-
   return (
     <div className="App">
       <header className="hero">
