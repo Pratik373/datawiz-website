@@ -278,7 +278,16 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
-        <div id="creditsDisplay" style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);">Tests: Loading…</div>
+        <div id="creditsDisplay" 
+             onclick="document.getElementById('buyModal').style.display='flex'"
+             style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);cursor:pointer;"
+             title="Click to buy more tests">
+             Tests: Loading…
+        </div>
+        <button onclick="document.getElementById('buyModal').style.display='flex'" 
+                style="background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;">
+            Buy Tests
+        </button>
         <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;">Logout</button>
     </div>
 </header>
@@ -316,7 +325,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
 <script>
 const SUPABASE_URL = 'https://uoqfnvrdbicbepjxapcf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1';
-const RAZORPAY_KEY_ID = 'rzp_test_SpwrYZT3JeCror';
+const RAZORPAY_KEY_ID = 'rzp_test_Spy62mcDroIz0U';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUserId = null;
@@ -329,6 +338,9 @@ async function initPage() {
     currentUserId = session.user.id;
     await loadCredits();
 }
+
+// Automatically initialize the page on load
+window.addEventListener('DOMContentLoaded', initPage);
 
 async function loadCredits() {
     const { data } = await supabaseClient
@@ -468,6 +480,7 @@ initPage();
         </div>
         <div class="top-actions">
             <button onclick="checkAndStartExam()">Start Exam</button>
+            <button onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px;">Buy More Tests</button>
         </div>
     </section>
 

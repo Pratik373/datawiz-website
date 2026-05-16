@@ -90,6 +90,7 @@ function Home() {
             <div className="nav-links">
               <a href="#about">About</a>
               <a href="#subscribe">Mock Test</a>
+              <a href="#pricing">Pricing</a>
               <a href="#social">Follow</a>
 
               {/* ── Login / Logout button ── */}
