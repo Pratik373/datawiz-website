@@ -1,19 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import { supabase } from './supabaseClient';
+import LoginPage from './LoginPage';
+import ResetPassword from './ResetPassword';
 
-function App() {
+/* ═══════════════════════════════════════════
+   Landing Page (Home)
+═══════════════════════════════════════════ */
+function Home() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [user, setUser] = useState(null);
 
   const logoUrl = 'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg';
   const bannerUrl = 'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/ChatGPT%20Image%20Dec%2024,%202025,%2010_54_44%20PM.png';
 
+  // Track auth state for Login / Logout button
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       setMessage('Please enter your email');
       setMessageType('error');
@@ -29,13 +53,10 @@ function App() {
         .insert([{ email: email, created_at: new Date() }]);
 
       if (error) {
-        // Check if it's a duplicate email error
         if (error.message && error.message.includes('duplicate')) {
           setMessage('This email is already registered. Redirecting to exam...');
           setMessageType('success');
-          setTimeout(() => {
-            window.location.href = '/CCATMOCK.html';
-          }, 1500);
+          setTimeout(() => { window.location.href = '/CCATMOCK.html'; }, 1500);
         } else {
           setMessage('Error saving email. Please try again.');
           setMessageType('error');
@@ -45,11 +66,7 @@ function App() {
         setMessage('✓ Thank you! Redirecting to exam...');
         setMessageType('success');
         setEmail('');
-        
-        // Redirect to exam after 1.5 seconds
-        setTimeout(() => {
-          window.location.href = '/CCATMOCK.html';
-        }, 1500);
+        setTimeout(() => { window.location.href = '/CCATMOCK.html'; }, 1500);
       }
     } catch (err) {
       setMessage('Something went wrong. Please try again.');
@@ -73,6 +90,26 @@ function App() {
               <a href="#about">About</a>
               <a href="#subscribe">Mock Test</a>
               <a href="#social">Follow</a>
+
+              {/* ── Login / Logout button ── */}
+              {user ? (
+                <button
+                  id="logout-btn"
+                  className="nav-login-btn nav-logout-btn"
+                  onClick={handleLogout}
+                  title={user.email}
+                >
+                  Logout
+                </button>
+              ) : (
+                <button
+                  id="login-nav-btn"
+                  className="nav-login-btn"
+                  onClick={() => navigate('/login')}
+                >
+                  Login
+                </button>
+              )}
             </div>
           </div>
         </nav>
@@ -100,16 +137,16 @@ function App() {
           <div className="about-content">
             <div className="about-text">
               <p>
-                Datawiz6 is dedicated to making Data Science and Statistics accessible to everyone. 
-                We provide in-depth tutorials, practical examples, and real-world applications to help 
+                Datawiz6 is dedicated to making Data Science and Statistics accessible to everyone.
+                We provide in-depth tutorials, practical examples, and real-world applications to help
                 you master these essential skills.
               </p>
               <ul className="features">
                 <li>📊 In-depth Data Science tutorials</li>
-                <li>📈 Statistics fundamentals & advanced concepts</li>
-                <li>💻 Python & R programming guides</li>
+                <li>📈 Statistics fundamentals &amp; advanced concepts</li>
+                <li>💻 Python &amp; R programming guides</li>
                 <li>🎯 Real-world project implementations</li>
-                <li>🚀 Career tips & opportunities</li>
+                <li>🚀 Career tips &amp; opportunities</li>
               </ul>
             </div>
           </div>
@@ -121,7 +158,7 @@ function App() {
         <div className="container">
           <h2>Free Mock Test Access</h2>
           <p>Enter your email for free mock test access and get instant entry to the exam.</p>
-          
+
           <form className="email-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <input
@@ -149,9 +186,9 @@ function App() {
         <div className="container">
           <h2>Follow Us</h2>
           <div className="social-links">
-            <a 
-              href="https://www.youtube.com/@Datawiz6" 
-              target="_blank" 
+            <a
+              href="https://www.youtube.com/@Datawiz6"
+              target="_blank"
               rel="noopener noreferrer"
               className="social-card youtube"
             >
@@ -167,9 +204,9 @@ function App() {
               <span className="cta">Subscribe Now →</span>
             </a>
 
-            <a 
-              href="https://www.linkedin.com/in/datawiz6/" 
-              target="_blank" 
+            <a
+              href="https://www.linkedin.com/in/datawiz6/"
+              target="_blank"
               rel="noopener noreferrer"
               className="social-card linkedin"
             >
@@ -185,8 +222,8 @@ function App() {
               <span className="cta">Connect →</span>
             </a>
 
-            <a 
-              href="mailto:allaboutstatistics19@gmail.com" 
+            <a
+              href="mailto:allaboutstatistics19@gmail.com"
               className="social-card email"
             >
               <div className="social-icon">
@@ -212,6 +249,21 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   App Root — Router setup
+═══════════════════════════════════════════ */
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
