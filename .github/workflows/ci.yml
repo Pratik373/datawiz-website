@@ -1,0 +1,35 @@
+name: React CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./React
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './React/package-lock.json'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Lint and Build Check
+      # Setting CI=true treats all React warnings as errors, exactly like Vercel
+      env:
+        CI: true
+      run: npm run build
