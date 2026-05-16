@@ -13,12 +13,15 @@ A modern, responsive landing page for the Datawiz6 Data Science & Statistics cha
 ## Quick Start
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
 ### 2. Environment Setup
+
 The `.env` file is already configured with your Supabase credentials:
+
 ```
 REACT_APP_SUPABASE_URL=https://uoqfnvrdbicbepjxapcf.supabase.co
 REACT_APP_SUPABASE_PUBLISHABLE_KEY=sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1
@@ -36,6 +39,7 @@ REACT_APP_SUPABASE_PUBLISHABLE_KEY=sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT
    - `created_at` (Timestamp)
 
 **Or run this SQL:**
+
 ```sql
 CREATE TABLE emails (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -45,6 +49,7 @@ CREATE TABLE emails (
 ```
 
 ### 4. Run Development Server
+
 ```bash
 npm start
 ```
@@ -52,6 +57,7 @@ npm start
 Visit `http://localhost:3000` in your browser.
 
 ## Build for Production
+
 ```bash
 npm run build
 ```
@@ -76,21 +82,27 @@ React/
 ## Customization
 
 ### Update Social Links
+
 Edit social links in `src/App.js`:
+
 ```jsx
-href="https://www.youtube.com/@Datawiz6"
-href="https://www.linkedin.com/in/datawiz6/"
-href="mailto:allaboutstatistics19@gmail.com"
+href = "https://www.youtube.com/@Datawiz6";
+href = "https://www.linkedin.com/in/datawiz6/";
+href = "mailto:allaboutstatistics19@gmail.com";
 ```
 
 ### Add Banner Image
+
 Replace the placeholder banner image URL in `src/App.js`:
+
 ```jsx
-src="https://your-image-url.jpg"
+src = "https://your-image-url.jpg";
 ```
 
 ### Customize Colors
+
 Edit the color scheme in `src/App.css`:
+
 - Primary: `#667eea`
 - Secondary: `#764ba2`
 - Accent: `#ff6b6b`
@@ -99,7 +111,7 @@ Edit the color scheme in `src/App.css`:
 
 - **React 18** - UI Framework
 - **Supabase** - Backend & Database
-- **CSS3** - Styling & Animations
+- **CSS3** - Styling & Animations.
 
 ## License
 
