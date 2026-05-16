@@ -56,13 +56,15 @@ export default function LoginPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       // Don't auto-redirect if we're handling a password recovery token
-      if (session && session.user?.recovery_sent_at === undefined) navigate('/');
+      if (session && session.user?.recovery_sent_at === undefined) {
+        window.location.href = '/CCATMOCK.html';
+      }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         // PASSWORD_RECOVERY means the reset link was clicked — let /reset-password handle it
         if (event === 'PASSWORD_RECOVERY') return;
-        if (session) navigate('/');
+        if (session) window.location.href = '/CCATMOCK.html';
       }
     );
     return () => subscription.unsubscribe();
@@ -102,6 +104,9 @@ export default function LoginPage() {
         setMessage(error.message || 'Login failed. Please try again.');
         setMessageType('error');
       }
+    } else {
+      // Successful login redirect
+      window.location.href = '/CCATMOCK.html';
     }
     setLoading(false);
   };
@@ -147,7 +152,7 @@ export default function LoginPage() {
     setGoogleLoading(true); clearMessages();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/` },
+      options: { redirectTo: `${window.location.origin}/CCATMOCK.html` },
     });
     if (error) {
       if (error.message?.toLowerCase().includes('provider') || error.status === 400) {

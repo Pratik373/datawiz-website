@@ -278,8 +278,32 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
+        <button id="logoutBtn" style="background:#b42318; padding:8px 15px; font-size:14px; margin-left:10px;">Logout</button>
     </div>
 </header>
+
+<!-- Supabase Auth Integration -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://uoqfnvrdbicbepjxapcf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Check for session on load
+async function checkSession() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        window.location.href = '/login';
+    }
+}
+checkSession();
+
+// Logout handler
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = '/login';
+});
+</script>
 
 <main class="container">
     <section id="startScreen" class="panel">
