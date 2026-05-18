@@ -1,0 +1,17 @@
+# Root-level dependencies (create-admin.js helper – local only)
+node_modules/
+package.json
+package-lock.json
+
+# Environment secrets – never commit these
+.env
+.env.local
+.env*.local
+
+# Vercel
+.vercel/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.log
