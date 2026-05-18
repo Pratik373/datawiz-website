@@ -5,6 +5,8 @@ import { supabase } from './supabaseClient';
 import LoginPage from './LoginPage';
 import ResetPassword from './ResetPassword';
 import StudyMaterial from './StudyMaterial';
+import AdminLogin from './AdminLogin';
+import AdminDashboard from './AdminDashboard';
 
 
 /* ═══════════════════════════════════════════
@@ -298,6 +300,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/study-material" element={<StudyMaterial />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );
