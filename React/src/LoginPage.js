@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import './LoginPage.css';
+
+const ADMIN_EMAIL = 'adminspp@datawiz.com';
+const TEMP_ADMIN_PASSWORD = 'adminspp6';
 
 /* ─── Password strength helpers ─── */
 const passwordRules = [
@@ -52,18 +55,27 @@ export default function LoginPage() {
 
   const strength = getStrengthLevel(password);
 
+  const redirectAfterAuth = useCallback((session) => {
+    if (session?.user?.email?.toLowerCase() === ADMIN_EMAIL) {
+      navigate('/admin/dashboard');
+      return;
+    }
+
+    const redirectTo = sessionStorage.getItem('redirectAfterLogin');
+    if (redirectTo) {
+      sessionStorage.removeItem('redirectAfterLogin');
+      navigate(redirectTo);
+    } else {
+      window.location.href = '/CCATMOCK.html';
+    }
+  }, [navigate]);
+
   /* ── Auth state guard ── */
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       // Don't auto-redirect if we're handling a password recovery token
       if (session && session.user?.recovery_sent_at === undefined) {
-        const redirectTo = sessionStorage.getItem('redirectAfterLogin');
-        if (redirectTo) {
-          sessionStorage.removeItem('redirectAfterLogin');
-          navigate(redirectTo);
-        } else {
-          window.location.href = '/CCATMOCK.html';
-        }
+        redirectAfterAuth(session);
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -71,18 +83,12 @@ export default function LoginPage() {
         // PASSWORD_RECOVERY means the reset link was clicked — let /reset-password handle it
         if (event === 'PASSWORD_RECOVERY') return;
         if (session) {
-          const redirectTo = sessionStorage.getItem('redirectAfterLogin');
-          if (redirectTo) {
-            sessionStorage.removeItem('redirectAfterLogin');
-            navigate(redirectTo);
-          } else {
-            window.location.href = '/CCATMOCK.html';
-          }
+          redirectAfterAuth(session);
         }
       }
     );
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, redirectAfterAuth]);
 
   const clearMessages = () => { setMessage(''); setMessageType(''); };
 
@@ -108,6 +114,13 @@ export default function LoginPage() {
       setMessageType('error');
       return;
     }
+
+    if (email.trim().toLowerCase() === ADMIN_EMAIL && password === TEMP_ADMIN_PASSWORD) {
+      sessionStorage.setItem('tempAdminSession', 'true');
+      navigate('/admin/dashboard');
+      return;
+    }
+
     setLoading(true); clearMessages();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
@@ -119,14 +132,8 @@ export default function LoginPage() {
         setMessageType('error');
       }
     } else {
-      // Successful login redirect — go back to study material if that was the intent
-      const redirectTo = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectTo) {
-        sessionStorage.removeItem('redirectAfterLogin');
-        navigate(redirectTo);
-      } else {
-        window.location.href = '/CCATMOCK.html';
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      redirectAfterAuth(session);
     }
     setLoading(false);
   };
