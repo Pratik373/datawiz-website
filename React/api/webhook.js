@@ -34,11 +34,56 @@ module.exports = async function handler(req, res) {
     const plan = notes.plan || 'unknown';
     const tests = parseInt(notes.tests) || 0;
     
-    // Wait, we need a user_id to add credits. 
-    // Usually, you pass user_id in the notes when creating the order.
-    // If not, the frontend verify-payment handles it. 
-    // This is just a basic webhook template for now.
-    console.log(`Payment captured for order ${payment.order_id}, amount: ${payment.amount}`);
+    // We need the user_id from the notes that we passed during order creation
+    const userId = notes.user_id;
+
+    if (userId) {
+      // Connect to Supabase using service role to bypass RLS
+      const supabase = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Check if this payment was already processed by the frontend
+      const { data: existingPayment } = await supabase
+        .from('payments')
+        .select('id')
+        .eq('razorpay_payment_id', payment.id)
+        .single();
+
+      if (!existingPayment) {
+        console.log(`[Webhook] Processing payment ${payment.id} for user ${userId}`);
+        
+        // Insert payment record
+        await supabase.from('payments').insert([{
+          user_id: userId,
+          razorpay_order_id: payment.order_id,
+          razorpay_payment_id: payment.id,
+          plan: plan,
+          amount: payment.amount / 100, // convert back from paise
+          status: 'successful'
+        }]);
+
+        // Add credits
+        const { data: existingCredits } = await supabase
+          .from('user_credits')
+          .select('tests_remaining')
+          .eq('user_id', userId)
+          .single();
+
+        const newCredits = (existingCredits?.tests_remaining || 0) + tests;
+
+        await supabase.from('user_credits').upsert(
+          { user_id: userId, tests_remaining: newCredits, updated_at: new Date().toISOString() },
+          { onConflict: 'user_id' }
+        );
+        console.log(`[Webhook] Added ${tests} tests to user ${userId}.`);
+      } else {
+        console.log(`[Webhook] Payment ${payment.id} was already processed.`);
+      }
+    } else {
+      console.warn(`[Webhook] No user_id found in payment notes for order ${payment.order_id}`);
+    }
   }
 
   return res.status(200).json({ status: 'ok' });

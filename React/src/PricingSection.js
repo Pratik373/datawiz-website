@@ -54,7 +54,7 @@ export default function PricingSection() {
       const orderRes = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: plan.id }),
+        body: JSON.stringify({ plan: plan.id, user_id: session.user.id }),
       });
       const order = await orderRes.json();
       if (!orderRes.ok) throw new Error(order.error);

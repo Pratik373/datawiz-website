@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { plan } = req.body;
+    const { plan, user_id } = req.body;
     console.log(`[API] Requested plan: ${plan}`);
     const selected = PLANS[plan];
     if (!selected) {
@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
       amount:   selected.amount * 100, // paise
       currency: 'INR',
       receipt:  `dw_${plan}_${Date.now()}`,
-      notes:    { plan, tests: selected.tests },
+      notes:    { plan, tests: selected.tests, user_id },
     });
 
     console.log(`[API] Order created successfully! Order ID: ${order.id}`);
