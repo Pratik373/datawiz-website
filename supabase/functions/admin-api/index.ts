@@ -138,10 +138,25 @@ async function listAllUsers() {
   let page = 1;
 
   while (true) {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
-    if (error) throw error;
+    const response = await fetch(
+      `${supabaseUrl}/auth/v1/admin/users?page=${page}&perPage=${perPage}`,
+      {
+        headers: {
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
+        },
+      },
+    );
 
-    const users = data.users || [];
+    if (!response.ok) {
+      throw new Error(`Failed to list users: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const users = payload.users || [];
+
+    if (!Array.isArray(users)) break;
+
     allUsers.push(...users);
 
     if (users.length < perPage) break;
@@ -446,6 +461,242 @@ async function deleteTestPaper(payload: Record<string, unknown>) {
   return json({ ok: true });
 }
 
+async function deleteUser(payload: Record<string, unknown>) {
+  const userId = text(payload.user_id);
+  if (!userId) return json({ error: 'User ID is required.' }, 400);
+
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+  if (error) throw error;
+
+  return json({ ok: true });
+}
+
+async function editTestPaper(payload: Record<string, unknown>) {
+  const testId = text(payload.test_id);
+  if (!testId) return json({ error: 'Test ID is required.' }, 400);
+
+  const title = text(payload.title);
+  const description = text(payload.description);
+  const durationMinutes = number(payload.duration_minutes, NaN);
+
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (title) updates.title = title;
+  if (description !== undefined) updates.description = description || null;
+  if (Number.isInteger(durationMinutes) && durationMinutes > 0) {
+    updates.duration_minutes = durationMinutes;
+  }
+
+  const { error: updateError } = await supabaseAdmin
+    .from('test_papers')
+    .update(updates)
+    .eq('id', testId);
+
+  if (updateError) throw updateError;
+  return json({ ok: true });
+}
+
+async function editTestQuestions(payload: Record<string, unknown>) {
+  const testId = text(payload.test_id);
+  if (!testId) return json({ error: 'Test ID is required.' }, 400);
+
+  const questions = Array.isArray(payload.questions) ? payload.questions : [];
+
+  await supabaseAdmin.from('test_questions').delete().eq('test_id', testId);
+
+  const normalizedQuestions = questions.map(validateQuestion);
+  const firstError = normalizedQuestions.find((q) => typeof q === 'string');
+  if (firstError) return json({ error: firstError }, 400);
+
+  const questionRows = normalizedQuestions.map((q, i) => ({
+    ...(q as Exclude<typeof q, string>),
+    test_id: testId,
+    position: i + 1,
+  }));
+
+  const { error: insertError } = await supabaseAdmin
+    .from('test_questions')
+    .insert(questionRows);
+
+  if (insertError) throw insertError;
+
+  await supabaseAdmin
+    .from('test_papers')
+    .update({
+      questions_count: questions.length,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', testId);
+
+  return json({ ok: true });
+}
+
+async function getAnalytics() {
+  let users: any[] = [];
+  let payments: { amount: string; status: string; created_at: string }[] | null = null;
+  let testPapers: { id: string; type: string; questions_count: number }[] | null = null;
+  let testResults: { id: string }[] | null = null;
+
+  try { users = await listAllUsers(); } catch (e) { console.error('listAllUsers failed:', e); }
+  try { ({ data: payments } = await supabaseAdmin.from('payments').select('amount, status, created_at')); } catch (e) { console.error('payments query failed:', e); }
+  try { ({ data: testPapers } = await supabaseAdmin.from('test_papers').select('id, type, questions_count')); } catch (e) { console.error('test_papers query failed:', e); }
+  try { ({ data: testResults } = await supabaseAdmin.from('test_results').select('id')); } catch (e) { console.error('test_results query failed:', e); }
+
+  const completedPayments = (payments || []).filter((p) => p.status === 'completed');
+  const totalRevenue = completedPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+
+  const monthlyRevenue: Record<string, number> = {};
+  completedPayments.forEach((p) => {
+    const date = new Date(p.created_at);
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    monthlyRevenue[key] = (monthlyRevenue[key] || 0) + Number(p.amount || 0);
+  });
+
+  const currentMonthKey = `${thisYear}-${String(thisMonth + 1).padStart(2, '0')}`;
+  const lastMonthKey = `${thisYear}-${String(thisMonth).padStart(2, '0')}`;
+
+  const currentMonthRevenue = monthlyRevenue[currentMonthKey] || 0;
+  const lastMonthRevenue = monthlyRevenue[lastMonthKey] || 0;
+
+  const revenueGrowth = lastMonthRevenue > 0
+    ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
+    : '0';
+
+  const planCounts: Record<string, number> = { free: 0, basic: 0, pro: 0, premium: 0 };
+  try {
+    const { data: subscriptions } = await supabaseAdmin.from('user_subscriptions').select('plan');
+    (subscriptions || []).forEach((s) => {
+      if (s.plan in planCounts) planCounts[s.plan]++;
+    });
+  } catch (e) { console.error('user_subscriptions query failed:', e); }
+
+  const totalTests = (testPapers || []).reduce((sum, p) => sum + (p.questions_count || 0), 0);
+
+  return {
+    totalUsers: users.length,
+    totalRevenue,
+    currentMonthRevenue,
+    lastMonthRevenue,
+    revenueGrowth,
+    planCounts,
+    totalTestPapers: (testPapers || []).length,
+    totalQuestions: totalTests,
+    totalAttempts: (testResults || []).length,
+    monthlyRevenue: Object.entries(monthlyRevenue)
+      .sort(([a], [b]) => b.localeCompare(a))
+      .slice(0, 12)
+      .reverse(),
+  };
+}
+
+async function getLeaderboard() {
+  const [users, { data: results }, { data: papers }] = await Promise.all([
+    listAllUsers(),
+    supabaseAdmin.from('test_results').select('*'),
+    supabaseAdmin.from('test_papers').select('id, title'),
+  ]);
+
+  const usersById = new Map(users.map(u => [u.id, u]));
+  const papersById = new Map((papers || []).map(p => [p.id, p]));
+
+  const userAttempts: Record<string, { count: number; totalScore: number; totalCorrect: number; totalQuestions: number }> = {};
+  const bestScores: Record<string, { score: number; total: number; testId: string; testTitle: string; timeTaken: number }> = {};
+
+  for (const r of (results || [])) {
+    if (!userAttempts[r.user_id]) {
+      userAttempts[r.user_id] = { count: 0, totalScore: 0, totalCorrect: 0, totalQuestions: 0 };
+    }
+    userAttempts[r.user_id].count++;
+    userAttempts[r.user_id].totalCorrect += r.correct_answers;
+    userAttempts[r.user_id].totalQuestions += r.total_questions;
+
+    const pct = (r.correct_answers / r.total_questions) * 100;
+    const existing = bestScores[r.user_id];
+    if (!existing || pct > existing.score) {
+      bestScores[r.user_id] = {
+        score: pct,
+        total: r.total_questions,
+        testId: r.test_id,
+        testTitle: papersById.get(r.test_id)?.title || 'Unknown',
+        timeTaken: r.time_taken_seconds || 0,
+      };
+    }
+  }
+
+  const byAttempts = Object.entries(userAttempts)
+    .map(([userId, data]) => ({
+      userId,
+      email: usersById.get(userId)?.email || 'Unknown',
+      name: usersById.get(userId)?.user_metadata?.full_name || '',
+      attempts: data.count,
+      avgPercentage: Math.round((data.totalCorrect / data.totalQuestions) * 100),
+    }))
+    .sort((a, b) => b.attempts - a.attempts)
+    .slice(0, 100);
+
+  const byScore = (results || [])
+    .map(r => ({
+      userId: r.user_id,
+      email: usersById.get(r.user_id)?.email || 'Unknown',
+      name: usersById.get(r.user_id)?.user_metadata?.full_name || '',
+      testId: r.test_id,
+      testTitle: papersById.get(r.test_id)?.title || 'Unknown',
+      score: r.correct_answers,
+      total: r.total_questions,
+      percentage: Math.round((r.correct_answers / r.total_questions) * 100),
+      timeTaken: r.time_taken_seconds || 0,
+      completedAt: r.completed_at,
+    }))
+    .sort((a, b) => b.percentage - a.percentage || a.timeTaken - b.timeTaken)
+    .slice(0, 100);
+
+  const bySpeed = (results || [])
+    .filter(r => r.time_taken_seconds > 0 && (r.correct_answers / r.total_questions) >= 0.6)
+    .map(r => ({
+      userId: r.user_id,
+      email: usersById.get(r.user_id)?.email || 'Unknown',
+      name: usersById.get(r.user_id)?.user_metadata?.full_name || '',
+      testTitle: papersById.get(r.test_id)?.title || 'Unknown',
+      percentage: Math.round((r.correct_answers / r.total_questions) * 100),
+      timeTaken: r.time_taken_seconds || 0,
+      completedAt: r.completed_at,
+    }))
+    .sort((a, b) => a.timeTaken - b.timeTaken)
+    .slice(0, 100);
+
+  return { byAttempts, byScore, bySpeed };
+}
+
+async function listTestResults() {
+  const { data: results, error } = await supabaseAdmin
+    .from('test_results')
+    .select('*, test_papers(title)')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  const users = await listAllUsers();
+  const usersById = new Map(users.map(u => [u.id, u]));
+
+  return (results || []).map(r => ({
+    id: r.id,
+    user_id: r.user_id,
+    user_email: usersById.get(r.user_id)?.email || 'Unknown',
+    test_id: r.test_id,
+    test_title: r.test_papers?.title || 'Unknown',
+    score: r.score,
+    total_questions: r.total_questions,
+    correct_answers: r.correct_answers,
+    time_taken_seconds: r.time_taken_seconds,
+    started_at: r.started_at,
+    completed_at: r.completed_at,
+    created_at: r.created_at,
+  }));
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -473,6 +724,8 @@ Deno.serve(async (req) => {
         return json({ users: await listUsers() });
       case 'assign-plan':
         return assignPlan(payload);
+      case 'delete-user':
+        return json(await deleteUser(payload));
       case 'list-payments':
         return json({ payments: await listPayments() });
       case 'record-payment':
@@ -483,6 +736,16 @@ Deno.serve(async (req) => {
         return createManualTest(payload, admin.id);
       case 'delete-test-paper':
         return deleteTestPaper(payload);
+      case 'edit-test-paper':
+        return json(await editTestPaper(payload));
+      case 'edit-test-questions':
+        return json(await editTestQuestions(payload));
+      case 'get-analytics':
+        return json({ analytics: await getAnalytics() });
+      case 'get-leaderboard':
+        return json(await getLeaderboard());
+      case 'list-test-results':
+        return json({ results: await listTestResults() });
       default:
         return json({ error: 'Unknown admin action.' }, 400);
     }

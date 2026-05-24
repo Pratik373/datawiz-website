@@ -4,9 +4,14 @@ import {
   assignAdminPlan,
   createManualAdminTest,
   deleteAdminTestPaper,
+  deleteAdminUser,
+  editTestPaper,
   getAdminSession,
+  getAnalytics,
+  getLeaderboard,
   listAdminPayments,
   listAdminTestPapers,
+  listAdminTestResults,
   listAdminUsers,
   recordAdminPayment,
   uploadAdminTestFile,
@@ -45,13 +50,16 @@ export default function AdminDashboard() {
       }
 
       try {
+        await new Promise(resolve => setTimeout(resolve, 100));
         const { admin: adminUser } = await getAdminSession();
         if (active) setAdmin(adminUser);
       } catch (_error) {
-        navigate('/admin/login', { replace: true });
-      } finally {
-        if (active) setPageLoading(false);
+        if (active) {
+          navigate('/admin/login', { replace: true });
+        }
+        return;
       }
+      if (active) setPageLoading(false);
     }
 
     loadSession();
@@ -90,8 +98,11 @@ export default function AdminDashboard() {
 
       <nav className="admin-tabs" aria-label="Admin sections">
         {[
+          ['analytics', 'Analytics'],
           ['users', 'Users'],
+          ['leaderboard', 'Leaderboard'],
           ['tests', 'Test Papers'],
+          ['results', 'Test Results'],
           ['payments', 'Payments'],
           ['upload', 'Create Test'],
         ].map(([key, label]) => (
@@ -107,12 +118,108 @@ export default function AdminDashboard() {
 
       <main className="admin-main">
         {notice && <div className={`admin-notice ${notice.type}`}>{notice.message}</div>}
+        {activeTab === 'analytics' && <AnalyticsPanel showNotice={showNotice} />}
         {activeTab === 'users' && <UsersPanel showNotice={showNotice} />}
+        {activeTab === 'leaderboard' && <LeaderboardPanel showNotice={showNotice} />}
         {activeTab === 'tests' && <TestPapersPanel showNotice={showNotice} />}
+        {activeTab === 'results' && <TestResultsPanel showNotice={showNotice} />}
         {activeTab === 'payments' && <PaymentsPanel showNotice={showNotice} />}
         {activeTab === 'upload' && <CreateTestPanel showNotice={showNotice} />}
       </main>
     </div>
+  );
+}
+
+function AnalyticsPanel({ showNotice }) {
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadAnalytics() {
+      try {
+        const { analytics: data } = await getAnalytics();
+        setAnalytics(data);
+      } catch (error) {
+        showNotice(error.message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadAnalytics();
+  }, [showNotice]);
+
+  if (loading) {
+    return <div className="admin-empty">Loading analytics...</div>;
+  }
+
+  const formatCurrency = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+
+  return (
+    <section className="admin-panel">
+      <PanelHeader title="Analytics" subtitle="Overview of platform statistics and revenue." />
+
+      <div className="analytics-grid">
+        <div className="analytics-card">
+          <div className="analytics-value">{analytics?.totalUsers || 0}</div>
+          <div className="analytics-label">Total Users</div>
+        </div>
+        <div className="analytics-card">
+          <div className="analytics-value">{analytics?.totalTestPapers || 0}</div>
+          <div className="analytics-label">Test Papers</div>
+        </div>
+        <div className="analytics-card">
+          <div className="analytics-value">{analytics?.totalQuestions || 0}</div>
+          <div className="analytics-label">Total Questions</div>
+        </div>
+        <div className="analytics-card">
+          <div className="analytics-value">{analytics?.totalAttempts || 0}</div>
+          <div className="analytics-label">Test Attempts</div>
+        </div>
+        <div className="analytics-card highlight">
+          <div className="analytics-value">{formatCurrency(analytics?.totalRevenue || 0)}</div>
+          <div className="analytics-label">Total Revenue</div>
+        </div>
+        <div className="analytics-card">
+          <div className="analytics-value">{formatCurrency(analytics?.currentMonthRevenue || 0)}</div>
+          <div className="analytics-label">This Month</div>
+          <div className={`analytics-change ${Number(analytics?.revenueGrowth) >= 0 ? 'positive' : 'negative'}`}>
+            {analytics?.revenueGrowth || 0}% vs last month
+          </div>
+        </div>
+        <div className="analytics-card">
+          <div className="analytics-value">{formatCurrency(analytics?.lastMonthRevenue || 0)}</div>
+          <div className="analytics-label">Last Month</div>
+        </div>
+      </div>
+
+      <div className="analytics-section">
+        <h3>Users by Plan</h3>
+        <div className="analytics-plan-bars">
+          {Object.entries(analytics?.planCounts || {}).map(([plan, count]) => (
+            <div key={plan} className="analytics-plan-bar">
+              <span className="plan-name">{plans[plan]?.label || plan}</span>
+              <div className="bar-container">
+                <div className="bar-fill" style={{ width: `${(count / (analytics?.totalUsers || 1)) * 100}%` }} />
+              </div>
+              <span className="plan-count">{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="analytics-section">
+        <h3>Monthly Revenue</h3>
+        <div className="analytics-chart">
+          {analytics?.monthlyRevenue?.map(([month, amount]) => (
+            <div key={month} className="chart-bar">
+              <div className="bar" style={{ height: `${(amount / (analytics?.totalRevenue || 1)) * 100}%` }} />
+              <span className="bar-label">{month}</span>
+              <span className="bar-value">{formatCurrency(amount)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -121,6 +228,9 @@ function UsersPanel({ showNotice }) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [updatingId, setUpdatingId] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [bulkPlan, setBulkPlan] = useState('');
+  const [deletingId, setDeletingId] = useState('');
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -161,6 +271,77 @@ function UsersPanel({ showNotice }) {
     }
   };
 
+  const handleBulkAssign = async () => {
+    if (!bulkPlan || selectedUsers.size === 0) return;
+    for (const userId of selectedUsers) {
+      await assignAdminPlan(userId, bulkPlan);
+    }
+    setSelectedUsers(new Set());
+    setBulkPlan('');
+    await fetchUsers();
+    showNotice('Plan assigned to selected users.');
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUsers.size === 0) return;
+    if (!window.confirm(`Delete ${selectedUsers.size} selected user(s)? This cannot be undone.`)) return;
+    for (const userId of selectedUsers) {
+      try {
+        await deleteAdminUser(userId);
+      } catch (e) {
+        showNotice(`Failed to delete user: ${e.message}`, 'error');
+      }
+    }
+    setSelectedUsers(new Set());
+    await fetchUsers();
+    showNotice('Selected users deleted.');
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Delete this user? This cannot be undone.')) return;
+    setDeletingId(userId);
+    try {
+      await deleteAdminUser(userId);
+      await fetchUsers();
+      showNotice('User deleted.');
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setDeletingId('');
+    }
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Name', 'Email', 'Joined', 'Plan', 'Status'];
+    const rows = filteredUsers.map(user => [
+      user.full_name || '',
+      user.email,
+      formatDate(user.created_at),
+      user.plan,
+      user.plan === 'free' ? 'Free' : (user.expires_at && new Date(user.expires_at) < new Date()) ? 'Expired' : 'Active'
+    ]);
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const toggleSelect = (userId) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) newSelected.delete(userId);
+    else newSelected.add(userId);
+    setSelectedUsers(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.size === filteredUsers.length) setSelectedUsers(new Set());
+    else setSelectedUsers(new Set(filteredUsers.map(u => u.id)));
+  };
+
   return (
     <section className="admin-panel">
       <PanelHeader title="Users" subtitle="Registered users and their current mock-test plans." />
@@ -173,7 +354,22 @@ function UsersPanel({ showNotice }) {
           placeholder="Search users"
         />
         <button className="admin-secondary-btn" onClick={fetchUsers}>Refresh</button>
+        <button className="admin-secondary-btn" onClick={exportToCSV}>Export CSV</button>
       </div>
+
+      {selectedUsers.size > 0 && (
+        <div className="bulk-actions">
+          <span>{selectedUsers.size} selected</span>
+          <select value={bulkPlan} onChange={(e) => setBulkPlan(e.target.value)}>
+            <option value="">Assign Plan...</option>
+            {Object.entries(plans).map(([value, plan]) => (
+              <option key={value} value={value}>{plan.label}</option>
+            ))}
+          </select>
+          <button className="admin-primary-btn" onClick={handleBulkAssign} disabled={!bulkPlan}>Apply</button>
+          <button className="admin-danger-btn" onClick={handleBulkDelete}>Delete Selected</button>
+        </div>
+      )}
 
       {loading ? (
         <div className="admin-empty">Loading users...</div>
@@ -182,12 +378,14 @@ function UsersPanel({ showNotice }) {
           <table className="admin-table">
             <thead>
               <tr>
+                <th><input type="checkbox" checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0} onChange={toggleSelectAll} /></th>
                 <th>User</th>
                 <th>Email</th>
                 <th>Joined</th>
                 <th>Plan</th>
                 <th>Status</th>
                 <th>Change Plan</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -195,6 +393,7 @@ function UsersPanel({ showNotice }) {
                 const expired = user.expires_at && new Date(user.expires_at) < new Date();
                 return (
                   <tr key={user.id}>
+                    <td><input type="checkbox" checked={selectedUsers.has(user.id)} onChange={() => toggleSelect(user.id)} /></td>
                     <td>{user.full_name || 'No name'}</td>
                     <td>{user.email}</td>
                     <td>{formatDate(user.created_at)}</td>
@@ -210,6 +409,11 @@ function UsersPanel({ showNotice }) {
                           <option key={value} value={value}>{plan.label}</option>
                         ))}
                       </select>
+                    </td>
+                    <td>
+                      <button className="admin-danger-btn-small" onClick={() => handleDeleteUser(user.id)} disabled={deletingId === user.id}>
+                        {deletingId === user.id ? '...' : 'Delete'}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -407,6 +611,9 @@ function TestPapersPanel({ showNotice }) {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState('');
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [editingTest, setEditingTest] = useState(null);
 
   const fetchTests = useCallback(async () => {
     setLoading(true);
@@ -424,6 +631,14 @@ function TestPapersPanel({ showNotice }) {
     fetchTests();
   }, [fetchTests]);
 
+  const filteredTests = useMemo(() => {
+    return tests.filter(test => {
+      const matchesSearch = !search || test.title.toLowerCase().includes(search.toLowerCase()) || (test.description || '').toLowerCase().includes(search.toLowerCase());
+      const matchesType = filterType === 'all' || test.type === filterType;
+      return matchesSearch && matchesType;
+    });
+  }, [tests, search, filterType]);
+
   const handleDelete = async (testId) => {
     if (!window.confirm('Delete this test paper?')) return;
     setDeletingId(testId);
@@ -438,25 +653,73 @@ function TestPapersPanel({ showNotice }) {
     }
   };
 
+  const handleEditSave = async () => {
+    if (!editingTest) return;
+    try {
+      await editTestPaper(editingTest.id, {
+        title: editingTest.title,
+        description: editingTest.description,
+        duration_minutes: editingTest.duration_minutes
+      });
+      showNotice('Test paper updated.');
+      setEditingTest(null);
+      await fetchTests();
+    } catch (error) {
+      showNotice(error.message, 'error');
+    }
+  };
+
+  if (editingTest) {
+    return (
+      <section className="admin-panel">
+        <PanelHeader title="Edit Test Paper" subtitle={`Editing: ${editingTest.title}`} />
+        <div className="edit-form">
+          <label>
+            Title
+            <input type="text" value={editingTest.title} onChange={(e) => setEditingTest({ ...editingTest, title: e.target.value })} />
+          </label>
+          <label>
+            Description
+            <textarea value={editingTest.description || ''} onChange={(e) => setEditingTest({ ...editingTest, description: e.target.value })} />
+          </label>
+          <label>
+            Duration (minutes)
+            <input type="number" value={editingTest.duration_minutes} onChange={(e) => setEditingTest({ ...editingTest, duration_minutes: parseInt(e.target.value) || 60 })} />
+          </label>
+          <div className="edit-actions">
+            <button className="admin-primary-btn" onClick={handleEditSave}>Save Changes</button>
+            <button className="admin-secondary-btn" onClick={() => setEditingTest(null)}>Cancel</button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="admin-panel">
       <PanelHeader title="Test Papers" subtitle="Manual online tests and uploaded source files." />
       <div className="admin-toolbar">
+        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search test papers" />
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+          <option value="all">All Types</option>
+          <option value="manual">Manual</option>
+          <option value="file">File</option>
+        </select>
         <button className="admin-secondary-btn" onClick={fetchTests}>Refresh</button>
       </div>
 
       {loading ? (
         <div className="admin-empty">Loading test papers...</div>
-      ) : tests.length === 0 ? (
-        <div className="admin-empty">No test papers created yet.</div>
+      ) : filteredTests.length === 0 ? (
+        <div className="admin-empty">{tests.length === 0 ? 'No test papers created yet.' : 'No test papers match your search.'}</div>
       ) : (
         <div className="test-paper-list">
-          {tests.map((test) => (
+          {filteredTests.map((test) => (
             <article key={test.id} className="test-paper-row">
               <div>
                 <div className="test-paper-title-row">
                   <h3>{test.title}</h3>
-                  <span>{test.type}</span>
+                  <span className={`type-badge type-${test.type}`}>{test.type}</span>
                 </div>
                 <p>{test.description || 'No description'}</p>
                 <small>
@@ -464,20 +727,227 @@ function TestPapersPanel({ showNotice }) {
                 </small>
               </div>
               <div className="test-paper-actions">
-                {test.signed_url && (
-                  <a href={test.signed_url} target="_blank" rel="noopener noreferrer">
-                    View File
-                  </a>
+                {test.type === 'manual' && (
+                  <button onClick={() => setEditingTest(test)}>Edit</button>
                 )}
-                <button
-                  onClick={() => handleDelete(test.id)}
-                  disabled={deletingId === test.id}
-                >
+                {test.signed_url && (
+                  <a href={test.signed_url} target="_blank" rel="noopener noreferrer">View File</a>
+                )}
+                <button className="admin-danger-btn-small" onClick={() => handleDelete(test.id)} disabled={deletingId === test.id}>
                   {deletingId === test.id ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </article>
           ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function TestResultsPanel({ showNotice }) {
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+
+  const fetchResults = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { results: data } = await listAdminTestResults();
+      setResults(data);
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotice]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
+
+  const filteredResults = useMemo(() => {
+    if (!search) return results;
+    const q = search.toLowerCase();
+    return results.filter(r =>
+      r.user_email.toLowerCase().includes(q) ||
+      r.test_title.toLowerCase().includes(q)
+    );
+  }, [results, search]);
+
+  const exportCSV = () => {
+    const headers = ['User Email', 'Test Title', 'Score', 'Total Questions', 'Correct Answers', 'Time (sec)', 'Completed At'];
+    const rows = filteredResults.map(r => [
+      r.user_email,
+      r.test_title,
+      r.score,
+      r.total_questions,
+      r.correct_answers,
+      r.time_taken_seconds || '',
+      formatDate(r.completed_at)
+    ]);
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `test-results-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <section className="admin-panel">
+      <PanelHeader title="Test Results" subtitle="Scores and attempts by users on test papers." />
+      <div className="admin-toolbar">
+        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by user or test" />
+        <button className="admin-secondary-btn" onClick={fetchResults}>Refresh</button>
+        <button className="admin-secondary-btn" onClick={exportCSV}>Export CSV</button>
+      </div>
+
+      {loading ? (
+        <div className="admin-empty">Loading results...</div>
+      ) : filteredResults.length === 0 ? (
+        <div className="admin-empty">{results.length === 0 ? 'No test results yet.' : 'No results match your search.'}</div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Test</th>
+                <th>Score</th>
+                <th>Percentage</th>
+                <th>Time</th>
+                <th>Completed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredResults.map((r) => {
+                const percentage = Math.round((r.correct_answers / r.total_questions) * 100);
+                const minutes = Math.floor((r.time_taken_seconds || 0) / 60);
+                const seconds = (r.time_taken_seconds || 0) % 60;
+                return (
+                  <tr key={r.id}>
+                    <td>{r.user_email}</td>
+                    <td>{r.test_title}</td>
+                    <td>{r.correct_answers}/{r.total_questions}</td>
+                    <td>
+                      <span className={`score-badge ${percentage >= 60 ? 'pass' : 'fail'}`}>
+                        {percentage}%
+                      </span>
+                    </td>
+                    <td>{minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}</td>
+                    <td>{formatDate(r.completed_at)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function LeaderboardPanel({ showNotice }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState('attempts');
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const result = await getLeaderboard();
+        setData(result);
+      } catch (error) {
+        showNotice(error.message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [showNotice]);
+
+  if (loading) return <div className="admin-empty">Loading leaderboard...</div>;
+
+  const formatTime = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
+  const views = [
+    ['attempts', 'Most Attempts'],
+    ['scores', 'Top Scores'],
+    ['speed', 'Fastest Times'],
+  ];
+
+  let rows = [];
+  let columns = [];
+
+  if (view === 'attempts') {
+    columns = ['#', 'User', 'Email', 'Tests', 'Avg %'];
+    rows = (data?.byAttempts || []).map((r, i) => (
+      <tr key={r.userId}>
+        <td className="rank">{i + 1}</td>
+        <td>{r.name || 'No name'}</td>
+        <td>{r.email}</td>
+        <td><strong>{r.attempts}</strong></td>
+        <td><span className={`score-badge ${r.avgPercentage >= 60 ? 'pass' : 'fail'}`}>{r.avgPercentage}%</span></td>
+      </tr>
+    ));
+  } else if (view === 'scores') {
+    columns = ['#', 'User', 'Email', 'Test', 'Score', '%', 'Time'];
+    rows = (data?.byScore || []).map((r, i) => (
+      <tr key={`${r.userId}-${r.testId}-${i}`}>
+        <td className="rank">{i + 1}</td>
+        <td>{r.name || 'No name'}</td>
+        <td>{r.email}</td>
+        <td>{r.testTitle}</td>
+        <td>{r.score}/{r.total}</td>
+        <td><span className={`score-badge ${r.percentage >= 60 ? 'pass' : 'fail'}`}>{r.percentage}%</span></td>
+        <td>{formatTime(r.timeTaken)}</td>
+      </tr>
+    ));
+  } else {
+    columns = ['#', 'User', 'Email', 'Test', '%', 'Time'];
+    rows = (data?.bySpeed || []).map((r, i) => (
+      <tr key={`${r.userId}-${i}`}>
+        <td className="rank">{i + 1}</td>
+        <td>{r.name || 'No name'}</td>
+        <td>{r.email}</td>
+        <td>{r.testTitle}</td>
+        <td><span className={`score-badge ${r.percentage >= 60 ? 'pass' : 'fail'}`}>{r.percentage}%</span></td>
+        <td><strong>{formatTime(r.timeTaken)}</strong></td>
+      </tr>
+    ));
+  }
+
+  return (
+    <section className="admin-panel">
+      <PanelHeader title="Leaderboard" subtitle="User rankings by test attempts, scores, and speed." />
+
+      <div className="mode-switch">
+        {views.map(([key, label]) => (
+          <button key={key} className={view === key ? 'active' : ''} onClick={() => setView(key)}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {(view === 'attempts' && data?.byAttempts?.length === 0) ||
+       (view === 'scores' && data?.byScore?.length === 0) ||
+       (view === 'speed' && data?.bySpeed?.length === 0) ? (
+        <div className="admin-empty">No data yet.</div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table leaderboard-table">
+            <thead>
+              <tr>{columns.map((c, i) => <th key={i}>{c}</th>)}</tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </table>
         </div>
       )}
     </section>
