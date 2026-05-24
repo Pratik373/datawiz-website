@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient';
 import './MaintenancePage.css';
 
 export default function MaintenancePage() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [dots, setDots] = useState('');
+  const [loggedInEmail, setLoggedInEmail] = useState(null);
 
   // Animated dots
   useEffect(() => {
@@ -13,6 +15,19 @@ export default function MaintenancePage() {
     }, 500);
     return () => clearInterval(interval);
   }, []);
+
+  // Check if already logged in
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setLoggedInEmail(session?.user?.email || null);
+    });
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setLoggedInEmail(null);
+    window.location.href = '/login';
+  };
 
   const handleNotify = (e) => {
     e.preventDefault();
@@ -118,10 +133,22 @@ export default function MaintenancePage() {
         </div>
 
         {/* Footer note */}
-        <p className="maint-footer-note">
-          Are you an admin?{' '}
-          <a href="/login" className="maint-admin-link">Sign in here</a>
-        </p>
+        {loggedInEmail ? (
+          <p className="maint-footer-note">
+            Signed in as <strong style={{ color: '#d6dcff' }}>{loggedInEmail}</strong>.{' '}
+            <button
+              onClick={handleSignOut}
+              style={{ background: 'none', border: 'none', color: '#a3b8ff', cursor: 'pointer', fontWeight: 600, textDecoration: 'underline', fontSize: 'inherit' }}
+            >
+              Sign out &amp; switch account
+            </button>
+          </p>
+        ) : (
+          <p className="maint-footer-note">
+            Are you an admin?{' '}
+            <a href="/login" className="maint-admin-link">Sign in here</a>
+          </p>
+        )}
       </div>
     </div>
   );

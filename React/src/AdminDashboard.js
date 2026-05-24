@@ -105,6 +105,7 @@ export default function AdminDashboard() {
           ['results', 'Test Results'],
           ['payments', 'Payments'],
           ['upload', 'Create Test'],
+          ['whitelist', '🛡 Beta Access'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -125,6 +126,7 @@ export default function AdminDashboard() {
         {activeTab === 'results' && <TestResultsPanel showNotice={showNotice} />}
         {activeTab === 'payments' && <PaymentsPanel showNotice={showNotice} />}
         {activeTab === 'upload' && <CreateTestPanel showNotice={showNotice} />}
+        {activeTab === 'whitelist' && <WhitelistPanel showNotice={showNotice} />}
       </main>
     </div>
   );
@@ -1214,4 +1216,175 @@ function PlanBadge({ plan }) {
 function formatDate(value) {
   if (!value) return 'N/A';
   return new Date(value).toLocaleDateString();
+}
+
+/* ══════════════════════════════════════════════════════
+   Beta Tester Whitelist Panel
+   Allows admin to manage emails that bypass maintenance mode
+══════════════════════════════════════════════════════ */
+function WhitelistPanel({ showNotice }) {
+  const [emails, setEmails]     = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [newEmail, setNewEmail] = useState('');
+  const [adding, setAdding]     = useState(false);
+
+  const loadEmails = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res  = await fetch('/api/maintenance-whitelist');
+      const data = await res.json();
+      setEmails(data.emails || []);
+    } catch (err) {
+      showNotice('Failed to load whitelist: ' + err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotice]);
+
+  useEffect(() => { loadEmails(); }, [loadEmails]);
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!newEmail.trim()) return;
+    setAdding(true);
+    try {
+      const res  = await fetch('/api/maintenance-whitelist', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: newEmail.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      showNotice(`✅ ${newEmail} added to whitelist`);
+      setNewEmail('');
+      loadEmails();
+    } catch (err) {
+      showNotice(err.message, 'error');
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleRemove = async (id, email) => {
+    if (!window.confirm(`Remove ${email} from whitelist?`)) return;
+    try {
+      const res  = await fetch('/api/maintenance-whitelist', {
+        method:  'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      showNotice(`Removed ${email}`);
+      loadEmails();
+    } catch (err) {
+      showNotice(err.message, 'error');
+    }
+  };
+
+  const isMaintenance = process.env.REACT_APP_MAINTENANCE_MODE === 'true';
+
+  return (
+    <section className="admin-panel">
+      <PanelHeader
+        title="🛡 Beta Access Whitelist"
+        subtitle="Emails added here can bypass maintenance mode and test the full platform."
+      />
+
+      {/* Status banner */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        padding: '1rem 1.25rem',
+        borderRadius: '10px',
+        marginBottom: '1.5rem',
+        background: isMaintenance ? 'rgba(255,165,0,0.1)' : 'rgba(126,232,184,0.1)',
+        border: `1px solid ${isMaintenance ? 'rgba(255,165,0,0.3)' : 'rgba(126,232,184,0.3)'}`,
+      }}>
+        <span style={{ fontSize: '1.3rem' }}>{isMaintenance ? '🔧' : '✅'}</span>
+        <div>
+          <strong style={{ color: isMaintenance ? '#ffa500' : '#7ee8b8' }}>
+            Maintenance Mode is {isMaintenance ? 'ON' : 'OFF'}
+          </strong>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#8e9dcc' }}>
+            {isMaintenance
+              ? 'Only whitelisted emails + admin can access the site. Set REACT_APP_MAINTENANCE_MODE=false to go live.'
+              : 'Site is live for all users. Set REACT_APP_MAINTENANCE_MODE=true to enable maintenance mode.'}
+          </p>
+        </div>
+      </div>
+
+      {/* Add email form */}
+      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <input
+          type="email"
+          placeholder="Enter tester email (e.g. friend@gmail.com)"
+          value={newEmail}
+          onChange={e => setNewEmail(e.target.value)}
+          required
+          style={{
+            flex: 1,
+            minWidth: '260px',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            border: '1px solid rgba(139,151,255,0.2)',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#fff',
+            fontSize: '0.95rem',
+            outline: 'none',
+          }}
+        />
+        <button
+          type="submit"
+          className="admin-primary-btn"
+          disabled={adding}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          {adding ? 'Adding…' : '+ Add to Whitelist'}
+        </button>
+      </form>
+
+      {/* Whitelist table */}
+      {loading ? (
+        <div className="admin-empty">Loading whitelist…</div>
+      ) : emails.length === 0 ? (
+        <div className="admin-empty">
+          <p>No beta testers added yet.</p>
+          <p style={{ fontSize: '0.85rem', color: '#8e9dcc' }}>Add an email above to give someone access during maintenance.</p>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Email</th>
+                <th>Added On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {emails.map((entry, i) => (
+                <tr key={entry.id}>
+                  <td>{i + 1}</td>
+                  <td style={{ fontFamily: 'monospace', color: '#a3b8ff' }}>{entry.email}</td>
+                  <td>{formatDate(entry.created_at)}</td>
+                  <td>
+                    <button
+                      className="admin-danger-btn"
+                      onClick={() => handleRemove(entry.id, entry.email)}
+                      style={{ padding: '0.35rem 0.8rem', fontSize: '0.82rem' }}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
 }

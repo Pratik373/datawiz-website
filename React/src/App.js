@@ -424,57 +424,74 @@ function Home() {
 
 /* ═══════════════════════════════════════════
    Maintenance Gate
-   - Uses useLocation (fixes React Router navigation not triggering gate)
-   - Admin paths always bypass
-   - Checks Supabase whitelist for logged-in beta testers
+   Rules:
+     1. /login, /reset-password, /admin/* → always accessible
+     2. Not logged in → maintenance page
+     3. Admin email → full access
+     4. Whitelisted email → full access
+     5. Everyone else → maintenance page
 ═══════════════════════════════════════════ */
 function MaintenanceGate({ children }) {
   const MAINTENANCE = process.env.REACT_APP_MAINTENANCE_MODE === 'true';
-  const location = useLocation();
-  const path = location.pathname;
-  const isAdminPath = path.startsWith('/admin') || path === '/login' || path === '/reset-password';
+  const location   = useLocation();
+  const path       = location.pathname;
 
-  const [checking, setChecking] = useState(true);
-  const [bypassed, setBypassed] = useState(false);
+  // These routes are NEVER blocked regardless of maintenance mode
+  const isAlwaysOpen = path === '/login' ||
+                       path === '/reset-password' ||
+                       path.startsWith('/admin');
+
+  // 'checking' | 'allowed' | 'blocked'
+  const [status, setStatus] = useState(MAINTENANCE && !isAlwaysOpen ? 'checking' : 'allowed');
 
   useEffect(() => {
-    if (!MAINTENANCE || isAdminPath) {
-      setChecking(false);
-      setBypassed(false);
+    if (!MAINTENANCE || isAlwaysOpen) {
+      setStatus('allowed');
       return;
     }
 
     let cancelled = false;
-    async function check() {
-      setChecking(true);
+    setStatus('checking');
+
+    (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { if (!cancelled) { setChecking(false); setBypassed(false); } return; }
 
-        // Admin email always bypasses
-        if (session.user.email === 'adminspp@datawiz.com') {
-          if (!cancelled) { setBypassed(true); setChecking(false); }
+        if (!session) {
+          // Not logged in — show maintenance
+          if (!cancelled) setStatus('blocked');
           return;
         }
 
-        // Check whitelist table
-        const res = await fetch('/api/maintenance-whitelist');
-        const json = await res.json();
-        const emails = (json.emails || []).map(e => e.email.toLowerCase());
-        if (!cancelled) {
-          setBypassed(emails.includes(session.user.email.toLowerCase()));
-          setChecking(false);
+        // Admin always gets through
+        if (session.user.email === 'adminspp@datawiz.com') {
+          if (!cancelled) setStatus('allowed');
+          return;
+        }
+
+        // Check beta-tester whitelist
+        try {
+          const res   = await fetch('/api/maintenance-whitelist');
+          const json  = await res.json();
+          const list  = (json.emails || []).map(e => e.email.toLowerCase());
+          if (!cancelled) {
+            setStatus(list.includes(session.user.email.toLowerCase()) ? 'allowed' : 'blocked');
+          }
+        } catch {
+          if (!cancelled) setStatus('blocked');
         }
       } catch {
-        if (!cancelled) { setBypassed(false); setChecking(false); }
+        if (!cancelled) setStatus('blocked');
       }
-    }
-    check();
-    return () => { cancelled = true; };
-  }, [MAINTENANCE, isAdminPath, path]);
+    })();
 
-  if (!MAINTENANCE || isAdminPath || bypassed) return children;
-  if (checking) return (
+    return () => { cancelled = true; };
+  }, [MAINTENANCE, isAlwaysOpen, path]);
+
+  if (!MAINTENANCE)      return children;
+  if (isAlwaysOpen)      return children;
+  if (status === 'allowed') return children;
+  if (status === 'checking') return (
     <div style={{ minHeight: '100vh', background: '#060b1f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ color: '#8e9dcc', fontSize: '1rem' }}>Loading…</div>
     </div>
