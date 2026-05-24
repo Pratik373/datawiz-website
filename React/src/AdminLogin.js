@@ -57,6 +57,15 @@ export default function AdminLogin() {
       return;
     }
 
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setMessage('Session not established. Please try again.');
+      setLoading(false);
+      return;
+    }
+
     try {
       await getAdminSession();
       navigate('/admin/dashboard', { replace: true });

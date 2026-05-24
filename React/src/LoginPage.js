@@ -116,8 +116,14 @@ export default function LoginPage() {
     }
 
     if (email.trim().toLowerCase() === ADMIN_EMAIL && password === TEMP_ADMIN_PASSWORD) {
-      sessionStorage.setItem('tempAdminSession', 'true');
-      navigate('/admin/dashboard');
+      const { error } = await supabase.auth.signInWithPassword({
+        email: ADMIN_EMAIL,
+        password: TEMP_ADMIN_PASSWORD
+      });
+      if (!error) {
+        sessionStorage.setItem('tempAdminSession', 'true');
+        navigate('/admin/dashboard');
+      }
       return;
     }
 
