@@ -7,6 +7,8 @@ import ResetPassword from './ResetPassword';
 import StudyMaterial from './StudyMaterial';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
+import PricingSection from './PricingSection';
+
 
 
 /* ═══════════════════════════════════════════
