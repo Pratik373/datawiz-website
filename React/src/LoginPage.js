@@ -66,7 +66,7 @@ export default function LoginPage() {
       sessionStorage.removeItem('redirectAfterLogin');
       navigate(redirectTo);
     } else {
-      window.location.href = '/CCATMOCK.html';
+      navigate('/mock-tests');
     }
   }, [navigate]);
 
@@ -186,7 +186,7 @@ export default function LoginPage() {
     const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
     const redirectTarget = savedRedirect
       ? `${window.location.origin}${savedRedirect}`
-      : `${window.location.origin}/CCATMOCK.html`;
+      : `${window.location.origin}/mock-tests`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',

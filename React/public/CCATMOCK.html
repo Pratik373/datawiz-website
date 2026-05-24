@@ -279,13 +279,11 @@ button:disabled{opacity:0.6;cursor:not-allowed}
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
         <div id="creditsDisplay" 
-             onclick="document.getElementById('buyModal').style.display='flex'"
-             style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);cursor:pointer;"
-             title="Click to buy more tests">
-             Tests: Loading…
+             style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);">
+             Access: Loading…
         </div>
-        <button onclick="document.getElementById('buyModal').style.display='flex'" 
-                style="background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;">
+        <button id="navBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" 
+                style="background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;display:none;">
             Buy Tests
         </button>
         <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;">Logout</button>
@@ -302,14 +300,8 @@ button:disabled{opacity:0.6;cursor:not-allowed}
       <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
         <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
         <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹199</div>
-        <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">5 Mock Tests</div>
+        <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
         <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
-      </div>
-      <div style="background:rgba(74,185,255,0.1);border:1px solid rgba(74,185,255,0.4);border-radius:16px;padding:1.5rem;width:200px;">
-        <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Pro Pack 🔥</h3>
-        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹299</div>
-        <div style="color:#4ab9ff;font-weight:700;margin-bottom:1rem;">10 Mock Tests</div>
-        <button onclick="buyPlan('pro')" style="width:100%;background:linear-gradient(135deg,#4ab9ff,#6f57ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
       </div>
     </div>
     <p id="buyModalMsg" style="color:#7ee8b8;margin-top:1rem;font-size:0.9rem;"></p>
@@ -354,36 +346,39 @@ async function loadCredits() {
 
 function updateCreditsDisplay() {
     const el = document.getElementById('creditsDisplay');
+    const navBuyBtn = document.getElementById('navBuyBtn');
+    const mainBuyBtn = document.getElementById('mainBuyBtn');
+    
     if (testsRemaining > 0) {
-        el.innerHTML = `✅ Tests left: <strong>${testsRemaining}</strong>`;
+        el.innerHTML = `✅ Premium Access`;
         el.style.color = '#7ee8b8';
+        if(navBuyBtn) navBuyBtn.style.display = 'none';
+        if(mainBuyBtn) mainBuyBtn.style.display = 'none';
     } else {
-        el.innerHTML = '❌ No tests left';
+        el.innerHTML = '❌ No Access';
         el.style.color = '#ffaabf';
+        if(navBuyBtn) navBuyBtn.style.display = 'block';
+        if(mainBuyBtn) mainBuyBtn.style.display = 'block';
     }
 }
 
-// ── Check credits before starting exam ──
 async function checkAndStartExam() {
     await loadCredits();
-    if (testsRemaining <= 0) {
+    
+    const isAdmin = currentUserId && (await checkAdmin());
+    
+    if (testsRemaining <= 0 && !isAdmin) {
         document.getElementById('buyModal').style.display = 'flex';
         return;
     }
-    // Deduct 1 credit server-side
-    const res = await fetch('/api/deduct-credit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUserId })
-    });
-    const result = await res.json();
-    if (!result.success) {
-        document.getElementById('buyModal').style.display = 'flex';
-        return;
-    }
-    testsRemaining = result.tests_remaining;
-    updateCreditsDisplay();
-    startExam(); // original function
+    
+    // No deduction needed for unlimited access
+    startExam(); 
+}
+
+async function checkAdmin() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    return user && user.email === 'adminspp@datawiz.com';
 }
 
 // ── Buy plan from modal ──
@@ -423,7 +418,7 @@ async function buyPlan(planId) {
                 });
                 const result = await verifyRes.json();
                 if (result.success) {
-                    window.location.href = planId === 'starter' ? '/starter-success.html' : '/pro-success.html';
+                    window.location.reload();
                 } else {
                     document.getElementById('buyModalMsg').textContent = '❌ Verification failed. Contact support.';
                 }
@@ -480,7 +475,7 @@ initPage();
         </div>
         <div class="top-actions">
             <button onclick="checkAndStartExam()">Start Exam</button>
-            <button onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px;">Buy More Tests</button>
+            <button id="mainBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px; display:none;">Buy More Tests</button>
         </div>
     </section>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import { supabase } from './supabaseClient';
 import LoginPage from './LoginPage';
@@ -8,6 +8,8 @@ import StudyMaterial from './StudyMaterial';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
 import PricingSection from './PricingSection';
+import StudentTestPortal from './StudentTestPortal';
+import MaintenancePage from './MaintenancePage';
 
 
 
@@ -62,7 +64,7 @@ function Home() {
         if (error.message && error.message.includes('duplicate')) {
           setMessage('This email is already registered. Redirecting to exam...');
           setMessageType('success');
-          setTimeout(() => { window.location.href = '/CCATMOCK.html'; }, 1500);
+          setTimeout(() => { navigate('/mock-tests'); }, 1500);
         } else {
           setMessage('Error saving email. Please try again.');
           setMessageType('error');
@@ -72,7 +74,7 @@ function Home() {
         setMessage('✓ Thank you! Redirecting to exam...');
         setMessageType('success');
         setEmail('');
-        setTimeout(() => { window.location.href = '/CCATMOCK.html'; }, 1500);
+        setTimeout(() => { navigate('/mock-tests'); }, 1500);
       }
     } catch (err) {
       setMessage('Something went wrong. Please try again.');
@@ -283,6 +285,132 @@ function Home() {
 
       <PricingSection />
 
+      {/* ── Mock Tests Preview Section ── */}
+      <section id="mock-tests-preview" style={{
+        padding: '5rem 1.5rem',
+        background: 'linear-gradient(180deg, #0b1026 0%, #0f1535 100%)',
+        textAlign: 'center',
+      }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{
+            display: 'inline-block',
+            background: 'rgba(111,87,255,0.15)',
+            color: '#a3b8ff',
+            padding: '0.4rem 1rem',
+            borderRadius: '99px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            marginBottom: '1.5rem',
+          }}>MOCK TESTS</div>
+
+          <h2 style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+            fontWeight: 800,
+            color: '#fff',
+            margin: '0 0 1rem',
+          }}>Practice with Real C-CAT Pattern Tests</h2>
+          <p style={{ color: '#8e9dcc', fontSize: '1.1rem', marginBottom: '3rem' }}>
+            Try the free interactive mock test or unlock unlimited PDF tests with our premium plan.
+          </p>
+
+          {/* Preview cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '1.5rem',
+            marginBottom: '2.5rem',
+          }}>
+            {/* Free card */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(126,232,184,0.25)',
+              borderRadius: '16px',
+              padding: '1.5rem',
+              textAlign: 'left',
+            }}>
+              <span style={{
+                background: 'rgba(126,232,184,0.15)',
+                color: '#7ee8b8',
+                padding: '0.3rem 0.7rem',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}>🆓 FREE</span>
+              <h3 style={{ color: '#fff', margin: '1rem 0 0.5rem', fontSize: '1.1rem' }}>C-CAT Full Mock Test</h3>
+              <p style={{ color: '#8e9dcc', fontSize: '0.9rem', margin: '0 0 1rem' }}>100 questions, 120 mins — interactive with auto-grading.</p>
+              <div style={{ display: 'flex', gap: '0.75rem', color: '#a3b8ff', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                <span>⏱ 120 mins</span><span>📋 100 Qs</span>
+              </div>
+            </div>
+
+            {/* Premium card */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(111,87,255,0.2)',
+              borderRadius: '16px',
+              padding: '1.5rem',
+              textAlign: 'left',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              <span style={{
+                background: 'rgba(111,87,255,0.2)',
+                color: '#a3b8ff',
+                padding: '0.3rem 0.7rem',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}>🔒 PREMIUM</span>
+              <h3 style={{ color: '#fff', margin: '1rem 0 0.5rem', fontSize: '1.1rem' }}>PDF Practice Sets</h3>
+              <p style={{ color: '#8e9dcc', fontSize: '0.9rem', margin: '0 0 1rem' }}>Quantitative, Reasoning &amp; more — with Digital OMR sheet.</p>
+              <div style={{ display: 'flex', gap: '0.75rem', color: '#a3b8ff', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                <span>⏱ 60 mins</span><span>🔒 Unlock for ₹199</span>
+              </div>
+            </div>
+
+            {/* More coming */}
+            <div style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px dashed rgba(139,151,255,0.15)',
+              borderRadius: '16px',
+              padding: '1.5rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+            }}>
+              <div style={{ fontSize: '2rem' }}>📦</div>
+              <p style={{ color: '#8e9dcc', margin: 0 }}>More tests being added regularly!</p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/mock-tests')}
+            style={{
+              background: 'linear-gradient(135deg, #6f57ff, #4ab9ff)',
+              border: 'none',
+              padding: '1rem 2.5rem',
+              borderRadius: '99px',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(111,87,255,0.35)',
+            }}
+          >
+            View All Tests →
+          </button>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="footer">
         <div className="container">
@@ -295,19 +423,82 @@ function Home() {
 }
 
 /* ═══════════════════════════════════════════
+   Maintenance Gate
+   - Uses useLocation (fixes React Router navigation not triggering gate)
+   - Admin paths always bypass
+   - Checks Supabase whitelist for logged-in beta testers
+═══════════════════════════════════════════ */
+function MaintenanceGate({ children }) {
+  const MAINTENANCE = process.env.REACT_APP_MAINTENANCE_MODE === 'true';
+  const location = useLocation();
+  const path = location.pathname;
+  const isAdminPath = path.startsWith('/admin') || path === '/login' || path === '/reset-password';
+
+  const [checking, setChecking] = useState(true);
+  const [bypassed, setBypassed] = useState(false);
+
+  useEffect(() => {
+    if (!MAINTENANCE || isAdminPath) {
+      setChecking(false);
+      setBypassed(false);
+      return;
+    }
+
+    let cancelled = false;
+    async function check() {
+      setChecking(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { if (!cancelled) { setChecking(false); setBypassed(false); } return; }
+
+        // Admin email always bypasses
+        if (session.user.email === 'adminspp@datawiz.com') {
+          if (!cancelled) { setBypassed(true); setChecking(false); }
+          return;
+        }
+
+        // Check whitelist table
+        const res = await fetch('/api/maintenance-whitelist');
+        const json = await res.json();
+        const emails = (json.emails || []).map(e => e.email.toLowerCase());
+        if (!cancelled) {
+          setBypassed(emails.includes(session.user.email.toLowerCase()));
+          setChecking(false);
+        }
+      } catch {
+        if (!cancelled) { setBypassed(false); setChecking(false); }
+      }
+    }
+    check();
+    return () => { cancelled = true; };
+  }, [MAINTENANCE, isAdminPath, path]);
+
+  if (!MAINTENANCE || isAdminPath || bypassed) return children;
+  if (checking) return (
+    <div style={{ minHeight: '100vh', background: '#060b1f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ color: '#8e9dcc', fontSize: '1rem' }}>Loading…</div>
+    </div>
+  );
+  return <MaintenancePage />;
+}
+
+/* ═══════════════════════════════════════════
    App Root — Router setup
 ═══════════════════════════════════════════ */
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/study-material" element={<StudyMaterial />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      </Routes>
+      <MaintenanceGate>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/study-material" element={<StudyMaterial />} />
+          <Route path="/mock-tests" element={<StudentTestPortal />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Routes>
+      </MaintenanceGate>
     </BrowserRouter>
   );
 }

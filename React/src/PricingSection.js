@@ -7,22 +7,12 @@ const PLANS = [
     id: 'starter',
     name: 'Starter Pack',
     price: 199,
-    tests: 5,
-    perTest: '₹39.8 / test',
+    tests: 'Unlimited',
+    perTest: 'Unlimited access',
     color: '#6f57ff',
-    features: ['5 Full Mock Tests', 'Section A + Section B', 'Answer Key & Review', 'Score Analysis'],
+    features: ['Unlimited Full Mock Tests', 'Section A + Section B', 'Answer Key & Review', 'Score Analysis'],
     badge: null,
-  },
-  {
-    id: 'pro',
-    name: 'Pro Pack',
-    price: 299,
-    tests: 10,
-    perTest: '₹29.9 / test',
-    color: '#4ab9ff',
-    features: ['10 Full Mock Tests', 'Section A + Section B', 'Answer Key & Review', 'Score Analysis', 'Best Value 🔥'],
-    badge: 'BEST VALUE',
-  },
+  }
 ];
 
 export default function PricingSection() {
@@ -88,7 +78,7 @@ export default function PricingSection() {
           });
           const result = await verifyRes.json();
           if (result.success) {
-            window.location.href = plan.id === 'starter' ? '/starter-success.html' : '/pro-success.html';
+            window.location.href = '/mock-tests';
           } else {
             setMessage('❌ Payment verification failed. Contact support.');
           }
