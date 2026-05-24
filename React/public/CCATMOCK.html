@@ -278,31 +278,167 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
-        <button id="logoutBtn" style="background:#b42318; padding:8px 15px; font-size:14px; margin-left:10px;">Logout</button>
+        <div id="creditsDisplay" 
+             style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);">
+             Access: Loading…
+        </div>
+        <button id="navBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" 
+                style="background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;display:none;">
+            Buy Tests
+        </button>
+        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;">Logout</button>
     </div>
 </header>
+
+<!-- Buy Tests Modal -->
+<div id="buyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:none;align-items:center;justify-content:center;">
+  <div style="background:#0b1026;border:1px solid rgba(139,151,255,0.25);border-radius:24px;padding:2.5rem;max-width:520px;width:90%;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔒</div>
+    <h2 style="color:#f0f4ff;margin:0 0 0.5rem;">No Tests Remaining</h2>
+    <p style="color:#8e9dcc;margin-bottom:2rem;">Purchase a test pack to continue.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
+        <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
+        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹199</div>
+        <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
+        <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
+      </div>
+    </div>
+    <p id="buyModalMsg" style="color:#7ee8b8;margin-top:1rem;font-size:0.9rem;"></p>
+    <button onclick="document.getElementById('buyModal').style.display='none'" style="margin-top:1rem;background:transparent;border:1px solid rgba(255,255,255,0.15);color:#8e9dcc;padding:0.6rem 1.5rem;border-radius:999px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<!-- Razorpay SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- Supabase Auth Integration -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://uoqfnvrdbicbepjxapcf.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1';
+const RAZORPAY_KEY_ID = 'rzp_test_Spy62mcDroIz0U';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Check for session on load
-async function checkSession() {
+let currentUserId = null;
+let testsRemaining = 0;
+
+// ── On load: check session + load credits ──
+async function initPage() {
     const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) {
-        window.location.href = '/login';
+    if (!session) { window.location.href = '/login'; return; }
+    currentUserId = session.user.id;
+    await loadCredits();
+}
+
+// Automatically initialize the page on load
+window.addEventListener('DOMContentLoaded', initPage);
+
+async function loadCredits() {
+    const { data } = await supabaseClient
+        .from('user_credits')
+        .select('tests_remaining')
+        .eq('user_id', currentUserId)
+        .single();
+    testsRemaining = data?.tests_remaining || 0;
+    updateCreditsDisplay();
+}
+
+function updateCreditsDisplay() {
+    const el = document.getElementById('creditsDisplay');
+    const navBuyBtn = document.getElementById('navBuyBtn');
+    const mainBuyBtn = document.getElementById('mainBuyBtn');
+    
+    if (testsRemaining > 0) {
+        el.innerHTML = `✅ Premium Access`;
+        el.style.color = '#7ee8b8';
+        if(navBuyBtn) navBuyBtn.style.display = 'none';
+        if(mainBuyBtn) mainBuyBtn.style.display = 'none';
+    } else {
+        el.innerHTML = '❌ No Access';
+        el.style.color = '#ffaabf';
+        if(navBuyBtn) navBuyBtn.style.display = 'block';
+        if(mainBuyBtn) mainBuyBtn.style.display = 'block';
     }
 }
-checkSession();
 
-// Logout handler
+async function checkAndStartExam() {
+    await loadCredits();
+    
+    const isAdmin = currentUserId && (await checkAdmin());
+    
+    if (testsRemaining <= 0 && !isAdmin) {
+        document.getElementById('buyModal').style.display = 'flex';
+        return;
+    }
+    
+    // No deduction needed for unlimited access
+    startExam(); 
+}
+
+async function checkAdmin() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    return user && user.email === 'adminspp@datawiz.com';
+}
+
+// ── Buy plan from modal ──
+async function buyPlan(planId) {
+    document.getElementById('buyModalMsg').textContent = 'Creating order…';
+    try {
+        const orderRes = await fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan: planId })
+        });
+        const order = await orderRes.json();
+        if (!orderRes.ok) throw new Error(order.error);
+
+        const options = {
+            key: RAZORPAY_KEY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: 'Datawiz6',
+            description: order.planName + ' — ' + order.tests + ' Mock Tests',
+            order_id: order.id,
+            theme: { color: planId === 'pro' ? '#4ab9ff' : '#6f57ff' },
+            handler: async function(response) {
+                document.getElementById('buyModalMsg').textContent = 'Verifying payment…';
+                const verifyRes = await fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id:   response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature:  response.razorpay_signature,
+                        user_id:             currentUserId,
+                        tests_to_add:        order.tests,
+                        plan:                planId,
+                        amount:              planId === 'starter' ? 199 : 299
+                    })
+                });
+                const result = await verifyRes.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    document.getElementById('buyModalMsg').textContent = '❌ Verification failed. Contact support.';
+                }
+            },
+            modal: { ondismiss: () => { document.getElementById('buyModalMsg').textContent = ''; } }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch(err) {
+        document.getElementById('buyModalMsg').textContent = '❌ ' + err.message;
+    }
+}
+
+// ── Logout ──
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     await supabaseClient.auth.signOut();
     window.location.href = '/login';
 });
+
+initPage();
 </script>
 
 <main class="container">
@@ -338,7 +474,8 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
             </div>
         </div>
         <div class="top-actions">
-            <button onclick="startExam()">Start Exam</button>
+            <button onclick="checkAndStartExam()">Start Exam</button>
+            <button id="mainBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px; display:none;">Buy More Tests</button>
         </div>
     </section>
 
