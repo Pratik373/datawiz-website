@@ -41,14 +41,6 @@ export default function AdminDashboard() {
     let active = true;
 
     async function loadSession() {
-      if (sessionStorage.getItem('tempAdminSession') === 'true') {
-        if (active) {
-          setAdmin({ email: 'adminspp@datawiz.com' });
-          setPageLoading(false);
-        }
-        return;
-      }
-
       try {
         await new Promise(resolve => setTimeout(resolve, 100));
         const { admin: adminUser } = await getAdminSession();
