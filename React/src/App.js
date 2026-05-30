@@ -10,6 +10,7 @@ import AdminDashboard from './AdminDashboard';
 import PricingSection from './PricingSection';
 import StudentTestPortal from './StudentTestPortal';
 import MaintenancePage from './MaintenancePage';
+import { STARTER_PRICE_INR, formatINR } from './pricingConfig';
 
 
 
@@ -370,7 +371,7 @@ function Home() {
               <h3 style={{ color: '#fff', margin: '1rem 0 0.5rem', fontSize: '1.1rem' }}>PDF Practice Sets</h3>
               <p style={{ color: '#8e9dcc', fontSize: '0.9rem', margin: '0 0 1rem' }}>Quantitative, Reasoning &amp; more — with Digital OMR sheet.</p>
               <div style={{ display: 'flex', gap: '0.75rem', color: '#a3b8ff', fontSize: '0.82rem', marginBottom: '1rem' }}>
-                <span>⏱ 60 mins</span><span>🔒 Unlock for ₹199</span>
+                <span>⏱ 60 mins</span><span>🔒 Unlock for {formatINR(STARTER_PRICE_INR)}</span>
               </div>
             </div>
 

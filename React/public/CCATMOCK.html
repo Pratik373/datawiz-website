@@ -299,7 +299,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
         <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
-        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹199</div>
+        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹<span id="starterPrice">199</span></div>
         <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
         <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
       </div>
@@ -322,17 +322,31 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUserId = null;
 let testsRemaining = 0;
+let starterPrice = 199;
 
 // ── On load: check session + load credits ──
 async function initPage() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) { window.location.href = '/login'; return; }
     currentUserId = session.user.id;
+    await loadPlanPrices();
     await loadCredits();
 }
 
 // Automatically initialize the page on load
 window.addEventListener('DOMContentLoaded', initPage);
+
+async function loadPlanPrices() {
+    try {
+        const res = await fetch('/api/plans');
+        const data = await res.json();
+        starterPrice = data.plans?.starter?.amount || starterPrice;
+        const starterPriceEl = document.getElementById('starterPrice');
+        if (starterPriceEl) starterPriceEl.textContent = starterPrice;
+    } catch (err) {
+        console.warn('Could not load plan prices:', err);
+    }
+}
 
 async function loadCredits() {
     const { data } = await supabaseClient
@@ -413,7 +427,7 @@ async function buyPlan(planId) {
                         user_id:             currentUserId,
                         tests_to_add:        order.tests,
                         plan:                planId,
-                        amount:              planId === 'starter' ? 199 : 299
+                        amount:              order.amount / 100
                     })
                 });
                 const result = await verifyRes.json();

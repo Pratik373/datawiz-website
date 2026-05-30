@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+import { STARTER_PRICE_INR } from './pricingConfig';
 import './PricingSection.css';
 
 const PLANS = [
   {
     id: 'starter',
     name: 'Starter Pack',
-    price: 199,
+    price: STARTER_PRICE_INR,
     tests: 'Unlimited',
     perTest: 'Unlimited access',
     color: '#6f57ff',
@@ -73,7 +74,7 @@ export default function PricingSection() {
               user_id:             session.user.id,
               tests_to_add:        plan.tests,
               plan:                plan.id,
-              amount:              plan.price
+              amount:              order.amount / 100
             }),
           });
           const result = await verifyRes.json();
