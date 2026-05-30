@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+import { STARTER_PRICE_INR, formatINR } from './pricingConfig';
 import './MaintenancePage.css';
 
 export default function MaintenancePage() {
@@ -40,7 +41,7 @@ export default function MaintenancePage() {
     { icon: '📊', title: 'Score Analysis', desc: 'Instant results with detailed answer key and review' },
     { icon: '📄', title: 'PDF Practice Sets', desc: 'Downloadable question papers with digital OMR answer sheets' },
     { icon: '🔒', title: 'Secure & Private', desc: 'All tests delivered via encrypted, signed URLs' },
-    { icon: '♾️', title: 'Unlimited Access', desc: 'Access all tests anytime — just ₹199 one-time' },
+    { icon: '♾️', title: 'Unlimited Access', desc: `Access all tests anytime — just ${formatINR(STARTER_PRICE_INR)} one-time` },
   ];
 
   return (
@@ -71,7 +72,7 @@ export default function MaintenancePage() {
           <span className="maint-title-accent">Coming Soon</span>
         </h1>
         <p className="maint-subtitle">
-          We're setting up <strong>5 premium CDAC C-CAT mock tests</strong> for just <strong>₹199</strong>.
+          We're setting up <strong>5 premium CDAC C-CAT mock tests</strong> for just <strong>{formatINR(STARTER_PRICE_INR)}</strong>.
           Our team is working hard to deliver the best exam preparation experience. Stay tuned{dots}
         </p>
 
@@ -88,7 +89,7 @@ export default function MaintenancePage() {
           </div>
           <div className="maint-info-divider" />
           <div className="maint-info-item">
-            <span className="maint-info-number">₹199</span>
+            <span className="maint-info-number">{formatINR(STARTER_PRICE_INR)}</span>
             <span className="maint-info-label">One-Time Only</span>
           </div>
           <div className="maint-info-divider" />

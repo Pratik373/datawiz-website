@@ -1,8 +1,5 @@
 const Razorpay = require('razorpay');
-
-const PLANS = {
-  starter: { amount: 199, tests: 5, name: 'Starter Pack' }
-};
+const PLANS = require('./_plans');
 
 module.exports = async function handler(req, res) {
   console.log(`\n[API] /api/create-order called with method: ${req.method}`);

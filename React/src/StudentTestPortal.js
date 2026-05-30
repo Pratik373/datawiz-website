@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
+import { listAdminTestPapers } from './adminApi';
+import { STARTER_PRICE_INR, formatINR } from './pricingConfig';
 import './StudentTestPortal.css';
 
 const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62mcDroIz0U';
@@ -71,14 +73,31 @@ export default function StudentTestPortal() {
     setLoading(true);
     try {
       const res  = await fetch('/api/student-tests');
+      if (!res.ok) throw new Error(`student-tests endpoint returned ${res.status}`);
       const data = await res.json();
       setTests(data.tests || []);
     } catch (err) {
-      console.error(err);
+      console.warn('Falling back to Supabase test paper query:', err);
+      const { data, error } = await supabase
+        .from('test_papers')
+        .select('id, title, description, duration_minutes, type, questions_count, created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        if (isAdmin) {
+          const { test_papers: adminTests } = await listAdminTestPapers();
+          setTests(adminTests || []);
+        } else {
+          console.error('Failed to load test papers:', error);
+          setTests([]);
+        }
+      } else {
+        setTests(data || []);
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => { fetchTests(); }, [fetchTests]);
 
@@ -89,6 +108,11 @@ export default function StudentTestPortal() {
   };
 
   const canAccessPremium = isAdmin || hasPaid;
+
+  const closeBuyModal = useCallback(() => {
+    setBuyModal(false);
+    setBuyMessage('');
+  }, []);
 
   const handleFreeTestClick = () => {
     if (!user) {
@@ -168,14 +192,13 @@ export default function StudentTestPortal() {
               user_id:             user.id,
               tests_to_add:        99999,
               plan:                'starter',
-              amount:              199,
+              amount:              order.amount / 100,
             }),
           });
           const result = await verifyRes.json();
           if (result.success) {
             setHasPaid(true);
-            setBuyModal(false);
-            setBuyMessage('');
+            closeBuyModal();
           } else {
             setBuyMessage('❌ Verification failed. Contact support.');
           }
@@ -264,7 +287,7 @@ export default function StudentTestPortal() {
         <p className="stp-subtitle">
           {canAccessPremium
             ? 'You have unlimited access to all tests. Start practising!'
-            : 'Try the free test below — unlock all premium tests for just ₹199.'}
+            : `Try the free test below — unlock all premium tests for just ${formatINR(STARTER_PRICE_INR)}.`}
         </p>
       </header>
 
@@ -309,7 +332,7 @@ export default function StudentTestPortal() {
                   </button>
                 ) : (
                   <button className="stp-btn-start stp-btn-locked" onClick={() => handlePremiumTestClick(test)}>
-                    🔒 Unlock — ₹199
+                    🔒 Unlock — {formatINR(STARTER_PRICE_INR)}
                   </button>
                 )}
               </div>
@@ -336,13 +359,13 @@ export default function StudentTestPortal() {
 
       {/* ── Buy / Unlock modal ── */}
       {buyModal && (
-        <div className="stp-modal-overlay" onClick={() => { setBuyModal(false); setBuyMessage(''); }}>
+        <div className="stp-modal-overlay" onClick={closeBuyModal}>
           <div className="stp-modal stp-buy-modal" onClick={e => e.stopPropagation()}>
             <div className="stp-buy-badge">🚀 Unlock All Tests</div>
             <h3 className="stp-modal-title">Get Unlimited Access</h3>
             <div className="stp-buy-price">
               <span className="stp-buy-currency">₹</span>
-              <span className="stp-buy-amount">199</span>
+              <span className="stp-buy-amount">{STARTER_PRICE_INR}</span>
               <span className="stp-buy-period">one-time</span>
             </div>
             <ul className="stp-buy-features">
@@ -353,9 +376,9 @@ export default function StudentTestPortal() {
             </ul>
             {buyMessage && <p style={{ color: '#ff6b6b', marginBottom: '1rem' }}>{buyMessage}</p>}
             <button className="stp-modal-btn primary" style={{ width: '100%', padding: '1rem' }} onClick={handleBuyNow} disabled={buyLoading}>
-              {buyLoading ? 'Opening Payment…' : 'Buy Now — ₹199'}
+              {buyLoading ? 'Opening Payment…' : `Buy Now — ${formatINR(STARTER_PRICE_INR)}`}
             </button>
-            <button className="stp-modal-btn secondary" style={{ width: '100%', marginTop: '0.75rem' }} onClick={() => { setBuyModal(false); setBuyMessage(''); }}>
+            <button className="stp-modal-btn secondary" style={{ width: '100%', marginTop: '0.75rem' }} onClick={closeBuyModal}>
               Maybe Later
             </button>
             <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#8e9dcc' }}>🔒 Secure payment via Razorpay</p>
