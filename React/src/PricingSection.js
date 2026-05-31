@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
-import { STARTER_PRICE_INR } from './pricingConfig';
+import { STARTER_ORIGINAL_PRICE_INR, STARTER_PRICE_INR } from './pricingConfig';
 import './PricingSection.css';
 
 const PLANS = [
@@ -8,6 +8,7 @@ const PLANS = [
     id: 'starter',
     name: 'Starter Pack',
     price: STARTER_PRICE_INR,
+    originalPrice: STARTER_ORIGINAL_PRICE_INR,
     tests: 'Unlimited',
     perTest: 'Unlimited access',
     color: '#6f57ff',
@@ -113,6 +114,9 @@ export default function PricingSection() {
             <div className="pricing-card-header" style={{ borderColor: plan.color }}>
               <h3>{plan.name}</h3>
               <div className="pricing-price">
+                {plan.originalPrice > plan.price && (
+                  <span className="pricing-original-price">₹{plan.originalPrice}</span>
+                )}
                 <span className="pricing-currency">₹</span>
                 <span className="pricing-amount">{plan.price}</span>
               </div>

@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDAC C-CAT Mock Test - Set 5</title>
+
+<style>
+:root{
+    --navy:#0b2545;
+    --blue:#1769d2;
+    --green:#12783d;
+    --red:#b42318;
+    --amber:#946200;
+    --bg:#f4f7fb;
+    --line:#d8e1ee;
+    --text:#182230;
+}
+
+*{box-sizing:border-box}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+}
+
+header{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    position:sticky;
+    top:0;
+    z-index:5;
+}
+
+header h1{
+    font-size:20px;
+    margin:0;
+}
+
+.timer-wrap{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.timer{
+    border:1px solid rgba(255,255,255,0.32);
+    padding:8px 10px;
+    border-radius:6px;
+    font-weight:bold;
+    min-width:132px;
+    text-align:center;
+}
+
+.timer.active{
+    background:white;
+    color:var(--navy);
+}
+
+.container{
+    width:min(1180px,94%);
+    margin:auto;
+    padding:22px 0 40px;
+}
+
+.panel{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:22px;
+    box-shadow:0 2px 8px rgba(16,24,40,0.06);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:14px;
+}
+
+.mini-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+    background:#fbfdff;
+}
+
+.mini-card h3{
+    margin:0 0 8px;
+    color:var(--navy);
+}
+
+.mini-card ul{
+    margin:8px 0 0;
+    padding-left:20px;
+}
+
+.top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+
+button{
+    background:var(--blue);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    font-size:16px;
+    border-radius:7px;
+    cursor:pointer;
+}
+
+button:hover{background:#0d55b5}
+button:disabled{opacity:0.6;cursor:not-allowed}
+
+#examScreen,
+#resultScreen{display:none}
+
+.exam-layout{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:18px;
+}
+
+.sidebar{
+    position:sticky;
+    top:88px;
+    align-self:start;
+}
+
+.section-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.section-tabs button{
+    padding:10px;
+    font-size:14px;
+}
+
+.section-tabs button.active{background:var(--navy)}
+
+.section-tabs button:disabled{
+    background:#edf2f7;
+    color:#667085;
+    border:1px solid var(--line);
+}
+
+.nav-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+}
+
+.nav-btn{
+    padding:8px 0;
+    font-size:13px;
+    background:white;
+    color:var(--text);
+    border:1px solid var(--line);
+}
+
+.nav-btn.answered{
+    background:#e8f6ee;
+    border-color:#8bd2a8;
+    color:var(--green);
+}
+
+.section-title{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    border-radius:8px;
+    margin:0 0 16px;
+}
+
+.question-card{
+    background:white;
+    margin-bottom:16px;
+    padding:18px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    box-shadow:0 2px 6px rgba(16,24,40,0.04);
+}
+
+.question{
+    font-size:18px;
+    margin-bottom:12px;
+    font-weight:bold;
+}
+
+.topic{
+    display:inline-block;
+    margin-bottom:10px;
+    color:#475467;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.option{
+    display:block;
+    margin-bottom:9px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    cursor:pointer;
+    background:white;
+}
+
+.option:hover{background:#eef5ff}
+
+.code{
+    background:#1f2937;
+    color:#f3f4f6;
+    padding:13px;
+    border-radius:6px;
+    overflow:auto;
+    margin-bottom:12px;
+    white-space:pre;
+}
+
+.answer-review{
+    display:block;
+    margin-top:12px;
+    padding:12px;
+    border-radius:6px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+}
+
+.correct-answer{color:var(--green);font-weight:bold}
+.wrong-answer{color:var(--red);font-weight:bold}
+.skipped-answer{color:var(--amber);font-weight:bold}
+
+.result-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin:16px 0 20px;
+}
+
+.score-box{
+    background:#fbfdff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+}
+
+.score-box strong{
+    display:block;
+    font-size:24px;
+    margin-top:4px;
+}
+
+@media(max-width:760px){
+    header{align-items:flex-start;flex-direction:column}
+    .timer-wrap{justify-content:flex-start}
+    .exam-layout{grid-template-columns:1fr}
+    .sidebar{position:static}
+}
+</style>
+</head>
+
+<body>
+<header>
+    <h1>CDAC C-CAT Mock Test - Set 5 - Full 100 Question Paper</h1>
+    <div class="timer-wrap">
+        <div id="timerA" class="timer">Section A: 60:00</div>
+        <div id="timerB" class="timer">Section B: 60:00</div>
+        <div id="creditsDisplay" 
+             style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);">
+             Access: Loading…
+        </div>
+        <button id="navBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" 
+                style="background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;display:none;">
+            Buy Tests
+        </button>
+        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;">Logout</button>
+    </div>
+</header>
+
+<!-- Buy Tests Modal -->
+<div id="buyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:none;align-items:center;justify-content:center;">
+  <div style="background:#0b1026;border:1px solid rgba(139,151,255,0.25);border-radius:24px;padding:2.5rem;max-width:520px;width:90%;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔒</div>
+    <h2 style="color:#f0f4ff;margin:0 0 0.5rem;">No Tests Remaining</h2>
+    <p style="color:#8e9dcc;margin-bottom:2rem;">Purchase a test pack to continue.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
+        <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
+        <div style="color:#7a8ab8;font-weight:700;text-decoration:line-through;margin-bottom:0.2rem;">₹<span id="starterOriginalPrice">499</span></div>
+        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹<span id="starterPrice">99</span></div>
+        <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
+        <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
+      </div>
+    </div>
+    <p id="buyModalMsg" style="color:#7ee8b8;margin-top:1rem;font-size:0.9rem;"></p>
+    <button onclick="document.getElementById('buyModal').style.display='none'" style="margin-top:1rem;background:transparent;border:1px solid rgba(255,255,255,0.15);color:#8e9dcc;padding:0.6rem 1.5rem;border-radius:999px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
+
+<!-- Razorpay SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Supabase Auth Integration -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://uoqfnvrdbicbepjxapcf.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1';
+const RAZORPAY_KEY_ID = 'rzp_test_Spy62mcDroIz0U';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUserId = null;
+let testsRemaining = 0;
+let starterPrice = 99;
+let starterOriginalPrice = 499;
+
+// ── On load: check session + load credits ──
+async function initPage() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) { window.location.href = '/login'; return; }
+    currentUserId = session.user.id;
+    await loadPlanPrices();
+    await loadCredits();
+}
+
+// Automatically initialize the page on load
+window.addEventListener('DOMContentLoaded', initPage);
+
+async function loadPlanPrices() {
+    try {
+        const res = await fetch('/api/plans');
+        const data = await res.json();
+        starterPrice = data.plans?.starter?.amount || starterPrice;
+        starterOriginalPrice = data.plans?.starter?.original_amount || starterOriginalPrice;
+        const starterPriceEl = document.getElementById('starterPrice');
+        const starterOriginalPriceEl = document.getElementById('starterOriginalPrice');
+        if (starterPriceEl) starterPriceEl.textContent = starterPrice;
+        if (starterOriginalPriceEl) starterOriginalPriceEl.textContent = starterOriginalPrice;
+    } catch (err) {
+        console.warn('Could not load plan prices:', err);
+    }
+}
+
+async function loadCredits() {
+    const { data } = await supabaseClient
+        .from('user_credits')
+        .select('tests_remaining')
+        .eq('user_id', currentUserId)
+        .single();
+    testsRemaining = data?.tests_remaining || 0;
+    updateCreditsDisplay();
+}
+
+function updateCreditsDisplay() {
+    const el = document.getElementById('creditsDisplay');
+    const navBuyBtn = document.getElementById('navBuyBtn');
+    const mainBuyBtn = document.getElementById('mainBuyBtn');
+    
+    if (testsRemaining > 0) {
+        el.innerHTML = `✅ Premium Access`;
+        el.style.color = '#7ee8b8';
+        if(navBuyBtn) navBuyBtn.style.display = 'none';
+        if(mainBuyBtn) mainBuyBtn.style.display = 'none';
+    } else {
+        el.innerHTML = '❌ No Access';
+        el.style.color = '#ffaabf';
+        if(navBuyBtn) navBuyBtn.style.display = 'block';
+        if(mainBuyBtn) mainBuyBtn.style.display = 'block';
+    }
+}
+
+async function checkAndStartExam() {
+    await loadCredits();
+    
+    const isAdmin = currentUserId && (await checkAdmin());
+    
+    if (testsRemaining <= 0 && !isAdmin) {
+        document.getElementById('buyModal').style.display = 'flex';
+        return;
+    }
+    
+    // No deduction needed for unlimited access
+    startExam(); 
+}
+
+async function checkAdmin() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    return user && user.email === 'adminspp@datawiz.com';
+}
+
+// ── Buy plan from modal ──
+async function buyPlan(planId) {
+    document.getElementById('buyModalMsg').textContent = 'Creating order…';
+    try {
+        const orderRes = await fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan: planId })
+        });
+        const order = await orderRes.json();
+        if (!orderRes.ok) throw new Error(order.error);
+
+        const options = {
+            key: RAZORPAY_KEY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: 'Datawiz6',
+            description: order.planName + ' — ' + order.tests + ' Mock Tests',
+            order_id: order.id,
+            theme: { color: planId === 'pro' ? '#4ab9ff' : '#6f57ff' },
+            handler: async function(response) {
+                document.getElementById('buyModalMsg').textContent = 'Verifying payment…';
+                const verifyRes = await fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id:   response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature:  response.razorpay_signature,
+                        user_id:             currentUserId,
+                        tests_to_add:        order.tests,
+                        plan:                planId,
+                        amount:              order.amount / 100
+                    })
+                });
+                const result = await verifyRes.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    document.getElementById('buyModalMsg').textContent = '❌ Verification failed. Contact support.';
+                }
+            },
+            modal: { ondismiss: () => { document.getElementById('buyModalMsg').textContent = ''; } }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch(err) {
+        document.getElementById('buyModalMsg').textContent = '❌ ' + err.message;
+    }
+}
+
+// ── Logout ──
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    window.location.href = '/login';
+});
+
+initPage();
+</script>
+
+<main class="container">
+    <section id="startScreen" class="panel">
+        <h2>CDAC C-CAT Mock Test - Set 5 - Section A + Section B</h2>
+        <div class="grid">
+            <div class="mini-card">
+                <h3>Section A</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>English: 10</li>
+                    <li>Quantitative Aptitude: 15</li>
+                    <li>Logical Reasoning: 15</li>
+                    <li>Computer Fundamentals + Programming Basics: 10</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Section B</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>C Programming: 20</li>
+                    <li>Data Structures: 10</li>
+                    <li>OOP using C++: 8</li>
+                    <li>Operating Systems: 6</li>
+                    <li>Computer Networks: 6</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Marking</h3>
+                <p>Correct Answer: +3</p>
+                <p>Wrong Answer: -1</p>
+                <p>Unanswered: 0</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button onclick="checkAndStartExam()">Start Exam</button>
+            <button id="mainBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px; display:none;">Buy More Tests</button>
+        </div>
+    </section>
+
+    <section id="examScreen">
+        <div class="exam-layout">
+            <aside class="sidebar panel">
+                <div class="section-tabs">
+                    <button id="tabA" class="active" onclick="showSection('A')">Section A</button>
+                    <button id="tabB" onclick="showSection('B')">Section B</button>
+                </div>
+                <h3>Question Navigation</h3>
+                <div id="navPanel" class="nav-grid"></div>
+                <div class="top-actions">
+                    <button id="submitBtn" onclick="submitCurrentSection()">Submit Section A & Go to Section B</button>
+                </div>
+            </aside>
+            <section>
+                <div id="questions"></div>
+            </section>
+        </div>
+    </section>
+
+    <section id="resultScreen" class="panel">
+        <h2>Exam Result</h2>
+        <div id="resultSummary" class="result-summary"></div>
+        <div class="top-actions">
+            <button onclick="reattemptExam()">Reattempt Exam</button>
+        </div>
+        <h2>Question Review & Answer Key</h2>
+        <div id="reviewQuestions"></div>
+    </section>
+</main>
+
+<script>
+const questions = [
+  {
+    "id": 1,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "His argument was predicated _____ a set of assumptions that were never verified.",
+    "o": [
+      "on",
+      "upon",
+      "in",
+      "Both A and B"
+    ],
+    "a": 3,
+    "explanation": "\"Predicated on\" and \"predicated upon\" are both standard and interchangeable in formal English. Either preposition is grammatically correct in this context."
+  },
+  {
+    "id": 2,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "The court ruling was seen as a departure _____ decades of established legal precedent.",
+    "o": [
+      "of",
+      "with",
+      "from",
+      "against"
+    ],
+    "a": 2,
+    "explanation": "\"Departure from\" is the correct idiomatic preposition. One departs from a norm, standard, or precedent. \"Departure of/with/against\" are not idiomatic in standard English."
+  },
+  {
+    "id": 3,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Change to passive: \"They say that honesty is the best policy.\"",
+    "o": [
+      "Honesty is said to be the best policy.",
+      "It is said that honesty is the best policy.",
+      "Honesty is told to be the best policy.",
+      "Both A and B are correct."
+    ],
+    "a": 3,
+    "explanation": "Reporting verb passives allow two valid structures: the impersonal form — \"It is said that honesty is the best policy\" — and the personal passive — \"Honesty is said to be the best policy.\" Option C is wrong because \"told\" requires an indirect object and cannot be used here."
+  },
+  {
+    "id": 4,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Change to passive: \"The sudden noise made the child cry.\"",
+    "o": [
+      "The child was made crying by the sudden noise.",
+      "The child was made to cry by the sudden noise.",
+      "Crying was made by the child due to the sudden noise.",
+      "The child is made to cry by the sudden noise."
+    ],
+    "a": 1,
+    "explanation": "With causative verbs (make, let, hear, see) in the active voice, the bare infinitive becomes a to-infinitive in the passive. So \"made cry\" → \"was made to cry.\" Option D uses the wrong tense (present instead of past)."
+  },
+  {
+    "id": 5,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Spot the error: \"The committee comprising of five members has submitted its report.\"",
+    "o": [
+      "The committee comprising",
+      "of five members",
+      "has submitted",
+      "its report"
+    ],
+    "a": 1,
+    "explanation": "\"Comprise\" already means \"consist of,\" so adding \"of\" is redundant and incorrect. The correct form is \"comprising five members.\" Alternatively, \"consisting of five members\" is also acceptable."
+  },
+  {
+    "id": 6,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Spot the error: \"He is one of the few politicians who has never broken a promise.\"",
+    "o": [
+      "He is one of",
+      "the few politicians",
+      "who has never broken",
+      "a promise"
+    ],
+    "a": 2,
+    "explanation": "The relative pronoun \"who\" refers to \"few politicians\" (plural antecedent), so the verb must be plural: \"who have never broken a promise.\" Using \"has\" (singular) is a subject-verb agreement error."
+  },
+  {
+    "id": 7,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Improve: \"Hardly he had spoken a few words when the audience burst into applause.\"",
+    "o": [
+      "He had hardly spoken a few words when the audience burst into applause.",
+      "Hardly had he spoken a few words when the audience burst into applause.",
+      "He hardly had spoken a few words when the audience burst into applause.",
+      "No improvement needed."
+    ],
+    "a": 1,
+    "explanation": "When a negative adverb like \"hardly,\" \"scarcely,\" or \"no sooner\" appears at the beginning of a sentence, subject-auxiliary inversion is mandatory. The correct structure is: Hardly + auxiliary + subject + verb."
+  },
+  {
+    "id": 8,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Improve: \"The more you practice, the more you become perfect.\"",
+    "o": [
+      "The more you practice, the more perfect you become.",
+      "The more you practice, the perfecter you become.",
+      "The more you practice, you become more perfect.",
+      "No improvement needed."
+    ],
+    "a": 0,
+    "explanation": "In \"the more…the more\" comparative constructions, the adjective must follow the adverb directly: \"the more perfect you become.\" Option B invents the non-standard comparative \"perfecter.\" Option C drops the required parallel structure."
+  },
+  {
+    "id": 9,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "The professor's lectures were so _____ that even complex theories seemed effortlessly comprehensible.",
+    "o": [
+      "abstruse",
+      "lucid",
+      "esoteric",
+      "recondite"
+    ],
+    "a": 1,
+    "explanation": "\"Lucid\" means clearly expressed and easy to understand — directly consistent with the idea that complex theories seemed \"effortlessly comprehensible.\" The other three options (abstruse, esoteric, recondite) all mean difficult to understand, which contradicts the sentence."
+  },
+  {
+    "id": 10,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "The administration's _____ approach to the crisis was widely criticised for its lack of urgency.",
+    "o": [
+      "precipitate",
+      "proactive",
+      "dilatory",
+      "expedient"
+    ],
+    "a": 2,
+    "explanation": "\"Dilatory\" means slow to act or tending to cause delay, which precisely matches \"lack of urgency.\" \"Precipitate\" means hasty (opposite). \"Proactive\" means acting in advance (positive connotation). \"Expedient\" means practical and convenient."
+  },
+  {
+    "id": 11,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Arrange the sentences into a coherent paragraph: - P: to be a cornerstone of - Q: freedom of the press is widely considered - R: though its limits remain - S: democratic governance - T: a subject of ongoing debate",
+    "o": [
+      "Q-P-S-R-T",
+      "S-Q-P-R-T",
+      "Q-P-T-S-R",
+      "P-Q-S-R-T"
+    ],
+    "a": 0,
+    "explanation": "The correct sentence reads: \"Freedom of the press is widely considered to be a cornerstone of democratic governance, though its limits remain a subject of ongoing debate.\" Q establishes the subject, P continues with the infinitive phrase, S completes the first clause, R introduces the concession, T completes it."
+  },
+  {
+    "id": 12,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Arrange the sentences into a coherent paragraph: - P: than to accumulate - Q: it is far more important - R: knowledge that transforms behaviour - S: information passively",
+    "o": [
+      "Q-P-S-R",
+      "Q-R-S-P",
+      "S-Q-P-R",
+      "Q-P-R-S"
+    ],
+    "a": 0,
+    "explanation": "The correct reading: \"It is far more important than to accumulate information passively — knowledge that transforms behaviour.\" Q opens with the comparative statement, P continues the comparison, S completes the negative image, R delivers the positive contrast."
+  },
+  {
+    "id": 13,
+    "section": "A",
+    "topic": "ENGLISH",
+    "q": "Read the passage and answer: The notion that economic growth and environmental sustainability are inherently at odds is increasingly being challenged by empirical evidence. Nations that have invested in green technologies and circular economies have demonstrated that decoupling growth from environmental degradation is not merely aspirational but achievable. However, this transition demands not only technological innovation but a fundamental restructuring of consumption patterns, institutional incentives, and global trade agreements. Without systemic change, isolated technological fixes will remain insufficient. What is the primary argument made by the author?",
+    "o": [
+      "Economic growth and environmental sustainability are mutually exclusive goals.",
+      "Technology alone is sufficient to achieve sustainable growth.",
+      "Sustainable growth is possible but requires comprehensive systemic change beyond technology.",
+      "Global trade agreements are the biggest obstacle to sustainability."
+    ],
+    "a": 2,
+    "explanation": "The author argues that decoupling growth from environmental damage is achievable (refuting A), but stresses that technology alone is insufficient (refuting B). The passage calls for systemic change in consumption, institutions, and trade — not just technological fixes. D is too narrow; trade agreements are only one element mentioned."
+  },
+  {
+    "id": 14,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "What is the smallest number that must be added to 875 to make it exactly divisible by 9?",
+    "o": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "a": 2,
+    "explanation": "875 ÷ 9 = 97 remainder 5. To make it divisible by 9, we need to add (9 − 5) = 4. Check: 875 + 4 = 879; 879 ÷ 9 = 97 exactly. ✓"
+  },
+  {
+    "id": 15,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "Find the least number which is divisible by 15, 20, and 25.",
+    "o": [
+      "150",
+      "250",
+      "300",
+      "450"
+    ],
+    "a": 2,
+    "explanation": "LCM(15, 20, 25): 15 = 3×5, 20 = 2²×5, 25 = 5². LCM = 2² × 3 × 5² = 4 × 3 × 25 = 300. Check: 300÷15=20 ✓, 300÷20=15 ✓, 300÷25=12 ✓."
+  },
+  {
+    "id": 16,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "Evaluate: (45 ÷ 5 + 18) ÷ 3",
+    "o": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "a": 2,
+    "explanation": "Following BODMAS: 45 ÷ 5 = 9. Then 9 + 18 = 27. Then 27 ÷ 3 = 9."
+  },
+  {
+    "id": 17,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "A salary is increased by 25% and then decreased by 20%. What is the net percentage change?",
+    "o": [
+      "No change",
+      "2% decrease",
+      "4% increase",
+      "5% increase"
+    ],
+    "a": 0,
+    "explanation": "Let salary = 100. After 25% increase: 125. After 20% decrease: 125 × 0.80 = 100. Net change = 0%. The two operations exactly cancel each other out."
+  },
+  {
+    "id": 18,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "The ratio of milk to water in a mixture is 7:3. If 10 litres of water is added, the ratio becomes 7:5. Find the quantity of milk in the mixture.",
+    "o": [
+      "28 litres",
+      "35 litres",
+      "42 litres",
+      "49 litres"
+    ],
+    "a": 1,
+    "explanation": "Let milk = 7x, water = 3x. After adding 10L water: 7x/(3x+10) = 7/5 → 35x = 21x + 70 → 14x = 70 → x = 5. Milk = 7×5 = 35 litres."
+  },
+  {
+    "id": 19,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "The average age of 8 students is 21 years. If the teacher's age is included, the average becomes 24 years. Find the teacher's age.",
+    "o": [
+      "42 years",
+      "45 years",
+      "48 years",
+      "51 years"
+    ],
+    "a": 2,
+    "explanation": "Total age of 8 students = 8 × 21 = 168. Total age of 9 people = 9 × 24 = 216. Teacher's age = 216 − 168 = 48 years."
+  },
+  {
+    "id": 20,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "A shopkeeper sells an article at a loss of 12%. If the selling price is ₹880, find the cost price.",
+    "o": [
+      "₹950",
+      "₹1000",
+      "₹1050",
+      "₹1100"
+    ],
+    "a": 1,
+    "explanation": "SP = CP × (1 − loss%) → 880 = CP × 0.88 → CP = 880/0.88 = ₹1000."
+  },
+  {
+    "id": 21,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "At what rate percent per annum will ₹6000 amount to ₹7440 in 4 years at simple interest?",
+    "o": [
+      "5%",
+      "6%",
+      "7%",
+      "8%"
+    ],
+    "a": 1,
+    "explanation": "SI = 7440 − 6000 = ₹1440. Rate = (SI × 100) / (P × T) = (1440 × 100) / (6000 × 4) = 144000/24000 = 6%."
+  },
+  {
+    "id": 22,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "Find the compound interest on ₹8000 at 5% per annum for 2 years.",
+    "o": [
+      "₹800",
+      "₹810",
+      "₹820",
+      "₹840"
+    ],
+    "a": 2,
+    "explanation": "A = P(1 + r/100)ⁿ = 8000 × (1.05)² = 8000 × 1.1025 = ₹8820. CI = 8820 − 8000 = ₹820."
+  },
+  {
+    "id": 23,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "A can complete a work in 15 days and B can complete it in 20 days. How long will they take to complete the work together?",
+    "o": [
+      "7 days",
+      "8 4/7 days",
+      "9 days",
+      "10 days"
+    ],
+    "a": 1,
+    "explanation": "A's one day work = 1/15, B's = 1/20. Together = 1/15 + 1/20 = 4/60 + 3/60 = 7/60. Time = 60/7 = 8 4/7 days."
+  },
+  {
+    "id": 24,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "Pipe A fills a tank in 8 hours and Pipe B fills it in 12 hours. How long will they take together to fill the tank?",
+    "o": [
+      "4.8 hours",
+      "5 hours",
+      "5.5 hours",
+      "6 hours"
+    ],
+    "a": 0,
+    "explanation": "Combined rate = 1/8 + 1/12 = 3/24 + 2/24 = 5/24 per hour. Time = 24/5 = 4.8 hours."
+  },
+  {
+    "id": 25,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "A man travels 150 km at a speed of 50 km/h and returns at a speed of 75 km/h. Find the average speed for the whole journey.",
+    "o": [
+      "56.25 km/h",
+      "58 km/h",
+      "60 km/h",
+      "62.5 km/h"
+    ],
+    "a": 2,
+    "explanation": "Average speed = 2uv/(u+v) = (2 × 50 × 75)/(50 + 75) = 7500/125 = 60 km/h. (The harmonic mean formula applies when distance is equal both ways.)"
+  },
+  {
+    "id": 26,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "A card is drawn from a standard deck of 52 cards. What is the probability of drawing a king or a queen?",
+    "o": [
+      "1/13",
+      "2/13",
+      "3/13",
+      "4/13"
+    ],
+    "a": 1,
+    "explanation": "There are 4 kings + 4 queens = 8 favourable cards. P = 8/52 = 2/13."
+  },
+  {
+    "id": 27,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "If 3x − 7 = 20, find the value of x.",
+    "o": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "a": 2,
+    "explanation": "3x = 20 + 7 = 27 → x = 27/3 = 9."
+  },
+  {
+    "id": 28,
+    "section": "A",
+    "topic": "QUANTITATIVE APTITUDE",
+    "q": "The sales of a company for four months are 120, 150, 180, and 210 units. Find the average sales.",
+    "o": [
+      "150",
+      "160",
+      "165",
+      "170"
+    ],
+    "a": 2,
+    "explanation": "Average = (120 + 150 + 180 + 210) / 4 = 660/4 = 165 units."
+  },
+  {
+    "id": 29,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Find the next number in the series: 5, 11, 19, 29, 41, ?",
+    "o": [
+      "51",
+      "53",
+      "55",
+      "57"
+    ],
+    "a": 2,
+    "explanation": "Differences: 6, 8, 10, 12, 14 (increasing by 2 each time). Next term = 41 + 14 = 55."
+  },
+  {
+    "id": 30,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Find the next term: B, E, H, K, N, ?",
+    "o": [
+      "P",
+      "Q",
+      "R",
+      "S"
+    ],
+    "a": 1,
+    "explanation": "Each letter advances by +3 positions in the alphabet: B(2)→E(5)→H(8)→K(11)→N(14)→Q(17)."
+  },
+  {
+    "id": 31,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Pen : Writer :: Brush : ?",
+    "o": [
+      "Painter",
+      "Artist",
+      "Color",
+      "Canvas"
+    ],
+    "a": 0,
+    "explanation": "A pen is the primary tool of a writer; similarly, a brush is the primary tool of a painter. \"Artist\" is too broad (artists use many tools); \"color\" and \"canvas\" are materials, not users."
+  },
+  {
+    "id": 32,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Find the odd one out: Copper, Iron, Silver, Plastic",
+    "o": [
+      "Copper",
+      "Iron",
+      "Silver",
+      "Plastic"
+    ],
+    "a": 3,
+    "explanation": "Copper, Iron, and Silver are all metals (naturally occurring elements). Plastic is a synthetic polymer — it does not belong to the metals category."
+  },
+  {
+    "id": 33,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "If TABLE is coded as UBCMF, then CHAIR will be coded as:",
+    "o": [
+      "DIBJS",
+      "DJBIS",
+      "DIBJR",
+      "EIBJS"
+    ],
+    "a": 0,
+    "explanation": "Each letter is shifted +1 in the alphabet: C→D, H→I, A→B, I→J, R→S. So CHAIR = DIBJS."
+  },
+  {
+    "id": 34,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "A woman says, \"He is the son of my mother's brother.\" How is the man related to the woman?",
+    "o": [
+      "Brother",
+      "Cousin",
+      "Uncle",
+      "Nephew"
+    ],
+    "a": 1,
+    "explanation": "The woman's mother's brother is her maternal uncle. The son of her maternal uncle is her cousin."
+  },
+  {
+    "id": 35,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "A person walks 12 m east, then 5 m north, then 12 m west. In which direction is he from the starting point?",
+    "o": [
+      "East",
+      "West",
+      "North",
+      "South"
+    ],
+    "a": 2,
+    "explanation": "He walks 12 m east, then 12 m west — these cancel out. He is left with only 5 m north of his starting point. So he is north of his origin."
+  },
+  {
+    "id": 36,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Mohan is 18th from the left and 25th from the right in a row. How many students are there in the row?",
+    "o": [
+      "40",
+      "41",
+      "42",
+      "43"
+    ],
+    "a": 2,
+    "explanation": "Total = position from left + position from right − 1 = 18 + 25 − 1 = 42."
+  },
+  {
+    "id": 37,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Statements: All fruits are healthy. Some healthy things are expensive. Conclusions: I. Some fruits are expensive. II. Some expensive things are healthy.",
+    "o": [
+      "Only I follows",
+      "Only II follows",
+      "Both follow",
+      "Neither follows"
+    ],
+    "a": 1,
+    "explanation": "From \"All fruits are healthy\" + \"Some healthy things are expensive\" → we cannot conclude that fruits are expensive (the expensive healthy things may not include fruits). However, Conclusion II directly follows: if some healthy things are expensive, then some expensive things are healthy (simple conversion)."
+  },
+  {
+    "id": 38,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Statement: The government increased fuel prices. Conclusions: I. Transportation costs may increase. II. All citizens will stop using vehicles.",
+    "o": [
+      "Only I follows",
+      "Only II follows",
+      "Both follow",
+      "Neither follows"
+    ],
+    "a": 0,
+    "explanation": "Higher fuel prices logically lead to higher transportation costs (Conclusion I is reasonable). Conclusion II is an extreme and unsupported generalization — not all citizens will stop using vehicles."
+  },
+  {
+    "id": 39,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "Five persons A, B, C, D, and E are sitting in a row facing north. B is between A and C. D is to the immediate right of C. E is at the extreme left. Who is sitting at the extreme right?",
+    "o": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "a": 3,
+    "explanation": "E is at extreme left. B is between A and C, and D is immediately right of C. Working it out: E – A – B – C – D. So D is at the extreme right."
+  },
+  {
+    "id": 40,
+    "section": "A",
+    "topic": "REASONING",
+    "q": "P, Q, R, S, and T are standing in a line. Q is to the left of R. S is to the right of T. P is between Q and R. Who is standing in the middle?",
+    "o": [
+      "P",
+      "Q",
+      "R",
+      "S"
+    ],
+    "a": 0,
+    "explanation": "From the clues, the arrangement resolves to: T – Q – P – R – S (or similar valid ordering). P is in the middle (3rd position out of 5)."
+  },
+  {
+    "id": 41,
+    "section": "A",
+    "topic": "COMPUTER FUNDAMENTALS",
+    "q": "Which component performs arithmetic calculations in a CPU?",
+    "o": [
+      "CU",
+      "ALU",
+      "RAM",
+      "HDD"
+    ],
+    "a": 1,
+    "explanation": "The Arithmetic Logic Unit (ALU) is the part of the CPU responsible for performing all arithmetic operations (addition, subtraction, etc.) and logical operations (AND, OR, NOT). The CU (Control Unit) manages instruction execution but does not perform calculations."
+  },
+  {
+    "id": 42,
+    "section": "A",
+    "topic": "COMPUTER FUNDAMENTALS",
+    "q": "Which storage device has the fastest access speed?",
+    "o": [
+      "Hard Disk",
+      "CD-ROM",
+      "SSD",
+      "Floppy Disk"
+    ],
+    "a": 2,
+    "explanation": "Solid State Drives (SSDs) use flash memory with no moving parts, giving them far faster read/write speeds than HDDs, CD-ROMs, or Floppy Disks. HDDs rely on spinning platters and a mechanical read head, causing latency."
+  },
+  {
+    "id": 43,
+    "section": "A",
+    "topic": "COMPUTER FUNDAMENTALS",
+    "q": "IP address is mainly used for:",
+    "o": [
+      "File storage",
+      "Device identification on a network",
+      "Printing",
+      "Programming"
+    ],
+    "a": 1,
+    "explanation": "An IP (Internet Protocol) address is a numerical label assigned to each device on a network. It serves two main functions: host identification and location addressing for routing packets across the internet or local networks."
+  },
+  {
+    "id": 44,
+    "section": "A",
+    "topic": "COMPUTER FUNDAMENTALS",
+    "q": "Which number system is directly understood by computers?",
+    "o": [
+      "Decimal",
+      "Binary",
+      "Hexadecimal",
+      "Octal"
+    ],
+    "a": 1,
+    "explanation": "Computers operate using electronic circuits that have two states: on (1) and off (0). Therefore, all data and instructions are represented internally in binary (base-2). Hexadecimal and octal are used by programmers as shorthand but are converted to binary internally."
+  },
+  {
+    "id": 45,
+    "section": "A",
+    "topic": "COMPUTER FUNDAMENTALS",
+    "q": "Which of the following is system software?",
+    "o": [
+      "Photoshop",
+      "VLC Player",
+      "Linux",
+      "Excel"
+    ],
+    "a": 2,
+    "explanation": "System software manages and controls computer hardware to allow application software to run. Linux is an operating system — a core example of system software. Photoshop, VLC, and Excel are all application software designed for end-user tasks."
+  },
+  {
+    "id": 46,
+    "section": "A",
+    "topic": "CONCEPTS OF PROGRAMMING & C",
+    "q": "Which keyword is used to define a constant in C?",
+    "o": [
+      "fixed",
+      "const",
+      "final",
+      "define"
+    ],
+    "a": 1,
+    "explanation": "In C, the const keyword makes a variable's value unmodifiable after initialization. final is a Java/C++ keyword. #define is a preprocessor directive (also used for constants but is not a keyword). fixed is not a C keyword at all."
+  },
+  {
+    "id": 47,
+    "section": "A",
+    "topic": "CONCEPTS OF PROGRAMMING & C",
+    "q": "Which statement is used to choose one option from many in C?",
+    "o": [
+      "if",
+      "while",
+      "switch",
+      "goto"
+    ],
+    "a": 2,
+    "explanation": "The switch statement evaluates an expression and matches it against multiple case values, making it the ideal construct for multi-way branching. if handles conditional branching but is not optimised for many discrete choices."
+  },
+  {
+    "id": 48,
+    "section": "A",
+    "topic": "CONCEPTS OF PROGRAMMING & C",
+    "q": "What is the index of the first element in an array in C?",
+    "o": [
+      "0",
+      "1",
+      "-1",
+      "Depends on compiler"
+    ],
+    "a": 0,
+    "explanation": "C uses zero-based indexing. The first element of an array arr is accessed as arr[0]. This is a fixed language rule, not compiler-dependent."
+  },
+  {
+    "id": 49,
+    "section": "A",
+    "topic": "CONCEPTS OF PROGRAMMING & C",
+    "q": "Which function is used to read formatted input in C?",
+    "o": [
+      "printf()",
+      "scanf()",
+      "gets()",
+      "putchar()"
+    ],
+    "a": 1,
+    "explanation": "scanf() reads formatted input from standard input (keyboard) using format specifiers like %d, %f, %s. printf() is for output. gets() reads a string (deprecated and unsafe). putchar() outputs a single character."
+  },
+  {
+    "id": 50,
+    "section": "A",
+    "topic": "CONCEPTS OF PROGRAMMING & C",
+    "q": "Which programming concept improves code reusability?",
+    "o": [
+      "Variables",
+      "Functions",
+      "Operators",
+      "Comments"
+    ],
+    "a": 1,
+    "explanation": "Functions allow a block of code to be written once and called multiple times from different parts of a program, directly improving reusability and reducing redundancy. Variables store data; operators perform operations; comments are for documentation only."
+  },
+  {
+    "id": 51,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Operators] What is the output of the following code?",
+    "code": "int x = 5;\nint y = x++ + ++x;\nprintf(\"%d %d\", x, y);",
+    "o": [
+      "7 12",
+      "7 11",
+      "6 11",
+      "Undefined behaviour"
+    ],
+    "a": 3,
+    "explanation": "Modifying x twice (via x++ and ++x) between two sequence points without an intervening sequence point is undefined behaviour in C. The result is entirely compiler-dependent and may vary across platforms."
+  },
+  {
+    "id": 52,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Conditional Statements] What is the output of the following code?",
+    "code": "int x = 0;\nif (x = 5)\n    printf(\"True\");\nelse\n    printf(\"False\");",
+    "o": [
+      "False",
+      "Compilation error",
+      "True",
+      "Nothing"
+    ],
+    "a": 2,
+    "explanation": "x = 5 is an assignment, not a comparison. It assigns 5 to x and evaluates to 5. Since any non-zero value is treated as true in C, the if branch executes. This is a classic C pitfall — use == for comparison."
+  },
+  {
+    "id": 53,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Loops] What is the output of the following code?",
+    "code": "int i = 0;\nfor ( ; ; ) {\n    if (i == 3) break;\n    printf(\"%d \", i);\n    i++;\n}",
+    "o": [
+      "0 1 2 3",
+      "Infinite loop",
+      "0 1 2",
+      "Compilation error"
+    ],
+    "a": 2,
+    "explanation": "for(;;) is an infinite loop, but the break statement exits when i == 3. The loop prints i before incrementing, so it prints 0, 1, 2 and breaks when i reaches 3."
+  },
+  {
+    "id": 54,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Functions] What is the output of the following recursive function called as fun(3)?",
+    "code": "void fun(int n) {\n    if (n == 0) return;\n    printf(\"%d \", n);\n    fun(n - 1);\n    printf(\"%d \", n);\n}",
+    "o": [
+      "3 2 1",
+      "1 2 3 3 2 1",
+      "3 2 1 1 2 3",
+      "3 3 2 2 1 1"
+    ],
+    "a": 2,
+    "explanation": "Before recursive calls (going down the stack): prints 3, 2, 1. As the call stack unwinds (returning): prints 1, 2, 3. Combined output: 3 2 1 1 2 3."
+  },
+  {
+    "id": 55,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Arrays] What is the output of the following code?",
+    "code": "int arr[] = {1, 2, 3, 4, 5};\nint *p = arr;\nprintf(\"%d\", *(p + 3));",
+    "o": [
+      "3",
+      "5",
+      "Address of arr[3]",
+      "4"
+    ],
+    "a": 3,
+    "explanation": "p points to arr[0]. Pointer arithmetic: p + 3 points to arr[3]. Dereferencing with * gives the value at arr[3] = 4."
+  },
+  {
+    "id": 56,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Strings] What is the output of the following code?",
+    "code": "char s[] = \"Hello\";\nprintf(\"%d\", strlen(s));",
+    "o": [
+      "6",
+      "4",
+      "5",
+      "Compiler-dependent"
+    ],
+    "a": 2,
+    "explanation": "strlen() counts characters excluding the null terminator \\0. \"Hello\" has 5 characters (H, e, l, l, o), so output is 5. sizeof(s) would return 6 (including \\0), but strlen does not."
+  },
+  {
+    "id": 57,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Pointers] What is the output of the following code?",
+    "code": "int x = 10, y = 20;\nint *p = &x;\n*p = 30;\nprintf(\"%d %d\", x, y);",
+    "o": [
+      "10 20",
+      "30 30",
+      "30 20",
+      "10 30"
+    ],
+    "a": 2,
+    "explanation": "p holds the address of x. p = 30 dereferences the pointer and changes the value at that address*, so x becomes 30. y is unaffected since p never pointed to it. Output: 30 20."
+  },
+  {
+    "id": 58,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Structures] What is the output of the following code?",
+    "code": "struct Num { int x; };\nvoid change(struct Num n) { n.x = 100; }\nint main() {\n    struct Num n = {5};\n    change(n);\n    printf(\"%d\", n.x);\n}",
+    "o": [
+      "100",
+      "5",
+      "0",
+      "Garbage"
+    ],
+    "a": 1,
+    "explanation": "Structures in C are passed by value by default. The change() function receives a copy of n. Modifying n.x inside the function changes the copy, not the original. The original n.x in main remains 5."
+  },
+  {
+    "id": 59,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Unions] What is the size of the following union on a typical 64-bit system?",
+    "code": "union Mixed {\n    char c;\n    int i;\n    double d;\n};",
+    "o": [
+      "13 bytes",
+      "8 bytes",
+      "4 bytes",
+      "1 byte"
+    ],
+    "a": 1,
+    "explanation": "A union's size equals the size of its largest member. On a 64-bit system: char = 1 byte, int = 4 bytes, double = 8 bytes. Therefore, the union size = 8 bytes."
+  },
+  {
+    "id": 60,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Dynamic Memory Allocation] What is a dangling pointer in C?",
+    "o": [
+      "A pointer that has never been initialised",
+      "A pointer that points to memory that has been freed",
+      "A pointer that stores NULL",
+      "A pointer to a local variable returned from a function"
+    ],
+    "a": 1,
+    "explanation": "A dangling pointer arises when memory it points to is released via free(), but the pointer variable is not subsequently set to NULL. Dereferencing a dangling pointer leads to undefined behaviour. Note: Option D (returning a pointer to a local variable) is also a form of dangling pointer, but B is the primary definition tested in exams."
+  },
+  {
+    "id": 61,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[File Handling] What is the difference between fread() and fscanf()?",
+    "o": [
+      "fread reads binary/raw bytes; fscanf reads formatted text",
+      "fscanf reads binary; fread reads formatted text",
+      "fread is only for integers; fscanf is only for strings",
+      "Both are identical in behaviour"
+    ],
+    "a": 0,
+    "explanation": "fread() reads a specified number of raw bytes from a file stream — ideal for binary files. fscanf() reads formatted text using format specifiers (like %d, %s), similar to scanf() but from a file. They serve entirely different purposes."
+  },
+  {
+    "id": 62,
+    "section": "B",
+    "topic": "C PROGRAMMING",
+    "q": "[Input/Output Functions] What is the output of the following code?",
+    "code": "int x = 255;\nprintf(\"%x\", x);",
+    "o": [
+      "255",
+      "ff",
+      "FF",
+      "11111111"
+    ],
+    "a": 1,
+    "explanation": "The %x format specifier prints an integer in lowercase hexadecimal. 255 in decimal = FF in hexadecimal. Since %x uses lowercase letters, the output is ff. Use %X for uppercase."
+  },
+  {
+    "id": 63,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Stack] What is the time complexity of getting the minimum element from a stack that supports getMin() in O(1)?",
+    "o": [
+      "O(n) for push, O(1) for getMin",
+      "O(1) for push, O(n) for getMin",
+      "O(1) for both push and getMin",
+      "O(log n) for both"
+    ],
+    "a": 2,
+    "explanation": "Using an auxiliary min-stack alongside the main stack, every push operation also pushes the current minimum onto the min-stack. This keeps both push and getMin at O(1) time complexity with O(n) space overhead."
+  },
+  {
+    "id": 64,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Linked List] To find the middle of a linked list in a single pass, the optimal approach is:",
+    "o": [
+      "Count nodes first, then traverse to n/2",
+      "Use two pointers — slow (1 step) and fast (2 steps)",
+      "Use a Stack to store all nodes",
+      "Use Binary Search"
+    ],
+    "a": 1,
+    "explanation": "The Floyd's two-pointer (tortoise and hare) technique: the slow pointer moves one node at a time, the fast pointer moves two. When the fast pointer reaches the end, the slow pointer is exactly at the middle. This achieves O(n) time and O(1) space in a single pass."
+  },
+  {
+    "id": 65,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Trees] Which self-balancing BST guarantees O(log n) for insert, delete, and search in all cases?",
+    "o": [
+      "Regular BST",
+      "Heap",
+      "AVL Tree",
+      "Trie"
+    ],
+    "a": 2,
+    "explanation": "An AVL Tree maintains a balance factor of −1, 0, or +1 at every node through rotations after each insertion or deletion. This strict balance guarantee ensures O(log n) for all operations in every case. A regular BST can degrade to O(n) in the worst case."
+  },
+  {
+    "id": 66,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Graphs] Which of the following is TRUE about Minimum Spanning Tree (MST)?",
+    "o": [
+      "It contains all edges of the graph",
+      "It may contain cycles",
+      "For V vertices, it has exactly V − 1 edges",
+      "It is applicable to directed graphs only"
+    ],
+    "a": 2,
+    "explanation": "An MST of a connected undirected weighted graph with V vertices always has exactly V − 1 edges and contains no cycles. It spans all vertices with the minimum total edge weight. MSTs are defined for undirected graphs."
+  },
+  {
+    "id": 67,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Sorting Algorithms] Which sorting algorithm is stable AND has O(n log n) time in all cases?",
+    "o": [
+      "Quick Sort",
+      "Heap Sort",
+      "Merge Sort",
+      "Shell Sort"
+    ],
+    "a": 2,
+    "explanation": "Merge Sort is stable (preserves the relative order of equal elements) and guarantees O(n log n) in best, average, and worst cases. Quick Sort has O(n²) worst case. Heap Sort is not stable. Shell Sort does not guarantee O(n log n)."
+  },
+  {
+    "id": 68,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Time Complexity] Using the Master Theorem, what is the solution to T(n) = 2T(n/2) + O(n)?",
+    "o": [
+      "O(n)",
+      "O(n log n)",
+      "O(n²)",
+      "O(log n)"
+    ],
+    "a": 1,
+    "explanation": "Here a = 2, b = 2, f(n) = n. n^(log_b a) = n^(log₂ 2) = n¹ = n. Since f(n) = Θ(n^(log_b a)), Case 2 of the Master Theorem applies → T(n) = O(n log n). This is the recurrence for Merge Sort."
+  },
+  {
+    "id": 69,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Space Complexity] What is the space complexity of an Adjacency List representation for a graph with V vertices and E edges?",
+    "o": [
+      "O(V²)",
+      "O(V)",
+      "O(E)",
+      "O(V + E)"
+    ],
+    "a": 3,
+    "explanation": "An adjacency list maintains V linked lists (one per vertex) with a combined total of 2E entries for an undirected graph (each edge stored in two lists). Total space = O(V + E). Adjacency Matrix requires O(V²) regardless of edge count."
+  },
+  {
+    "id": 70,
+    "section": "B",
+    "topic": "DATA STRUCTURES",
+    "q": "[Searching Algorithms] In which scenario does Interpolation Search outperform Binary Search?",
+    "o": [
+      "When data is unsorted",
+      "When data is sorted and uniformly distributed",
+      "When all elements are equal",
+      "When the array has duplicate values"
+    ],
+    "a": 1,
+    "explanation": "Interpolation Search estimates the probe position based on the value's likely location (similar to how we search a dictionary). For uniformly distributed sorted data, it achieves O(log log n) — significantly better than Binary Search's O(log n). For non-uniform distributions, it can degrade to O(n)."
+  },
+  {
+    "id": 71,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which of the following represents a real-world entity in OOP?",
+    "o": [
+      "Variable",
+      "Object",
+      "Loop",
+      "Function"
+    ],
+    "a": 1,
+    "explanation": "In OOP, an object is an instance of a class that models a real-world entity with both state (attributes/fields) and behaviour (methods). A variable stores data but has no behaviour; loops and functions are procedural constructs."
+  },
+  {
+    "id": 72,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which feature of OOP helps in reducing code redundancy?",
+    "o": [
+      "Encapsulation",
+      "Abstraction",
+      "Inheritance",
+      "Exception Handling"
+    ],
+    "a": 2,
+    "explanation": "Inheritance allows a child class to reuse fields and methods from a parent class, eliminating the need to rewrite common code. Encapsulation hides internal details; Abstraction simplifies interfaces; Exception Handling manages runtime errors."
+  },
+  {
+    "id": 73,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "What is the output of the following C++ code?",
+    "code": "#include <iostream>\nusing namespace std;\nclass Demo {\npublic:\n    Demo() { cout << \"Hello\"; }\n};\nint main() {\n    Demo d1, d2;\n    return 0;\n}",
+    "o": [
+      "Hello",
+      "HelloHello",
+      "Error",
+      "No Output"
+    ],
+    "a": 1,
+    "explanation": "Two objects d1 and d2 are created, each invoking the constructor once. The constructor prints \"Hello\" each time. Since there are two objects, \"Hello\" is printed twice: HelloHello. There is no space or newline in the output."
+  },
+  {
+    "id": 74,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which concept allows the same function name to perform different tasks based on parameters?",
+    "o": [
+      "Inheritance",
+      "Constructor",
+      "Function Overloading",
+      "Destructor"
+    ],
+    "a": 2,
+    "explanation": "Function Overloading (compile-time polymorphism) allows multiple functions with the same name but different parameter lists (different types or number of parameters) to coexist in the same scope."
+  },
+  {
+    "id": 75,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which of the following is true about a destructor in C++?",
+    "o": [
+      "It is used to initialize objects",
+      "It has the same name as the class",
+      "It is automatically called when an object is destroyed",
+      "It can return a value"
+    ],
+    "a": 2,
+    "explanation": "A destructor is automatically invoked when an object goes out of scope or is explicitly deleted. It has the same name as the class but is prefixed with ~ (tilde). It cannot return a value and takes no parameters."
+  },
+  {
+    "id": 76,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which access specifier allows members to be accessible within the class and its derived classes?",
+    "o": [
+      "private",
+      "public",
+      "protected",
+      "global"
+    ],
+    "a": 2,
+    "explanation": "protected members are accessible within the class itself and by derived (child) classes, but not from outside the class hierarchy. private restricts access to only the class itself; public allows access from anywhere."
+  },
+  {
+    "id": 77,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "What is the output of the following C++ program?",
+    "code": "#include <iostream>\nusing namespace std;\nclass Test {\npublic:\n    static int count;\n};\nint Test::count = 5;\nint main() {\n    cout << Test::count;\n    return 0;\n}",
+    "o": [
+      "0",
+      "1",
+      "5",
+      "Error"
+    ],
+    "a": 2,
+    "explanation": "count is a static class member, meaning it is shared across all instances and belongs to the class itself. It is explicitly initialized to 5 outside the class definition. Accessing it via Test::count prints 5."
+  },
+  {
+    "id": 78,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which keyword is used to create a class that cannot be instantiated directly?",
+    "o": [
+      "static",
+      "virtual",
+      "abstract",
+      "const"
+    ],
+    "a": 2,
+    "explanation": "An abstract class contains at least one pure virtual function (in C++) and cannot be instantiated directly — it serves as a blueprint for derived classes. In Java, the abstract keyword is used explicitly on the class declaration."
+  },
+  {
+    "id": 79,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "Which of the following supports runtime polymorphism in C++?",
+    "o": [
+      "Function Overloading",
+      "Operator Overloading",
+      "Virtual Functions",
+      "Constructors"
+    ],
+    "a": 2,
+    "explanation": "Runtime polymorphism in C++ is achieved through virtual functions and inheritance. When a base class pointer points to a derived class object and calls a virtual function, the derived class's version is invoked at runtime. Function and Operator Overloading are resolved at compile time."
+  },
+  {
+    "id": 80,
+    "section": "B",
+    "topic": "OBJECT ORIENTED PROGRAMMING (OOPS)",
+    "q": "What is the main purpose of exception handling?",
+    "o": [
+      "To improve graphics",
+      "To handle runtime errors gracefully",
+      "To create classes",
+      "To increase execution time"
+    ],
+    "a": 1,
+    "explanation": "Exception handling (using try, catch, throw) allows a program to detect and respond to runtime errors (e.g., division by zero, file not found) without crashing. It separates error-handling logic from normal program flow."
+  },
+  {
+    "id": 81,
+    "section": "B",
+    "topic": "OPERATING SYSTEMS",
+    "q": "Which OS is designed to respond within strict time limits?",
+    "o": [
+      "Batch OS",
+      "Real-Time OS",
+      "Distributed OS",
+      "Multi-user OS"
+    ],
+    "a": 1,
+    "explanation": "A Real-Time Operating System (RTOS) is designed to process tasks within a guaranteed time constraint. It is used in critical applications like medical devices, aircraft control systems, and industrial automation where timing is crucial."
+  },
+  {
+    "id": 82,
+    "section": "B",
+    "topic": "OPERATING SYSTEMS",
+    "q": "Which process state indicates that execution has finished?",
+    "o": [
+      "Ready",
+      "Waiting",
+      "Running",
+      "Terminated"
+    ],
+    "a": 3,
+    "explanation": "In the process lifecycle: New → Ready → Running → Waiting/Blocked → back to Ready or → Terminated. The Terminated state means the process has completed execution or been killed, and its resources are being deallocated."
+  },
+  {
+    "id": 83,
+    "section": "B",
+    "topic": "OPERATING SYSTEMS",
+    "q": "Which scheduling algorithm executes processes in arrival order?",
+    "o": [
+      "FCFS",
+      "SJF",
+      "Round Robin",
+      "Priority Scheduling"
+    ],
+    "a": 0,
+    "explanation": "FCFS (First Come First Served) is the simplest CPU scheduling algorithm — processes are executed in the order they arrive in the ready queue. It is non-preemptive. A major drawback is the \"convoy effect\" where short processes wait behind long ones."
+  },
+  {
+    "id": 84,
+    "section": "B",
+    "topic": "OPERATING SYSTEMS",
+    "q": "The critical section problem occurs in:",
+    "o": [
+      "Single-user systems",
+      "Concurrent processing",
+      "Disk Scheduling",
+      "Booting Process"
+    ],
+    "a": 1,
+    "explanation": "The critical section is a segment of code that accesses shared resources and must not be executed by more than one process at a time. This problem arises in concurrent/parallel processing environments. Solutions include mutex locks, semaphores, and monitors."
+  },
+  {
+    "id": 85,
+    "section": "B",
+    "topic": "OPERATING SYSTEMS",
+    "q": "Which of the following is used in synchronization?",
+    "o": [
+      "Semaphore",
+      "Compiler",
+      "Linker",
+      "Loader"
+    ],
+    "a": 0,
+    "explanation": "A semaphore is a synchronization primitive used to control access to shared resources in concurrent systems. It uses two atomic operations: wait() (P) and signal() (V). Compilers, linkers, and loaders are tools in the software development process, not synchronization mechanisms."
+  },
+  {
+    "id": 86,
+    "section": "B",
+    "topic": "NETWORKING",
+    "q": "Which network topology uses a single backbone cable?",
+    "o": [
+      "Ring",
+      "Mesh",
+      "Bus",
+      "Star"
+    ],
+    "a": 2,
+    "explanation": "In a Bus topology, all devices are connected to a single central cable (the backbone). Data travels in both directions along this cable. A break in the backbone brings down the entire network. Star topology uses a central hub/switch, not a single cable."
+  },
+  {
+    "id": 87,
+    "section": "B",
+    "topic": "NETWORKING",
+    "q": "Which protocol is used for file transfer?",
+    "o": [
+      "FTP",
+      "HTTP",
+      "SMTP",
+      "SNMP"
+    ],
+    "a": 0,
+    "explanation": "FTP (File Transfer Protocol) operates on ports 20 and 21 and is specifically designed for transferring files between a client and server. HTTP is for web pages, SMTP is for sending emails, and SNMP is for network management/monitoring."
+  },
+  {
+    "id": 88,
+    "section": "B",
+    "topic": "NETWORKING",
+    "q": "Which address uniquely identifies a device on the internet?",
+    "o": [
+      "MAC Address",
+      "IP Address",
+      "Port Number",
+      "Subnet Mask"
+    ],
+    "a": 1,
+    "explanation": "An IP address uniquely identifies a device on a network/internet for routing purposes. A MAC address identifies a device on a local network (Layer 2) but is not routable across the internet. A port number identifies a specific service/process, not the device itself."
+  },
+  {
+    "id": 89,
+    "section": "B",
+    "topic": "NETWORKING",
+    "q": "Which networking device works at Layer 2 of the OSI model?",
+    "o": [
+      "Router",
+      "Gateway",
+      "Switch",
+      "Repeater"
+    ],
+    "a": 2,
+    "explanation": "A Switch operates at Layer 2 (Data Link Layer) of the OSI model and uses MAC addresses to forward frames to the correct destination port. Routers work at Layer 3 (Network). Repeaters work at Layer 1 (Physical). Gateways work at multiple layers."
+  },
+  {
+    "id": 90,
+    "section": "B",
+    "topic": "NETWORKING",
+    "q": "HTTPS is more secure than HTTP because it uses:",
+    "o": [
+      "Compression",
+      "Encryption",
+      "Routing",
+      "Fragmentation"
+    ],
+    "a": 1,
+    "explanation": "HTTPS (HTTP Secure) uses SSL/TLS (Secure Sockets Layer / Transport Layer Security) to encrypt data transmitted between the browser and the server. This protects against eavesdropping and man-in-the-middle attacks. HTTP transmits data in plain text."
+  },
+  {
+    "id": 91,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Which characteristic of Big Data refers to the speed at which data is generated?",
+    "o": [
+      "Volume",
+      "Variety",
+      "Velocity",
+      "Value"
+    ],
+    "a": 2,
+    "explanation": "The 3 V's of Big Data: Volume = amount of data, Variety = different types/formats of data, Velocity = the speed at which data is generated and processed (e.g., real-time social media streams, sensor data). Some frameworks add Veracity and Value as additional V's."
+  },
+  {
+    "id": 92,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Which of the following is an example of structured data?",
+    "o": [
+      "Audio files",
+      "Videos",
+      "Database tables",
+      "Social media posts"
+    ],
+    "a": 2,
+    "explanation": "Structured data is organized in a predefined format, typically in rows and columns (like relational database tables). Audio files, videos, and social media posts are unstructured data — they don't follow a rigid schema and cannot be easily stored in traditional databases."
+  },
+  {
+    "id": 93,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Hadoop is mainly designed for:",
+    "o": [
+      "Small-scale computing",
+      "Distributed storage and processing of big data",
+      "Mobile application development",
+      "Web designing"
+    ],
+    "a": 1,
+    "explanation": "Apache Hadoop is an open-source framework that enables the distributed storage (via HDFS — Hadoop Distributed File System) and parallel processing (via MapReduce) of very large datasets across clusters of commodity hardware."
+  },
+  {
+    "id": 94,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "In MapReduce, the \"Map\" phase mainly performs:",
+    "o": [
+      "Data visualization",
+      "Data splitting and processing",
+      "Data deletion",
+      "Data encryption"
+    ],
+    "a": 1,
+    "explanation": "In MapReduce: the Map phase takes input data, splits it into key-value pairs, and processes each chunk independently in parallel. The Reduce phase then aggregates/merges the intermediate results produced by the Map phase."
+  },
+  {
+    "id": 95,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Which of the following is an open-source big data processing framework?",
+    "o": [
+      "Oracle",
+      "Apache Spark",
+      "MS Word",
+      "Photoshop"
+    ],
+    "a": 1,
+    "explanation": "Apache Spark is an open-source, distributed big data processing engine known for its in-memory computation capabilities, making it significantly faster than Hadoop MapReduce for iterative tasks. Oracle is a proprietary RDBMS; MS Word and Photoshop are unrelated."
+  },
+  {
+    "id": 96,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Cloud computing allows users to:",
+    "o": [
+      "Store and access data over the internet",
+      "Increase hardware size manually",
+      "Use computers without electricity",
+      "Create only offline applications"
+    ],
+    "a": 0,
+    "explanation": "Cloud computing delivers computing services — storage, servers, databases, networking, software — over the internet (\"the cloud\") on a pay-as-you-go basis. Users can access resources remotely without owning or managing physical infrastructure."
+  },
+  {
+    "id": 97,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Which branch of AI focuses on creating systems that can learn from data?",
+    "o": [
+      "Cyber Security",
+      "Data Mining",
+      "Machine Learning",
+      "Networking"
+    ],
+    "a": 2,
+    "explanation": "Machine Learning (ML) is a subset of AI that enables systems to automatically learn and improve from experience (data) without being explicitly programmed. Data Mining focuses on discovering patterns in existing data; Cyber Security and Networking are different fields entirely."
+  },
+  {
+    "id": 98,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Which type of learning groups similar data without labeled outputs?",
+    "o": [
+      "Supervised Learning",
+      "Reinforcement Learning",
+      "Unsupervised Learning",
+      "Deep Learning"
+    ],
+    "a": 2,
+    "explanation": "In Unsupervised Learning, the algorithm receives unlabeled data and must find hidden patterns or groupings on its own (e.g., clustering, dimensionality reduction). Supervised Learning uses labeled data; Reinforcement Learning uses rewards/penalties; Deep Learning is an architecture, not a learning type per se."
+  },
+  {
+    "id": 99,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Neural networks are inspired by:",
+    "o": [
+      "Computer hardware",
+      "Human brain structure",
+      "Database systems",
+      "Operating systems"
+    ],
+    "a": 1,
+    "explanation": "Artificial Neural Networks (ANNs) are modeled after the biological neural networks in the human brain. They consist of interconnected nodes (artificial neurons) organized in layers that process information by passing signals — mimicking how neurons fire in the brain."
+  },
+  {
+    "id": 100,
+    "section": "B",
+    "topic": "BASICS OF BIG DATA & AI",
+    "q": "Which AI field enables machines to identify objects and patterns in images?",
+    "o": [
+      "NLP",
+      "Expert Systems",
+      "Computer Vision",
+      "Cloud Computing"
+    ],
+    "a": 2,
+    "explanation": "Computer Vision is the AI discipline that enables machines to interpret and understand visual information from images and videos — including object detection, facial recognition, and image classification. NLP deals with text/speech; Expert Systems use rule-based reasoning; Cloud Computing is an infrastructure model. End of SET 5 —"
+  }
+];
+
+let currentSection = "A";
+let examStarted = false;
+let examSubmitted = false;
+let sectionALocked = false;
+let timeLeft = {A:60*60,B:60*60};
+let timerInterval = null;
+
+function startExam(){
+    examStarted = true;
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("examScreen").style.display = "block";
+    showSection("A");
+    updateSubmitButton();
+    timerInterval = setInterval(tickTimer,1000);
+}
+
+function showSection(section){
+    if(section === "A" && sectionALocked && !examSubmitted){
+        return;
+    }
+    currentSection = section;
+    document.getElementById("tabA").classList.toggle("active",section==="A");
+    document.getElementById("tabB").classList.toggle("active",section==="B");
+    document.getElementById("tabA").disabled = sectionALocked && !examSubmitted;
+    document.getElementById("timerA").classList.toggle("active",section==="A");
+    document.getElementById("timerB").classList.toggle("active",section==="B");
+    renderQuestions();
+    renderNav();
+    updateSubmitButton();
+}
+
+function renderQuestions(){
+    const visibleQuestions = questions.filter(q => q.section === currentSection);
+    const title = currentSection === "A"
+        ? "Section A: English, Aptitude, Reasoning, Computer Fundamentals"
+        : "Section B: C Programming, Data Structures, OOP, OS, Networking";
+    let html = `<h2 class="section-title">${title}</h2>`;
+
+    visibleQuestions.forEach(q => {
+        html += `
+        <div class="question-card" id="card${q.id}">
+            <span class="topic">${q.topic}</span>
+            <div class="question">Q${q.id}. ${q.q}</div>
+            ${q.code ? `<div class="code">${q.code}</div>` : ""}
+        `;
+
+        q.o.forEach((opt,i) => {
+            const checked = getSelected(q.id) === i ? "checked" : "";
+            html += `
+            <label class="option">
+                <input type="radio" name="q${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id},${i})">
+                ${String.fromCharCode(65+i)}) ${opt}
+            </label>`;
+        });
+
+        html += `</div>`;
+    });
+
+    document.getElementById("questions").innerHTML = html;
+}
+
+function renderNav(){
+    const visibleQuestions = questions.filter(q => q.section === currentSection);
+    let html = "";
+    visibleQuestions.forEach(q => {
+        const answered = getSelected(q.id) !== null ? "answered" : "";
+        html += `<button class="nav-btn ${answered}" onclick="goToQuestion(${q.id})">${q.id}</button>`;
+    });
+    document.getElementById("navPanel").innerHTML = html;
+}
+
+function saveAnswer(id,value){
+    localStorage.setItem("ccat_q"+id,value);
+    renderNav();
+}
+
+function getSelected(id){
+    const value = localStorage.getItem("ccat_q"+id);
+    return value === null ? null : Number(value);
+}
+
+function goToQuestion(id){
+    const question = questions.find(q => q.id === id);
+    if(question.section !== currentSection){
+        showSection(question.section);
+    }
+    setTimeout(() => {
+        document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"});
+    },50);
+}
+
+function tickTimer(){
+    if(!examStarted || examSubmitted){
+        return;
+    }
+    timeLeft[currentSection]--;
+    updateTimers();
+    if(timeLeft[currentSection] <= 0){
+        timeLeft[currentSection] = 0;
+        if(currentSection === "A"){
+            submitCurrentSection();
+        }
+        else{
+            submitExam();
+        }
+    }
+}
+
+function updateTimers(){
+    document.getElementById("timerA").innerHTML = "Section A: " + formatTime(timeLeft.A);
+    document.getElementById("timerB").innerHTML = "Section B: " + formatTime(timeLeft.B);
+}
+
+function formatTime(seconds){
+    const min = Math.floor(seconds/60);
+    const sec = seconds%60;
+    return `${min}:${sec<10 ? "0" : ""}${sec}`;
+}
+
+function updateSubmitButton(){
+    const submitBtn = document.getElementById("submitBtn");
+    if(currentSection === "A"){
+        submitBtn.innerHTML = "Submit Section A & Go to Section B";
+    }
+    else{
+        submitBtn.innerHTML = "Submit Exam";
+    }
+}
+
+function submitCurrentSection(){
+    if(currentSection === "A"){
+        sectionALocked = true;
+        timeLeft.A = Math.max(timeLeft.A,0);
+        showSection("B");
+        window.scrollTo({top:0,behavior:"smooth"});
+        return;
+    }
+
+    submitExam();
+}
+
+function submitExam(){
+    if(examSubmitted){
+        return;
+    }
+    examSubmitted = true;
+    clearInterval(timerInterval);
+    document.getElementById("submitBtn").disabled = true;
+
+    let score = 0;
+    let correct = 0;
+    let wrong = 0;
+    let attempted = 0;
+    let sectionScore = {A:0,B:0};
+    let sectionCorrect = {A:0,B:0};
+
+    questions.forEach(q => {
+        const selected = getSelected(q.id);
+        if(selected !== null){
+            attempted++;
+            if(selected === q.a){
+                score += 3;
+                sectionScore[q.section] += 3;
+                correct++;
+                sectionCorrect[q.section]++;
+            }
+            else{
+                score -= 1;
+                sectionScore[q.section] -= 1;
+                wrong++;
+            }
+        }
+    });
+
+    const unanswered = questions.length - attempted;
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = `
+        <div class="score-box">Total Score<strong>${score}/300</strong></div>
+        <div class="score-box">Correct<strong>${correct}</strong></div>
+        <div class="score-box">Wrong<strong>${wrong}</strong></div>
+        <div class="score-box">Unanswered<strong>${unanswered}</strong></div>
+        <div class="score-box">Section A<strong>${sectionScore.A}/150</strong><span>${sectionCorrect.A}/50 correct</span></div>
+        <div class="score-box">Section B<strong>${sectionScore.B}/150</strong><span>${sectionCorrect.B}/50 correct</span></div>
+    `;
+
+    renderReview();
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderReview(){
+    let html = "";
+    ["A","B"].forEach(section => {
+        html += `<h2 class="section-title">Section ${section} Answer Key</h2>`;
+        questions.filter(q => q.section === section).forEach(q => {
+            const selected = getSelected(q.id);
+            const selectedText = selected === null ? "Not attempted" : `${String.fromCharCode(65+selected)}) ${q.o[selected]}`;
+            const correctText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
+            const explanation = q.explanation ? `<div class="answer-review"><strong>Explanation:</strong> ${q.explanation}</div>` : "";
+            const statusClass = selected === null ? "skipped-answer" : selected === q.a ? "correct-answer" : "wrong-answer";
+            html += `
+            <div class="question-card">
+                <span class="topic">${q.topic}</span>
+                <div class="question">Q${q.id}. ${q.q}</div>
+                ${q.code ? `<div class="code">${q.code}</div>` : ""}
+                <div class="answer-review">
+                    <div>Your Answer: <span class="${statusClass}">${selectedText}</span></div>
+                    <div>Correct Answer: <span class="correct-answer">${correctText}</span></div>
+                </div>
+                ${explanation}
+            </div>`;
+        });
+    });
+    document.getElementById("reviewQuestions").innerHTML = html;
+}
+
+function reattemptExam(){
+    questions.forEach(q => {
+        localStorage.removeItem("ccat_q"+q.id);
+    });
+
+    clearInterval(timerInterval);
+    currentSection = "A";
+    examStarted = false;
+    examSubmitted = false;
+    sectionALocked = false;
+    timeLeft = {A:60*60,B:60*60};
+    timerInterval = null;
+
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("tabA").disabled = false;
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "none";
+    document.getElementById("startScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = "";
+    document.getElementById("reviewQuestions").innerHTML = "";
+
+    updateTimers();
+    updateSubmitButton();
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+updateTimers();
+</script>
+</body>
+</html>

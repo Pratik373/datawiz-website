@@ -299,7 +299,8 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
         <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
-        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹<span id="starterPrice">199</span></div>
+        <div style="color:#7a8ab8;font-weight:700;text-decoration:line-through;margin-bottom:0.2rem;">₹<span id="starterOriginalPrice">499</span></div>
+        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹<span id="starterPrice">99</span></div>
         <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
         <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
       </div>
@@ -322,7 +323,8 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUserId = null;
 let testsRemaining = 0;
-let starterPrice = 199;
+let starterPrice = 99;
+let starterOriginalPrice = 499;
 
 // ── On load: check session + load credits ──
 async function initPage() {
@@ -341,8 +343,11 @@ async function loadPlanPrices() {
         const res = await fetch('/api/plans');
         const data = await res.json();
         starterPrice = data.plans?.starter?.amount || starterPrice;
+        starterOriginalPrice = data.plans?.starter?.original_amount || starterOriginalPrice;
         const starterPriceEl = document.getElementById('starterPrice');
+        const starterOriginalPriceEl = document.getElementById('starterOriginalPrice');
         if (starterPriceEl) starterPriceEl.textContent = starterPrice;
+        if (starterOriginalPriceEl) starterOriginalPriceEl.textContent = starterOriginalPrice;
     } catch (err) {
         console.warn('Could not load plan prices:', err);
     }

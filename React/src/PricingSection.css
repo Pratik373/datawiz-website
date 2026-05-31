@@ -102,7 +102,19 @@
   align-items: flex-start;
   justify-content: center;
   gap: 0.2rem;
+  flex-wrap: wrap;
   margin-bottom: 0.35rem;
+}
+
+.pricing-original-price {
+  flex-basis: 100%;
+  color: #7a8ab8;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
 }
 
 .pricing-currency {
