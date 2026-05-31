@@ -71,7 +71,7 @@ export default function StudentTestPortal() {
   const [user, setUser]           = useState(null);
   const [hasPaid, setHasPaid]     = useState(false);
   const [isAdmin, setIsAdmin]     = useState(false);
-  const [tests, setTests]         = useState([]);
+  const [, setTests]              = useState([]);
   const [loading, setLoading]     = useState(true);
   const [answers, setAnswers]     = useState({});
 
