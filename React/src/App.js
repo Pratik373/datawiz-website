@@ -101,6 +101,7 @@ function Home() {
               <a href="#subscribe">Mock Test</a>
               <a href="#pricing">Pricing</a>
               <a href="#social">Follow</a>
+              <button className="nav-tests-btn" onClick={() => navigate('/tests')}>Your tests</button>
 
 
               {/* ── Login / Logout button ── */}
@@ -512,6 +513,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/study-material" element={<StudyMaterial />} />
+          <Route path="/tests" element={<StudentTestPortal />} />
           <Route path="/mock-tests" element={<StudentTestPortal />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

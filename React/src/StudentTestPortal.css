@@ -33,6 +33,19 @@
   padding: 0;
 }
 .stp-back-btn:hover { color: #fff; }
+.stp-home-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(139, 151, 255, 0.18);
+  color: #f0f4ff;
+  border-radius: 99px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.stp-home-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
 .stp-nav-right { display: flex; align-items: center; gap: 1rem; }
 .stp-credits {
   background: rgba(126, 232, 184, 0.1);
