@@ -7,6 +7,54 @@ import './StudentTestPortal.css';
 
 const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62mcDroIz0U';
 
+const localPremiumTests = [
+  {
+    id: 'local-ccat-set-1',
+    title: 'C-CAT Mock Test Set 1',
+    description: 'Full 100-question premium mock test with Section A and Section B.',
+    duration_minutes: 120,
+    questions_count: 100,
+    type: 'html',
+    local_url: '/CCAT_Mock_Test_Set1.html',
+  },
+  {
+    id: 'local-ccat-set-2',
+    title: 'C-CAT Mock Test Set 2',
+    description: 'Full 100-question premium mock test with Section A and Section B.',
+    duration_minutes: 120,
+    questions_count: 100,
+    type: 'html',
+    local_url: '/CCAT_Mock_Test_Set2.html',
+  },
+  {
+    id: 'local-ccat-set-3',
+    title: 'C-CAT Mock Test Set 3',
+    description: 'Full 100-question premium mock test with Section A and Section B.',
+    duration_minutes: 120,
+    questions_count: 100,
+    type: 'html',
+    local_url: '/CCAT_Mock_Test_Set3.html',
+  },
+  {
+    id: 'local-ccat-set-4',
+    title: 'C-CAT Mock Test Set 4',
+    description: 'Full 100-question premium mock test with Section A and Section B.',
+    duration_minutes: 120,
+    questions_count: 100,
+    type: 'html',
+    local_url: '/CCAT_Mock_Test_Set4.html',
+  },
+  {
+    id: 'local-ccat-set-5',
+    title: 'C-CAT Mock Test Set 5',
+    description: 'Full 100-question premium mock test with Section A and Section B.',
+    duration_minutes: 120,
+    questions_count: 100,
+    type: 'html',
+    local_url: '/CCAT_Mock_Test_Set5.html',
+  },
+];
+
 export default function StudentTestPortal() {
   const navigate = useNavigate();
   const [user, setUser]           = useState(null);
@@ -138,6 +186,11 @@ export default function StudentTestPortal() {
 
   const confirmStartTest = async () => {
     if (!selectedTest) return;
+    if (selectedTest.local_url) {
+      window.location.href = selectedTest.local_url;
+      return;
+    }
+
     setStarting(true);
     try {
       const res  = await fetch('/api/start-test', {
@@ -315,10 +368,10 @@ export default function StudentTestPortal() {
             </div>
 
             {/* ── PREMIUM CARDS from DB ── */}
-            {tests.map(test => (
+            {[...localPremiumTests, ...tests].map(test => (
               <div key={test.id} className={`stp-card ${!canAccessPremium ? 'stp-card-locked' : ''}`}>
                 <span className="stp-card-type">
-                  {canAccessPremium ? (test.type === 'file' ? 'PDF TEST' : 'MANUAL TEST') : '🔒 PREMIUM'}
+                  {canAccessPremium ? (test.type === 'file' ? 'PDF TEST' : test.type === 'html' ? 'HTML TEST' : 'MANUAL TEST') : '🔒 PREMIUM'}
                 </span>
                 <h3 className="stp-card-title">{test.title}</h3>
                 <p className="stp-card-desc">{test.description || 'Full-length premium mock test.'}</p>

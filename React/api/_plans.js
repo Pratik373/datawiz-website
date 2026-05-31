@@ -4,5 +4,10 @@ function priceFromEnv(name, fallback) {
 }
 
 module.exports = {
-  starter: { amount: priceFromEnv('REACT_APP_STARTER_PRICE_INR', 199), tests: 5, name: 'Starter Pack' },
+  starter: {
+    amount: priceFromEnv('REACT_APP_STARTER_PRICE_INR', 99),
+    original_amount: priceFromEnv('REACT_APP_STARTER_ORIGINAL_PRICE_INR', 499),
+    tests: 5,
+    name: 'Starter Pack',
+  },
 };
