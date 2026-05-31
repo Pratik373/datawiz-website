@@ -410,6 +410,39 @@ function Home() {
           >
             View All Tests →
           </button>
+
+          <div style={{
+            marginTop: '3rem',
+            display: 'grid',
+            gap: '1rem',
+            textAlign: 'left',
+            color: '#d8defc',
+          }}>
+            <h3 style={{ margin: 0, color: '#fff', fontSize: '1.4rem' }}>Direct CDAC Mock Test Links</h3>
+            <p style={{ margin: '0 0 1rem', color: '#b3c0f5' }}>
+              These core C-CAT pages are linked directly from the homepage so Google can discover and index them faster.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+              <a href="/CCATMOCK.html" style={{ padding: '1rem 1.25rem', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
+                CDAC C-CAT Mock Test
+              </a>
+              <a href="/CCAT_Mock_Test_Set1.html" style={{ padding: '1rem 1.25rem', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
+                CDAC C-CAT Mock Test Set 1
+              </a>
+              <a href="/CCAT_Mock_Test_Set2.html" style={{ padding: '1rem 1.25rem', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
+                CDAC C-CAT Mock Test Set 2
+              </a>
+              <a href="/CCAT_Mock_Test_Set3.html" style={{ padding: '1rem 1.25rem', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
+                CDAC C-CAT Mock Test Set 3
+              </a>
+              <a href="/CCAT_Mock_Test_Set4.html" style={{ padding: '1rem 1.25rem', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
+                CDAC C-CAT Mock Test Set 4
+              </a>
+              <a href="/CCAT_Mock_Test_Set5.html" style={{ padding: '1rem 1.25rem', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', textDecoration: 'none', fontWeight: 700 }}>
+                CDAC C-CAT Mock Test Set 5
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
