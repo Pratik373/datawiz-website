@@ -9,12 +9,12 @@ const PLANS = [
     name: 'Starter Pack',
     price: STARTER_PRICE_INR,
     originalPrice: STARTER_ORIGINAL_PRICE_INR,
-    tests: 'Unlimited',
+    tests: 5,
     perTest: 'Unlimited access',
     color: '#6f57ff',
-    features: ['Unlimited Full Mock Tests', 'Section A + Section B', 'Answer Key & Review', 'Score Analysis'],
+    features: ['5 Mock Tests', 'Unlimited Access', 'Answer Key & Review', 'Score Analysis'],
     badge: null,
-  }
+  },
 ];
 
 export default function PricingSection() {
@@ -33,6 +33,8 @@ export default function PricingSection() {
 
   const handleBuy = async (plan) => {
     setMessage('');
+    if (plan.comingSoon) return;
+
     // Check auth
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -135,12 +137,12 @@ export default function PricingSection() {
             </ul>
 
             <button
-              className="pricing-btn"
+              className={`pricing-btn ${plan.comingSoon ? 'pricing-btn-disabled' : ''}`}
               style={{ background: `linear-gradient(135deg, ${plan.color}, ${plan.id === 'pro' ? '#6f57ff' : '#4ab9ff'})` }}
               onClick={() => handleBuy(plan)}
-              disabled={loading === plan.id}
+              disabled={loading === plan.id || plan.comingSoon}
             >
-              {loading === plan.id ? 'Processing…' : `Buy ${plan.name}`}
+              {plan.comingSoon ? 'Coming Soon' : loading === plan.id ? 'Processing…' : `Buy ${plan.name}`}
             </button>
           </div>
         ))}

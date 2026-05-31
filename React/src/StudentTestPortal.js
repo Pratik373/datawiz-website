@@ -315,7 +315,7 @@ export default function StudentTestPortal() {
       {/* Navbar */}
       <nav className="stp-nav">
         <div className="stp-nav-inner">
-          <button className="stp-back-btn" onClick={() => navigate('/')}>← Back to Home</button>
+          <button className="stp-home-btn" onClick={() => navigate('/')}>Home</button>
           <div className="stp-nav-right">
             {user ? (
               <>
