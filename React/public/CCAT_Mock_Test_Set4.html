@@ -330,7 +330,19 @@ let starterOriginalPrice = 499;
 // ── On load: check session + load credits ──
 async function initPage() {
     const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) { window.location.href = '/login'; return; }
+    if (!session) {
+        currentUserId = null;
+        const creditsEl = document.getElementById('creditsDisplay');
+        if (creditsEl) {
+            creditsEl.textContent = 'Please log in to access the full test.';
+            creditsEl.style.color = '#ffaabf';
+        }
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.style.display = 'none';
+        const startBtn = document.getElementById('startExamBtn');
+        if (startBtn) startBtn.innerText = 'Login to Start';
+        return;
+    }
     currentUserId = session.user.id;
     await loadPlanPrices();
     await loadCredits();
@@ -383,6 +395,10 @@ function updateCreditsDisplay() {
 }
 
 async function checkAndStartExam() {
+    if (!currentUserId) {
+        window.location.href = '/login';
+        return;
+    }
     await loadCredits();
     
     const isAdmin = currentUserId && (await checkAdmin());
@@ -494,7 +510,7 @@ initPage();
             </div>
         </div>
         <div class="top-actions">
-            <button onclick="checkAndStartExam()">Start Exam</button>
+            <button id="startExamBtn" onclick="checkAndStartExam()">Start Exam</button>
             <button id="mainBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px; display:none;">Buy More Tests</button>
         </div>
     </section>
