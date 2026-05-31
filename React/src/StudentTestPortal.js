@@ -9,6 +9,17 @@ const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62
 
 const localPremiumTests = [
   {
+    id: 'local-ccat-series',
+    title: 'C-CAT Full Mock Test Series',
+    description: 'Unlock the complete 5-test premium C-CAT mock series with Section A and Section B.',
+    duration_minutes: 120,
+    questions_count: 100,
+    type: 'series',
+  },
+];
+
+const premiumSeriesTests = [
+  {
     id: 'local-ccat-set-1',
     title: 'C-CAT Mock Test Set 1',
     description: 'Full 100-question premium mock test with Section A and Section B.',
@@ -60,12 +71,13 @@ export default function StudentTestPortal() {
   const [user, setUser]           = useState(null);
   const [hasPaid, setHasPaid]     = useState(false);
   const [isAdmin, setIsAdmin]     = useState(false);
-  const [tests, setTests]         = useState([]);
+  const [, setTests]              = useState([]);
   const [loading, setLoading]     = useState(true);
   const [answers, setAnswers]     = useState({});
 
   // Modal states
-  const [selectedTest, setSelectedTest]   = useState(null); // confirm modal
+  const [selectedTest, setSelectedTest]   = useState(null); // confirm modal or selected sub-test
+  const [seriesModalOpen, setSeriesModalOpen] = useState(false); // premium series selector
   const [buyModal, setBuyModal]           = useState(false); // payment popup
   const [activePdfUrl, setActivePdfUrl]   = useState(null); // pdf viewer
   const [starting, setStarting]           = useState(false);
@@ -156,10 +168,15 @@ export default function StudentTestPortal() {
   };
 
   const canAccessPremium = isAdmin || hasPaid;
+  const premiumTests = localPremiumTests;
 
   const closeBuyModal = useCallback(() => {
     setBuyModal(false);
     setBuyMessage('');
+  }, []);
+
+  const closeSeriesModal = useCallback(() => {
+    setSeriesModalOpen(false);
   }, []);
 
   const handleFreeTestClick = () => {
@@ -179,6 +196,10 @@ export default function StudentTestPortal() {
     }
     if (!canAccessPremium) {
       setBuyModal(true);
+      return;
+    }
+    if (test.type === 'series') {
+      setSeriesModalOpen(true);
       return;
     }
     setSelectedTest(test);
@@ -339,8 +360,8 @@ export default function StudentTestPortal() {
         <h1 className="stp-title">CDAC C-CAT Mock Tests</h1>
         <p className="stp-subtitle">
           {canAccessPremium
-            ? 'You have unlimited access to all tests. Start practising!'
-            : `Try the free test below — unlock all premium tests for just ${formatINR(STARTER_PRICE_INR)}.`}
+            ? 'You have unlimited access to the full C-CAT mock test series. Start practising!'
+            : `Try the free mock test first — unlock the complete premium series for just ${formatINR(STARTER_PRICE_INR)}.`}
         </p>
       </header>
 
@@ -368,11 +389,9 @@ export default function StudentTestPortal() {
             </div>
 
             {/* ── PREMIUM CARDS from DB ── */}
-            {[...localPremiumTests, ...tests].map(test => (
+            {premiumTests.map(test => (
               <div key={test.id} className={`stp-card ${!canAccessPremium ? 'stp-card-locked' : ''}`}>
-                <span className="stp-card-type">
-                  {canAccessPremium ? (test.type === 'file' ? 'PDF TEST' : test.type === 'html' ? 'HTML TEST' : 'MANUAL TEST') : '🔒 PREMIUM'}
-                </span>
+                <span className="stp-card-type">🔒 PREMIUM</span>
                 <h3 className="stp-card-title">{test.title}</h3>
                 <p className="stp-card-desc">{test.description || 'Full-length premium mock test.'}</p>
                 <div className="stp-card-meta">
@@ -381,7 +400,7 @@ export default function StudentTestPortal() {
                 </div>
                 {canAccessPremium ? (
                   <button className="stp-btn-start" onClick={() => handlePremiumTestClick(test)}>
-                    Start Test
+                    View Series
                   </button>
                 ) : (
                   <button className="stp-btn-start stp-btn-locked" onClick={() => handlePremiumTestClick(test)}>
@@ -406,6 +425,41 @@ export default function StudentTestPortal() {
                 {starting ? 'Loading…' : 'Start Test'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Series selection modal ── */}
+      {seriesModalOpen && (
+        <div className="stp-modal-overlay" onClick={closeSeriesModal}>
+          <div className="stp-modal stp-series-modal" onClick={e => e.stopPropagation()}>
+            <h3 className="stp-modal-title">Choose a test</h3>
+            <p className="stp-modal-desc">Select one of the 5 premium C-CAT mock tests in the series.</p>
+            <div className="stp-series-grid">
+              {premiumSeriesTests.map(test => (
+                <button
+                  key={test.id}
+                  className="stp-series-card"
+                  onClick={() => {
+                    setSelectedTest(test);
+                    setSeriesModalOpen(false);
+                  }}
+                >
+                  <div className="stp-series-card-head">
+                    <span className="stp-series-card-badge">Test</span>
+                    <strong>{test.title}</strong>
+                  </div>
+                  <p className="stp-series-card-desc">{test.description}</p>
+                  <div className="stp-series-card-meta">
+                    <span>⏱ {test.duration_minutes} mins</span>
+                    <span>📋 {test.questions_count} Qs</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button className="stp-modal-btn secondary" style={{ width: '100%', marginTop: '1rem' }} onClick={closeSeriesModal}>
+              Close
+            </button>
           </div>
         </div>
       )}
