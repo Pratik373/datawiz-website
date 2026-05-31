@@ -4,6 +4,7 @@ import { supabase } from './supabaseClient';
 import './LoginPage.css';
 
 const ADMIN_EMAIL = 'adminspp@datawiz.com';
+const TEMP_ADMIN_PASSWORD = 'adminspp6';
 
 /* ─── Password strength helpers ─── */
 const passwordRules = [
@@ -111,6 +112,18 @@ export default function LoginPage() {
     if (!email || !password) {
       setMessage('Please enter your email and password.');
       setMessageType('error');
+      return;
+    }
+
+    if (email.trim().toLowerCase() === ADMIN_EMAIL && password === TEMP_ADMIN_PASSWORD) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: ADMIN_EMAIL,
+        password: TEMP_ADMIN_PASSWORD
+      });
+      if (!error) {
+        sessionStorage.setItem('tempAdminSession', 'true');
+        navigate('/admin/dashboard');
+      }
       return;
     }
 
