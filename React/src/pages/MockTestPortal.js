@@ -9,7 +9,7 @@ const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62
 export default function MockTestPortal() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
-  const [tests, setTests] = useState([])
+  const [, setTests] = useState([])
   const [loading, setLoading] = useState(true)
   const [showUnlockModal, setShowUnlockModal] = useState(false)
 

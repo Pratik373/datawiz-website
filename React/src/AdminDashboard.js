@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         if (active) setAdmin(adminUser);
       } catch (_error) {
         if (active) {
-          navigate('/admin/login', { replace: true });
+    navigate('/', { replace: true });
         }
         return;
       }
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     sessionStorage.removeItem('tempAdminSession');
     await supabase.auth.signOut({ scope: 'local' });
-    navigate('/admin/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   if (pageLoading) {
