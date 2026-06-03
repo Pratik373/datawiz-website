@@ -92,8 +92,8 @@ export default function AdminLogin() {
 
       <section className="admin-login-card">
         <div className="admin-login-logo-row">
-          <img src={logoUrl} alt="DataWiz" className="admin-login-logo" />
-          <span className="admin-login-brand">DataWiz Admin</span>
+          <img src={logoUrl} alt="Datawiz6" className="admin-login-logo" />
+          <span className="admin-login-brand">Datawiz6 Admin</span>
         </div>
 
         <h1 className="admin-login-title">Admin Login</h1>
