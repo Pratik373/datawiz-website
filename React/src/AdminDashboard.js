@@ -79,9 +79,9 @@ export default function AdminDashboard() {
     <div className="admin-dashboard">
       <header className="admin-topbar">
         <div className="admin-brand">
-          <img src={logoUrl} alt="Datawiz6" />
+          <img src={logoUrl} alt="DataWiz" />
           <div>
-            <strong>Datawiz6 Admin</strong>
+            <strong>DataWiz Admin</strong>
             <span>{admin?.email}</span>
           </div>
         </div>
