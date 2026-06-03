@@ -236,7 +236,7 @@ export default function StudyMaterial() {
 
       {/* ── Footer ── */}
       <footer className="sm-footer">
-        <p>© 2026 DataWiz · All rights reserved</p>
+        <p>© 2026 Datawiz6 · All rights reserved</p>
       </footer>
     </div>
   );
