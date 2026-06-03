@@ -5,6 +5,7 @@ import { listAdminTestPapers } from '../adminApi'
 import { STARTER_PRICE_INR, formatINR } from '../pricingConfig'
 
 const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62mcDroIz0U'
+const API_BASE = process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' ? 'https://datawiz-website-dpc8.vercel.app' : '')
 
 export default function MockTestPortal() {
   const navigate = useNavigate()
@@ -16,9 +17,17 @@ export default function MockTestPortal() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+      if (session?.user && sessionStorage.getItem('pendingPayment')) {
+        sessionStorage.removeItem('pendingPayment')
+        setShowUnlockModal(true)
+      }
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
       setUser(s?.user ?? null)
+      if (s?.user && sessionStorage.getItem('pendingPayment')) {
+        sessionStorage.removeItem('pendingPayment')
+        setShowUnlockModal(true)
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -37,32 +46,42 @@ export default function MockTestPortal() {
     setLoading(false)
   }
 
-  const handlePayment = async (plan) => {
+  const handlePayment = async (planKey) => {
     if (!user) {
       sessionStorage.setItem('redirectAfterLogin', '/mock-tests')
+      sessionStorage.setItem('pendingPayment', 'true')
       navigate('/login')
       return
     }
     try {
-      const res = await fetch('/api/create-order', {
+      const res = await fetch(`${API_BASE}/api/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, userId: user.id, email: user.email }),
+        body: JSON.stringify({ plan: planKey, user_id: user.id, email: user.email }),
       })
       const order = await res.json()
+      if (!res.ok || order.error) {
+        throw new Error(order.details || order.error || 'Failed to create order')
+      }
       const options = {
         key: RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: 'DataWiz',
-        description: `${plan.label} Plan`,
+        description: `${order.planName} Plan`,
         order_id: order.id,
         prefill: { email: user.email },
         handler: async (response) => {
-          await fetch('/api/verify-payment', {
+          await fetch(`${API_BASE}/api/verify-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(response),
+            body: JSON.stringify({
+              ...response,
+              user_id: user.id,
+              tests_to_add: order.tests,
+              plan: planKey,
+              amount: order.amount,
+            }),
           })
           alert('Payment successful!')
           setShowUnlockModal(false)
@@ -72,7 +91,7 @@ export default function MockTestPortal() {
       const rzp = new window.Razorpay(options)
       rzp.open()
     } catch (err) {
-      alert('Payment failed. Please try again.')
+      alert('Payment failed: ' + err.message)
     }
   }
 
@@ -325,7 +344,7 @@ export default function MockTestPortal() {
                   <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
                 </div>
               </div>
-              <button onClick={() => handlePayment({ label: 'Starter Pack' })}
+              <button onClick={() => handlePayment('starter')}
                 className="w-full py-4 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:bg-primary-container transition-all active:scale-95">
                 Proceed to Payment
               </button>
