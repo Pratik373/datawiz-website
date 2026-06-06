@@ -258,19 +258,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-primary-container rounded-xl p-lg flex flex-col md:flex-row items-center gap-lg">
-          <div className="flex-grow space-y-xs text-on-primary-container">
-            <h2 className="font-headline-md text-headline-md">Stay Ahead of the Curve</h2>
-            <p className="font-body-md text-body-md">Get exam updates and free study bits delivered to your inbox.</p>
-          </div>
-          <div className="w-full md:w-auto flex flex-col sm:flex-row gap-base">
-            <input className="px-md py-4 rounded-full border-none focus:ring-2 focus:ring-secondary-fixed w-full sm:w-64 font-input-text text-input-text" placeholder="Your study email" type="email" />
-            <button className="px-lg py-4 bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md rounded-full hover:bg-secondary-fixed-dim transition-all active:scale-95">
-              Get Access
-            </button>
-          </div>
-        </section>
-
         <section id="follow" className="grid grid-cols-1 sm:grid-cols-3 gap-md">
           {[
             { icon: 'play_circle', color: 'text-red-600', bg: 'bg-red-100', title: 'YouTube', desc: 'Visual tutorials', url: 'https://www.youtube.com/@Datawiz6' },
@@ -295,7 +282,7 @@ export default function Home() {
           <div className="space-y-base">
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer">DataWiz</button>
             <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
-              &copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform. Empowering students with precise study tools.
+              &copy; 2026 DataWiz. CDAC C-CAT Exam Prep Platform. Empowering students with precise study tools.
             </p>
           </div>
           <div className="flex flex-wrap gap-md md:justify-end items-start">

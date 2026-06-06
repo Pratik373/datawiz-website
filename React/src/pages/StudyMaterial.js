@@ -312,7 +312,7 @@ export default function StudyMaterial() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md px-gutter max-w-container-max mx-auto">
           <div className="flex flex-col gap-xs">
             <div className="font-headline-sm text-headline-sm font-bold text-primary">DataWiz</div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">&copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform.</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">&copy; 2026 DataWiz. CDAC C-CAT Exam Prep Platform.</p>
           </div>
           <div className="flex flex-wrap gap-md md:justify-end">
             <button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Privacy Policy</button>

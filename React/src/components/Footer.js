@@ -5,7 +5,7 @@ export default function Footer({ simple }) {
     return (
       <footer className="mt-12 w-full max-w-[440px] text-center px-4">
         <p className="font-body-sm text-on-surface-variant/60">
-          &copy; 2024 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.
+          &copy; 2026 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.
         </p>
       </footer>
     )
@@ -22,7 +22,7 @@ export default function Footer({ simple }) {
             <span className="font-headline-sm font-bold text-primary">DataWiz</span>
           </div>
           <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
-            &copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform. Empowering students with precision-engineered testing tools.
+            &copy; 2026 DataWiz. CDAC C-CAT Exam Prep Platform. Empowering students with precision-engineered testing tools.
           </p>
         </div>
         <div className="flex flex-wrap gap-md md:justify-end items-start">

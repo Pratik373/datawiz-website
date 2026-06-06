@@ -168,7 +168,7 @@ export default function LoginPage() {
             </p>
           </div>
           <footer className="mt-12 text-center">
-            <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2024 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2026 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
           </footer>
         </div>
       </div>
@@ -197,7 +197,7 @@ export default function LoginPage() {
             </button>
           </div>
           <footer className="mt-12 text-center">
-            <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2024 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2026 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
           </footer>
         </div>
       </div>
@@ -237,7 +237,7 @@ export default function LoginPage() {
             </button>
           </div>
           <footer className="mt-12 text-center">
-            <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2024 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2026 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
           </footer>
         </div>
       </div>
@@ -368,7 +368,7 @@ export default function LoginPage() {
         </div>
 
         <footer className="mt-12 text-center">
-          <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2024 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
+          <p className="font-body-sm text-body-sm text-on-surface-variant/60">&copy; 2026 DataWiz. Your trusted study companion for CDAC C-CAT Exam Prep.</p>
         </footer>
       </div>
     </div>

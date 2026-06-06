@@ -102,7 +102,7 @@ export default function AdminLogin() {
       </main>
 
       <footer className="mt-auto py-md text-center">
-        <p className="font-body-sm text-body-sm text-outline">&copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform.</p>
+        <p className="font-body-sm text-body-sm text-outline">&copy; 2026 DataWiz. CDAC C-CAT Exam Prep Platform.</p>
       </footer>
     </div>
   )
