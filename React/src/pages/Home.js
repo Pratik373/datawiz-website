@@ -250,7 +250,7 @@ export default function Home() {
             <div className="bg-primary p-md text-center">
               <span className="text-on-primary uppercase tracking-widest font-bold text-[12px]">POPULAR CHOICE</span>
             </div>
-            <div className="p-lg text-center space-y-md">
+            <div className="px-md py-lg text-center space-y-md">
               <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
               <div className="flex items-center justify-center gap-sm">
                 <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
@@ -262,9 +262,9 @@ export default function Home() {
                   '100 Questions & 120 Minutes Per Test',
                   'Easy, Medium & Hard Level Question Papers'
                 ].map((item) => (
-                  <li key={item} className="flex items-center gap-base text-body-md">
-                    <span className="material-symbols-outlined text-primary">check_circle</span>
-                    {item}
+                  <li key={item} className="flex items-start gap-base text-body-md">
+                    <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -278,8 +278,8 @@ export default function Home() {
         <section id="follow" className="grid grid-cols-1 sm:grid-cols-3 gap-md">
           {[
             { icon: 'play_circle', color: 'text-red-600', bg: 'bg-red-100', title: 'YouTube', desc: 'Visual tutorials', url: 'https://www.youtube.com/@Datawiz6' },
-            { icon: 'share', color: 'text-blue-700', bg: 'bg-blue-100', title: 'LinkedIn', desc: 'Study community', url: 'https://www.linkedin.com/in/datawiz/' },
-            { icon: 'mail', color: 'text-on-surface', bg: 'bg-surface-container', title: 'Direct Email', desc: 'Ask questions', url: 'mailto:hello@datawiz.com' },
+            { icon: 'share', color: 'text-blue-700', bg: 'bg-blue-100', title: 'LinkedIn', desc: 'Study community', url: 'https://www.linkedin.com/in/datawiz6/' },
+            { icon: 'mail', color: 'text-on-surface', bg: 'bg-surface-container', title: 'Direct Email', desc: 'Ask questions', url: 'mailto:allaboutstatistics19@gmail.com' },
           ].map((link) => (
             <a key={link.title} className="p-md bg-white border border-outline-variant rounded-xl flex items-center gap-md hover-card transition-all group" href={link.url} target="_blank" rel="noopener noreferrer">
               <div className={`w-12 h-12 ${link.bg} rounded-full flex items-center justify-center`}>
