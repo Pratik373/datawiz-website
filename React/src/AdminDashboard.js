@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         if (active) setAdmin(adminUser);
       } catch (_error) {
         if (active) {
-          navigate('/admin/login', { replace: true });
+    navigate('/', { replace: true });
         }
         return;
       }
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     sessionStorage.removeItem('tempAdminSession');
     await supabase.auth.signOut({ scope: 'local' });
-    navigate('/admin/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   if (pageLoading) {
@@ -79,9 +79,9 @@ export default function AdminDashboard() {
     <div className="admin-dashboard">
       <header className="admin-topbar">
         <div className="admin-brand">
-          <img src={logoUrl} alt="Datawiz6" />
+          <img src={logoUrl} alt="DataWiz" />
           <div>
-            <strong>Datawiz6 Admin</strong>
+            <strong>DataWiz Admin</strong>
             <span>{admin?.email}</span>
           </div>
         </div>
