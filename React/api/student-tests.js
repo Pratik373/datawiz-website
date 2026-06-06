@@ -13,52 +13,67 @@ const DEFAULT_TESTS = [
     created_at: '2026-01-01T00:00:00.000Z',
   },
   {
+    id: 'premium-ccat-set-1',
+    title: 'Premium C-CAT Mock Test — Set 1',
+    description: 'Full-length premium C-CAT mock paper. Unlock with the Starter Pack.',
+    duration_minutes: 120,
+    type: 'html',
+    questions_count: 100,
+    local_url: '/CCAT_Mock_Test_Set1.html',
+    access: 'premium',
+    created_at: '2026-01-02T00:00:00.000Z',
+  },
+  {
     id: 'premium-ccat-set-2',
-    title: 'Premium C-CAT Mock Test Set 2',
+    title: 'Premium C-CAT Mock Test — Set 2',
     description: 'Paid test-series mock paper with full-length C-CAT practice.',
     duration_minutes: 120,
     type: 'html',
     questions_count: 100,
     local_url: '/CCAT_Mock_Test_Set2.html',
     access: 'premium',
-    created_at: '2026-01-02T00:00:00.000Z',
+    created_at: '2026-01-03T00:00:00.000Z',
   },
   {
     id: 'premium-ccat-set-3',
-    title: 'Premium C-CAT Mock Test Set 3',
+    title: 'Premium C-CAT Mock Test — Set 3',
     description: 'Paid test-series mock paper with full-length C-CAT practice.',
     duration_minutes: 120,
     type: 'html',
     questions_count: 100,
     local_url: '/CCAT_Mock_Test_Set3.html',
     access: 'premium',
-    created_at: '2026-01-03T00:00:00.000Z',
+    created_at: '2026-01-04T00:00:00.000Z',
   },
   {
     id: 'premium-ccat-set-4',
-    title: 'Premium C-CAT Mock Test Set 4',
+    title: 'Premium C-CAT Mock Test — Set 4',
     description: 'Paid test-series mock paper with full-length C-CAT practice.',
     duration_minutes: 120,
     type: 'html',
     questions_count: 100,
     local_url: '/CCAT_Mock_Test_Set4.html',
     access: 'premium',
-    created_at: '2026-01-04T00:00:00.000Z',
+    created_at: '2026-01-05T00:00:00.000Z',
   },
   {
     id: 'premium-ccat-set-5',
-    title: 'Premium C-CAT Mock Test Set 5',
+    title: 'Premium C-CAT Mock Test — Set 5',
     description: 'Paid test-series mock paper with full-length C-CAT practice.',
     duration_minutes: 120,
     type: 'html',
     questions_count: 100,
     local_url: '/CCAT_Mock_Test_Set5.html',
     access: 'premium',
-    created_at: '2026-01-05T00:00:00.000Z',
+    created_at: '2026-01-06T00:00:00.000Z',
   },
 ];
 
 module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
@@ -82,6 +97,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ tests: dbTests.length > 0 ? dbTests : DEFAULT_TESTS });
   } catch (err) {
     console.error('[API] student-tests error:', err);
+    // Return default tests as fallback so the page always loads
     return res.status(200).json({ tests: DEFAULT_TESTS, fallback: true });
   }
 };

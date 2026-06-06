@@ -10,6 +10,10 @@ const DEFAULT_TESTS = [
 ];
 
 module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { user_id, test_id } = req.body;
@@ -23,12 +27,14 @@ module.exports = async function handler(req, res) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
+    // Check hardcoded default tests first
     const defaultTest = DEFAULT_TESTS.find((test) => test.id === test_id);
     if (defaultTest) {
       if (defaultTest.access === 'free') {
         return res.status(200).json({ success: true, test_type: 'html', url: defaultTest.url });
       }
 
+      // Premium default test — require login + credits
       if (!user_id) {
         return res.status(401).json({ success: false, error: 'Please login to access premium tests.' });
       }
@@ -56,11 +62,11 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, test_type: 'html', url: defaultTest.url });
     }
 
+    // Fallback: look up in Supabase test_papers table
     if (!user_id) {
       return res.status(401).json({ success: false, error: 'Please login to access this test.' });
     }
 
-    // 1. Fetch test details and identify the single free test.
     const { data: test, error: testError } = await supabase
       .from('test_papers')
       .select('*')
@@ -71,6 +77,7 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({ success: false, error: 'Test not found.' });
     }
 
+    // Determine if this is the free (first) test
     const { data: freeTests } = await supabase
       .from('test_papers')
       .select('id')
@@ -79,14 +86,12 @@ module.exports = async function handler(req, res) {
 
     const isFreeTest = freeTests?.[0]?.id === test.id;
 
-    // 2. Check if user is admin via email
     const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(user_id);
     const isAdmin = user && user.email === 'adminspp@datawiz.com';
 
     let hasAccess = isAdmin || isFreeTest;
 
-    if (!isAdmin) {
-      // 1b. Check if user has access (credits > 0 indicates active subscription)
+    if (!isAdmin && !isFreeTest) {
       const { data: creditData, error: creditError } = await supabase
         .from('user_credits')
         .select('tests_remaining')
@@ -102,18 +107,18 @@ module.exports = async function handler(req, res) {
       return res.status(403).json({ success: false, error: 'Access denied. Please buy the test series.' });
     }
 
-    // 3. Return appropriate data based on test type
+    // Return the URL based on test type
     if (test.type === 'file' && test.file_path) {
       const { data: urlData, error: urlError } = await supabase.storage
         .from('test-papers')
-        .createSignedUrl(test.file_path, 7200); // 2 hours
+        .createSignedUrl(test.file_path, 7200);
 
       if (urlError || !urlData) {
         throw new Error('Failed to generate secure URL for test file.');
       }
 
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         test_type: 'file',
         url: urlData.signedUrl
       });
@@ -124,10 +129,8 @@ module.exports = async function handler(req, res) {
         url: test.local_url
       });
     } else {
-      // Manual test type - normally we'd return the questions here
-      // But for now, we just return success
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         test_type: 'manual',
         message: 'Manual tests coming soon.'
       });

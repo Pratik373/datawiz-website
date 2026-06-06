@@ -39,6 +39,9 @@ export default function MockTestPortal() {
   const [showUnlockModal, setShowUnlockModal] = useState(false)
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false)
   const [accessLoading, setAccessLoading] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
+  const [startError, setStartError] = useState('')
 
   const loadUserAccess = useCallback(async (nextUser) => {
     if (!nextUser?.id) {
@@ -123,6 +126,7 @@ export default function MockTestPortal() {
       navigate('/login')
       return
     }
+    setPaymentError('')
     try {
       const res = await fetch(`${API_BASE}/api/create-order`, {
         method: 'POST',
@@ -140,31 +144,51 @@ export default function MockTestPortal() {
         description: `${order.planName} Plan`,
         order_id: order.id,
         prefill: { email: user.email },
+        theme: { color: '#4A7C59' },
         handler: async (response) => {
-          await fetch(`${API_BASE}/api/verify-payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...response,
-              user_id: user.id,
-              tests_to_add: order.tests,
-              plan: planKey,
-              amount: order.amount,
-            }),
-          })
-          setShowUnlockModal(false)
-          setHasPremiumAccess(true)
-          loadUserAccess(user)
-          alert('Payment successful!')
+          try {
+            const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...response,
+                user_id: user.id,
+                tests_to_add: order.tests,
+                plan: planKey,
+                amount: order.amount,
+              }),
+            })
+            const verifyData = await verifyRes.json().catch(() => ({}))
+            if (!verifyRes.ok || verifyData.error) {
+              throw new Error(verifyData.details || verifyData.error || 'Payment verification failed')
+            }
+            // Close modal and unlock tests immediately
+            setShowUnlockModal(false)
+            setHasPremiumAccess(true)
+            setPaymentSuccess(true)
+            // Re-verify access from server in the background
+            loadUserAccess(user)
+            // Auto-dismiss success banner after 6 seconds
+            setTimeout(() => setPaymentSuccess(false), 6000)
+          } catch (verifyErr) {
+            setShowUnlockModal(false)
+            setPaymentError('Payment was received but verification failed. Please contact support or refresh the page.')
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            // User closed Razorpay modal without paying — no action needed
+          },
         },
       })
       rzp.open()
     } catch (err) {
-      alert('Payment failed: ' + err.message)
+      setPaymentError('Could not start payment: ' + err.message)
     }
   }
 
   const startTest = async (test) => {
+    setStartError('')
     if (test.isFree && test.local_url) {
       window.location.href = test.local_url
       return
@@ -189,10 +213,16 @@ export default function MockTestPortal() {
         window.location.href = payload.url
         return
       }
-      alert(payload.message || `Starting test: ${test.title}`)
+      // Manual test type - show info
+      if (payload.test_type === 'manual') {
+        setStartError(payload.message || 'This test type is coming soon.')
+      }
     } catch (err) {
-      if (err.message.includes('Access denied')) setShowUnlockModal(true)
-      else alert(err.message)
+      if (err.message.includes('Access denied') || err.message.includes('buy the test')) {
+        setShowUnlockModal(true)
+      } else {
+        setStartError(err.message)
+      }
     } finally {
       setStartingId('')
     }
@@ -208,7 +238,36 @@ export default function MockTestPortal() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F8F7F4' }}>
-      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant">
+      {/* Payment Success Banner */}
+      {paymentSuccess && (
+        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-between gap-4 px-6 py-4 bg-green-600 text-white shadow-lg animate-slide-down">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[22px]">check_circle</span>
+            <div>
+              <p className="font-bold text-sm">Payment Successful! 🎉</p>
+              <p className="text-xs opacity-90">All 5 premium tests are now unlocked. Start any test below!</p>
+            </div>
+          </div>
+          <button onClick={() => setPaymentSuccess(false)} className="shrink-0 hover:opacity-70 transition-opacity">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+      )}
+
+      {/* Payment / Start Error Banner */}
+      {(paymentError || startError) && (
+        <div className="fixed top-0 left-0 right-0 z-[60] flex items-center justify-between gap-4 px-6 py-4 bg-red-600 text-white shadow-lg">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[22px]">error</span>
+            <p className="font-bold text-sm">{paymentError || startError}</p>
+          </div>
+          <button onClick={() => { setPaymentError(''); setStartError('') }} className="shrink-0 hover:opacity-70">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+      )}
+
+      <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant" style={{ top: paymentSuccess || paymentError || startError ? '68px' : '0' }}>
         <div className="grid grid-cols-[1fr_auto_1fr] md:flex md:justify-between items-center gap-sm px-gutter py-3 md:py-4 max-w-container-max mx-auto">
           <div className="flex items-center gap-sm md:gap-md min-w-0 justify-self-start">
             <button onClick={() => navigate('/')} className="flex items-center gap-xs text-primary font-label-md text-sm md:text-label-md leading-tight transition-all active:scale-95">
@@ -354,16 +413,32 @@ export default function MockTestPortal() {
             </button>
             <div className="text-center space-y-md">
               <div className="w-16 h-16 bg-secondary-fixed rounded-full flex items-center justify-center mx-auto">
-                <span className="material-symbols-outlined text-secondary text-[32px]">lock</span>
+                <span className="material-symbols-outlined text-secondary text-[32px]">workspace_premium</span>
               </div>
               <h2 className="font-headline-md text-headline-md">Unlock Premium Tests</h2>
-              <p className="text-on-surface-variant font-body-md text-body-md">Get access to the 5-test premium series.</p>
-              <div className="bg-surface-container rounded-lg p-md flex items-center justify-between">
-                <span className="font-label-md text-label-md">Test Series</span>
-                <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
+              <p className="text-on-surface-variant font-body-md text-body-md">Get instant access to all 5 full-length C-CAT mock tests.</p>
+              <div className="bg-surface-container rounded-lg p-md space-y-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-label-md text-label-md">5 Premium Tests</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-on-surface-variant line-through text-sm">₹499</span>
+                    <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
+                  </div>
+                </div>
+                {['5 Full-length Mock Tests (100 Qs each)', '120 mins per test', 'Instant access after payment'].map(f => (
+                  <div key={f} className="flex items-center gap-2 text-left">
+                    <span className="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+                    <span className="text-sm text-on-surface-variant">{f}</span>
+                  </div>
+                ))}
               </div>
-              <button onClick={() => handlePayment('starter')} className="w-full py-4 bg-primary text-on-primary rounded-full font-label-md text-label-md active:scale-95">
-                Proceed to Payment
+              {!user && (
+                <p className="text-xs text-on-surface-variant bg-surface-container-low rounded-lg p-2">
+                  You'll be asked to login first, then redirected back to complete payment.
+                </p>
+              )}
+              <button onClick={() => handlePayment('starter')} className="w-full py-4 bg-primary text-on-primary rounded-full font-label-md text-label-md active:scale-95 font-bold">
+                Pay {formatINR(STARTER_PRICE_INR)} & Unlock Tests
               </button>
               <button onClick={() => setShowUnlockModal(false)} className="w-full text-on-surface-variant font-body-sm text-body-sm hover:text-primary">
                 Maybe later
