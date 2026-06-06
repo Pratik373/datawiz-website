@@ -278,8 +278,8 @@ export default function Home() {
         <section id="follow" className="grid grid-cols-1 sm:grid-cols-3 gap-md">
           {[
             { icon: 'play_circle', color: 'text-red-600', bg: 'bg-red-100', title: 'YouTube', desc: 'Visual tutorials', url: 'https://www.youtube.com/@Datawiz6' },
-            { icon: 'share', color: 'text-blue-700', bg: 'bg-blue-100', title: 'LinkedIn', desc: 'Study community', url: 'https://www.linkedin.com/in/datawiz/' },
-            { icon: 'mail', color: 'text-on-surface', bg: 'bg-surface-container', title: 'Direct Email', desc: 'Ask questions', url: 'mailto:hello@datawiz.com' },
+            { icon: 'share', color: 'text-blue-700', bg: 'bg-blue-100', title: 'LinkedIn', desc: 'Study community', url: 'https://www.linkedin.com/in/datawiz6/' },
+            { icon: 'mail', color: 'text-on-surface', bg: 'bg-surface-container', title: 'Direct Email', desc: 'Ask questions', url: 'mailto:allaboutstatistics19@gmail.com' },
           ].map((link) => (
             <a key={link.title} className="p-md bg-white border border-outline-variant rounded-xl flex items-center gap-md hover-card transition-all group" href={link.url} target="_blank" rel="noopener noreferrer">
               <div className={`w-12 h-12 ${link.bg} rounded-full flex items-center justify-center`}>
