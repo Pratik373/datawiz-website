@@ -1,15 +1,113 @@
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../supabaseClient'
+import { STARTER_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
 
 const heroImg = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyOXogB7LYDkE7jxtYEi1yAzkvpqJyP5jhpeGAOs4kYoBSp_BQ7pZVodLs7aoLI-_xw6gkKDnki2-ql5CAwKO0I-Mis6aZBzRcYFsR832PVwWTmwlpU7FW5q3YzMKhEo89YFHaEp_ripjxmXwid_Iqi0qELm-O8P636KK31y5y9CJ9aYqU_6k65oAlZZ6HS6ydcPwvfkE9J47FrnKIw0U12gaFYpDslM9N0M_jd8vQ_japZTacf3GYgEBYlqAABZjjM4ZzTonLDiM'
 
+function ProfileButton({ goTo }) {
+  const [user, setUser] = useState(null)
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!user) {
+    return (
+      <button onClick={() => goTo('/login')} className="px-md py-2 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all">
+        Login
+      </button>
+    )
+  }
+
+  const initials = (user.user_metadata?.full_name || user.email || 'U')
+    .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-2 group"
+        aria-label="Profile menu"
+      >
+        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/50 overflow-hidden transition-all">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
+        </div>
+        <span className="material-symbols-outlined text-on-surface-variant text-[18px] transition-transform" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>expand_more</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50 animate-fade-in">
+          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+            <p className="font-label-md text-label-md text-on-surface truncate">{displayName}</p>
+            <p className="text-xs text-on-surface-variant truncate mt-0.5">{user.email}</p>
+          </div>
+          <div className="p-1">
+            <button
+              onClick={() => { goTo('/tests'); setOpen(false) }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-on-surface hover:bg-surface-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px] text-primary">quiz</span>
+              My Tests
+            </button>
+            <button
+              onClick={() => supabase.auth.signOut().then(() => setOpen(false))}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Home() {
   const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    return () => subscription.unsubscribe()
+  }, [])
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
   const goTo = (path) => {
     window.scrollTo(0, 0)
     navigate(path)
+  }
+
+  const handleUnlockAll = () => {
+    if (user) {
+      sessionStorage.setItem('pendingPayment', 'true')
+      navigate('/tests')
+    } else {
+      sessionStorage.setItem('redirectAfterLogin', '/tests')
+      sessionStorage.setItem('pendingPayment', 'true')
+      navigate('/login')
+    }
   }
 
   return (
@@ -29,9 +127,7 @@ export default function Home() {
             <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => scrollTo('follow')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Follow</button>
           </nav>
-          <button onClick={() => goTo('/login')} className="px-md py-2 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all">
-            Login
-          </button>
+          <ProfileButton goTo={goTo} />
         </div>
       </header>
 
@@ -115,21 +211,19 @@ export default function Home() {
               <p className="text-on-surface-variant">Simulate the real exam experience with our curated sets.</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md max-w-4xl mx-auto">
             <div className="bg-white border border-outline-variant rounded-xl overflow-hidden flex flex-col hover-card transition-all">
               <div className="p-md border-b border-outline-variant flex justify-between items-start">
                 <span className="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold rounded uppercase tracking-wider">FREE</span>
                 <span className="material-symbols-outlined text-on-surface-variant">schedule</span>
               </div>
               <div className="p-md flex-grow space-y-sm">
-                <h4 className="font-headline-sm text-headline-sm">Entrance Baseline Test</h4>
+                <h4 className="font-headline-sm text-headline-sm">Free C-CAT Mock Test</h4>
                 <div className="flex items-center gap-xs text-on-surface-variant text-body-sm">
                   <span className="material-symbols-outlined text-[16px]">list_alt</span>
-                  <span>50 Questions</span>
+                  <span>100 Questions</span>
                 </div>
-                <div className="w-full bg-surface-container h-1 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full w-[0%]" />
-                </div>
+                <p className="text-body-sm text-on-surface-variant">A full free C-CAT mock test available to every visitor without login.</p>
               </div>
               <div className="p-md">
                 <button onClick={() => goTo('/tests')} className="w-full py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md shadow-sm active:scale-95 transition-all">Start Test</button>
@@ -141,17 +235,12 @@ export default function Home() {
                 <span className="material-symbols-outlined text-on-surface-variant">lock</span>
               </div>
               <div className="p-md flex-grow space-y-sm">
-                <h4 className="font-headline-sm text-headline-sm">PDF Practice Set A</h4>
-                <p className="text-body-sm text-on-surface-variant">Full section coverage with detailed explanations in PDF format.</p>
+                <h4 className="font-headline-sm text-headline-sm">Premium C-CAT Mock Test — Set 1</h4>
+                <p className="text-body-sm text-on-surface-variant">Full-length premium C-CAT mock paper. Unlock with the Starter Pack.</p>
               </div>
               <div className="p-md">
-                <button className="w-full py-2 border border-outline text-on-surface-variant rounded-full font-label-md text-label-md active:scale-95 transition-all">Unlock Now</button>
+                <button onClick={() => goTo('/tests')} className="w-full py-2 border border-outline text-on-surface-variant rounded-full font-label-md text-label-md active:scale-95 transition-all">Unlock Now</button>
               </div>
-            </div>
-            <div className="bg-surface-container-low border border-dashed border-outline-variant rounded-xl overflow-hidden flex flex-col items-center justify-center p-xl text-center space-y-sm">
-              <span className="material-symbols-outlined text-outline text-4xl">hourglass_empty</span>
-              <h4 className="font-headline-sm text-headline-sm text-on-surface-variant">More Tests</h4>
-              <p className="text-body-sm text-on-surface-variant">New Section B tests dropping every Monday.</p>
             </div>
           </div>
         </section>
@@ -164,34 +253,25 @@ export default function Home() {
             <div className="p-lg text-center space-y-md">
               <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
               <div className="flex items-center justify-center gap-sm">
-                <span className="text-primary font-display-lg text-[40px] font-extrabold">₹99</span>
-                <span className="text-on-surface-variant line-through font-body-lg text-body-lg">₹499</span>
+                <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
+                <span className="text-on-surface-variant line-through font-body-lg text-body-lg">{formatINR(STARTER_ORIGINAL_PRICE_INR)}</span>
               </div>
               <ul className="text-left space-y-sm py-md">
-                {['All Section A Mock Tests', '1000+ Practice MCQs', 'Weekly Performance Reports'].map((item) => (
+                {[
+                  '5 Full-Length Mock Tests (Sections A & B)',
+                  '100 Questions & 120 Minutes Per Test',
+                  'Easy, Medium & Hard Level Question Papers'
+                ].map((item) => (
                   <li key={item} className="flex items-center gap-base text-body-md">
                     <span className="material-symbols-outlined text-primary">check_circle</span>
                     {item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => goTo('/login')} className="w-full py-4 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-full shadow hover:bg-secondary-fixed transition-all active:scale-95 font-bold uppercase tracking-wide">
+              <button onClick={handleUnlockAll} className="w-full py-4 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-full shadow hover:bg-secondary-fixed transition-all active:scale-95 font-bold uppercase tracking-wide">
                 Unlock All Tests
               </button>
             </div>
-          </div>
-        </section>
-
-        <section className="bg-primary-container rounded-xl p-lg flex flex-col md:flex-row items-center gap-lg">
-          <div className="flex-grow space-y-xs text-on-primary-container">
-            <h2 className="font-headline-md text-headline-md">Stay Ahead of the Curve</h2>
-            <p className="font-body-md text-body-md">Get exam updates and free study bits delivered to your inbox.</p>
-          </div>
-          <div className="w-full md:w-auto flex flex-col sm:flex-row gap-base">
-            <input className="px-md py-4 rounded-full border-none focus:ring-2 focus:ring-secondary-fixed w-full sm:w-64 font-input-text text-input-text" placeholder="Your study email" type="email" />
-            <button className="px-lg py-4 bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md rounded-full hover:bg-secondary-fixed-dim transition-all active:scale-95">
-              Get Access
-            </button>
           </div>
         </section>
 
@@ -219,7 +299,7 @@ export default function Home() {
           <div className="space-y-base">
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer">DataWiz</button>
             <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
-              &copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform. Empowering students with precise study tools.
+              &copy; 2026 DataWiz. CDAC C-CAT Exam Prep Platform. Empowering students with precise study tools.
             </p>
           </div>
           <div className="flex flex-wrap gap-md md:justify-end items-start">

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { STARTER_PRICE_INR, formatINR } from '../pricingConfig'
@@ -29,6 +29,98 @@ const FREE_TEST_TOPICS = [
   },
 ]
 
+function ProfileDropdown({ user, navigate }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!user) {
+    return (
+      <button
+        onClick={() => navigate('/login')}
+        className="px-4 py-2 border border-primary text-primary font-label-md text-sm md:text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all justify-self-end whitespace-nowrap"
+      >
+        Login
+      </button>
+    )
+  }
+
+  const initials = (user.user_metadata?.full_name || user.email || 'U')
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
+
+  return (
+    <div className="relative justify-self-end" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 group"
+        aria-label="Profile menu"
+      >
+        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/50 overflow-hidden transition-all">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
+        </div>
+        <span
+          className="material-symbols-outlined text-on-surface-variant text-[18px] transition-transform"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50 animate-fade-in">
+          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+            <p className="font-label-md text-label-md text-on-surface truncate text-left">{displayName}</p>
+            <p className="text-xs text-on-surface-variant truncate mt-0.5 text-left">{user.email}</p>
+          </div>
+          <div className="p-1">
+            <button
+              onClick={() => {
+                navigate('/')
+                setOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-on-surface hover:bg-surface-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px] text-primary">home</span>
+              Home
+            </button>
+            <button
+              onClick={() => {
+                supabase.auth.signOut().then(() => {
+                  setOpen(false)
+                  navigate('/')
+                })
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function MockTestPortal() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
@@ -46,7 +138,7 @@ export default function MockTestPortal() {
   const loadUserAccess = useCallback(async (nextUser) => {
     if (!nextUser?.id) {
       setHasPremiumAccess(false)
-      return
+      return false
     }
 
     setAccessLoading(true)
@@ -57,34 +149,119 @@ export default function MockTestPortal() {
         body: JSON.stringify({ user_id: nextUser.id }),
       })
       const payload = await response.json().catch(() => ({}))
-      setHasPremiumAccess(response.ok && Boolean(payload.hasPremiumAccess))
+      const hasAccess = response.ok && Boolean(payload.hasPremiumAccess)
+      setHasPremiumAccess(hasAccess)
+      return hasAccess
     } catch {
       setHasPremiumAccess(false)
+      return false
     } finally {
       setAccessLoading(false)
     }
   }, [])
 
+  const handlePayment = useCallback(async (planKey, currentUser = user) => {
+    const activeUser = currentUser || user
+    if (!activeUser) {
+      sessionStorage.setItem('redirectAfterLogin', '/tests')
+      sessionStorage.setItem('pendingPayment', 'true')
+      navigate('/login')
+      return
+    }
+    setPaymentError('')
+    try {
+      const res = await fetch(`${API_BASE}/api/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planKey, user_id: activeUser.id, email: activeUser.email }),
+      })
+      const order = await res.json()
+      if (!res.ok || order.error) throw new Error(order.details || order.error || 'Failed to create order')
+
+      const rzp = new window.Razorpay({
+        key: RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'DataWiz',
+        description: `${order.planName} Plan`,
+        order_id: order.id,
+        prefill: { email: activeUser.email },
+        theme: { color: '#4A7C59' },
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...response,
+                user_id: activeUser.id,
+                tests_to_add: order.tests,
+                plan: planKey,
+                amount: order.amount,
+              }),
+            })
+            const verifyData = await verifyRes.json().catch(() => ({}))
+            if (!verifyRes.ok || verifyData.error) {
+              throw new Error(verifyData.details || verifyData.error || 'Payment verification failed')
+            }
+            // Close modal and unlock tests immediately
+            setShowUnlockModal(false)
+            setHasPremiumAccess(true)
+            setPaymentSuccess(true)
+            // Re-verify access from server in the background
+            loadUserAccess(activeUser)
+            // Auto-dismiss success banner after 6 seconds
+            setTimeout(() => setPaymentSuccess(false), 6000)
+          } catch (verifyErr) {
+            setShowUnlockModal(false)
+            setPaymentError('Payment was received but verification failed. Please contact support or refresh the page.')
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            // User closed Razorpay modal without paying — no action needed
+          },
+        },
+      })
+      rzp.open()
+    } catch (err) {
+      setPaymentError('Could not start payment: ' + err.message)
+    }
+  }, [user, navigate, loadUserAccess])
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
-      loadUserAccess(session?.user)
-      if (session?.user && sessionStorage.getItem('pendingPayment')) {
-        sessionStorage.removeItem('pendingPayment')
-        setShowUnlockModal(true)
+      if (session?.user) {
+        const hasAccess = await loadUserAccess(session.user)
+        if (sessionStorage.getItem('pendingPayment')) {
+          sessionStorage.removeItem('pendingPayment')
+          if (!hasAccess) {
+            handlePayment('starter', session.user)
+          }
+        }
+      } else {
+        setHasPremiumAccess(false)
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
-      loadUserAccess(session?.user)
-      if (session?.user && sessionStorage.getItem('pendingPayment')) {
-        sessionStorage.removeItem('pendingPayment')
-        setShowUnlockModal(true)
+      if (session?.user) {
+        const hasAccess = await loadUserAccess(session.user)
+        if (sessionStorage.getItem('pendingPayment')) {
+          sessionStorage.removeItem('pendingPayment')
+          if (!hasAccess) {
+            handlePayment('starter', session.user)
+          }
+        }
+      } else {
+        setHasPremiumAccess(false)
       }
     })
 
     return () => subscription.unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadUserAccess])
 
   useEffect(() => {
@@ -116,74 +293,6 @@ export default function MockTestPortal() {
       setTests([])
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handlePayment = async (planKey) => {
-    if (!user) {
-      sessionStorage.setItem('redirectAfterLogin', '/tests')
-      sessionStorage.setItem('pendingPayment', 'true')
-      navigate('/login')
-      return
-    }
-    setPaymentError('')
-    try {
-      const res = await fetch(`${API_BASE}/api/create-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planKey, user_id: user.id, email: user.email }),
-      })
-      const order = await res.json()
-      if (!res.ok || order.error) throw new Error(order.details || order.error || 'Failed to create order')
-
-      const rzp = new window.Razorpay({
-        key: RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'DataWiz',
-        description: `${order.planName} Plan`,
-        order_id: order.id,
-        prefill: { email: user.email },
-        theme: { color: '#4A7C59' },
-        handler: async (response) => {
-          try {
-            const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...response,
-                user_id: user.id,
-                tests_to_add: order.tests,
-                plan: planKey,
-                amount: order.amount,
-              }),
-            })
-            const verifyData = await verifyRes.json().catch(() => ({}))
-            if (!verifyRes.ok || verifyData.error) {
-              throw new Error(verifyData.details || verifyData.error || 'Payment verification failed')
-            }
-            // Close modal and unlock tests immediately
-            setShowUnlockModal(false)
-            setHasPremiumAccess(true)
-            setPaymentSuccess(true)
-            // Re-verify access from server in the background
-            loadUserAccess(user)
-            // Auto-dismiss success banner after 6 seconds
-            setTimeout(() => setPaymentSuccess(false), 6000)
-          } catch (verifyErr) {
-            setShowUnlockModal(false)
-            setPaymentError('Payment was received but verification failed. Please contact support or refresh the page.')
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            // User closed Razorpay modal without paying — no action needed
-          },
-        },
-      })
-      rzp.open()
-    } catch (err) {
-      setPaymentError('Could not start payment: ' + err.message)
     }
   }
 
@@ -278,16 +387,7 @@ export default function MockTestPortal() {
             <div className="hidden md:block h-6 w-[1px] bg-outline-variant mx-2" />
           </div>
           <div className="font-headline-md text-[28px] md:text-headline-md font-bold text-on-surface justify-self-center md:mr-auto">DataWiz</div>
-          {user ? (
-            <button onClick={() => supabase.auth.signOut().then(() => navigate('/'))} className="justify-self-end text-on-surface-variant hover:text-primary font-label-md text-sm md:text-label-md whitespace-nowrap">
-              Logout
-            </button>
-          ) : (
-            <button onClick={() => navigate('/login')} className="justify-self-end bg-primary text-on-primary px-3 md:px-6 py-2 rounded-full font-label-md text-xs md:text-label-md leading-none whitespace-nowrap">
-              <span className="hidden sm:inline">Login / Sign Up</span>
-              <span className="sm:hidden">Login</span>
-            </button>
-          )}
+          <ProfileDropdown user={user} navigate={navigate} />
         </div>
       </header>
 
@@ -394,7 +494,7 @@ export default function MockTestPortal() {
                 )}
               </div>
               {!hasPremiumAccess && (
-                <button onClick={() => setShowUnlockModal(true)} className="relative z-10 mt-md w-full sm:w-auto sm:self-start bg-secondary-container text-on-secondary-fixed font-label-md text-sm md:text-label-md px-lg md:px-xl py-3 rounded-full active:scale-95 whitespace-nowrap">
+                <button onClick={() => handlePayment('starter')} className="relative z-10 mt-md w-full sm:w-auto sm:self-start bg-secondary-container text-on-secondary-fixed font-label-md text-sm md:text-label-md px-lg md:px-xl py-3 rounded-full active:scale-95 whitespace-nowrap">
                   <span className="hidden sm:inline">{accessLoading ? 'Checking Access...' : `Upgrade Now - ${formatINR(STARTER_PRICE_INR)}`}</span>
                   <span className="sm:hidden">{accessLoading ? 'Checking...' : `Upgrade - ${formatINR(STARTER_PRICE_INR)}`}</span>
                 </button>

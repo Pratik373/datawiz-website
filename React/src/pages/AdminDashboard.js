@@ -15,8 +15,8 @@ import {
   listAdminUsers,
   recordAdminPayment,
   uploadAdminTestFile,
-} from './adminApi';
-import { supabase } from './supabaseClient';
+} from '../adminApi';
+import { supabase } from '../supabaseClient';
 import './AdminDashboard.css';
 
 const logoUrl = 'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg';
@@ -1210,10 +1210,6 @@ function formatDate(value) {
   return new Date(value).toLocaleDateString();
 }
 
-/* ══════════════════════════════════════════════════════
-   Beta Tester Whitelist Panel
-   Allows admin to manage emails that bypass maintenance mode
-══════════════════════════════════════════════════════ */
 function WhitelistPanel({ showNotice }) {
   const [emails, setEmails]     = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -1247,7 +1243,7 @@ function WhitelistPanel({ showNotice }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      showNotice(`✅ ${newEmail} added to whitelist`);
+      showNotice(`${newEmail} added to whitelist`);
       setNewEmail('');
       loadEmails();
     } catch (err) {
@@ -1279,11 +1275,10 @@ function WhitelistPanel({ showNotice }) {
   return (
     <section className="admin-panel">
       <PanelHeader
-        title="🛡 Beta Access Whitelist"
+        title="Beta Access Whitelist"
         subtitle="Emails added here can bypass maintenance mode and test the full platform."
       />
 
-      {/* Status banner */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -1307,11 +1302,10 @@ function WhitelistPanel({ showNotice }) {
         </div>
       </div>
 
-      {/* Add email form */}
       <form onSubmit={handleAdd} style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         <input
           type="email"
-          placeholder="Enter tester email (e.g. friend@gmail.com)"
+          placeholder="Enter tester email"
           value={newEmail}
           onChange={e => setNewEmail(e.target.value)}
           required
@@ -1333,13 +1327,12 @@ function WhitelistPanel({ showNotice }) {
           disabled={adding}
           style={{ whiteSpace: 'nowrap' }}
         >
-          {adding ? 'Adding…' : '+ Add to Whitelist'}
+          {adding ? 'Adding...' : '+ Add to Whitelist'}
         </button>
       </form>
 
-      {/* Whitelist table */}
       {loading ? (
-        <div className="admin-empty">Loading whitelist…</div>
+        <div className="admin-empty">Loading whitelist...</div>
       ) : emails.length === 0 ? (
         <div className="admin-empty">
           <p>No beta testers added yet.</p>

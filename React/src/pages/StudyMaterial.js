@@ -1,6 +1,98 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+
+function ProfileDropdown({ user, navigate }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!user) {
+    return (
+      <button
+        onClick={() => navigate('/login')}
+        className="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all justify-self-end whitespace-nowrap"
+      >
+        Login
+      </button>
+    )
+  }
+
+  const initials = (user.user_metadata?.full_name || user.email || 'U')
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
+
+  return (
+    <div className="relative justify-self-end" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 group animate-fade-in"
+        aria-label="Profile menu"
+      >
+        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/50 overflow-hidden transition-all">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
+        </div>
+        <span
+          className="material-symbols-outlined text-on-surface-variant text-[18px] transition-transform"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50 animate-fade-in">
+          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+            <p className="font-label-md text-label-md text-on-surface truncate text-left">{displayName}</p>
+            <p className="text-xs text-on-surface-variant truncate mt-0.5 text-left">{user.email}</p>
+          </div>
+          <div className="p-1">
+            <button
+              onClick={() => {
+                navigate('/tests')
+                setOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-on-surface hover:bg-surface-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px] text-primary">quiz</span>
+              My Tests
+            </button>
+            <button
+              onClick={() => {
+                supabase.auth.signOut().then(() => {
+                  setOpen(false)
+                  navigate('/')
+                })
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function StudyMaterial() {
   const navigate = useNavigate()
@@ -10,6 +102,7 @@ export default function StudyMaterial() {
   const [error, setError] = useState('')
   const [actionLoading, setActionLoading] = useState('')
   const [search, setSearch] = useState('')
+  const [activePdf, setActivePdf] = useState(null) // { url, title }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -88,7 +181,11 @@ export default function StudyMaterial() {
         throw new Error(payload.error || 'Could not open this material.')
       }
 
-      window.open(payload.url, '_blank', 'noopener,noreferrer')
+      if (download) {
+        window.open(payload.url, '_blank', 'noopener,noreferrer')
+      } else {
+        setActivePdf({ url: payload.url, title: material.title })
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -112,20 +209,7 @@ export default function StudyMaterial() {
               Back to Home
             </button>
           </div>
-          <div className="flex items-center gap-lg">
-            {user && <span className="hidden md:block font-body-sm text-body-sm text-on-surface-variant">{user.email}</span>}
-            {user ? (
-              <button onClick={() => supabase.auth.signOut().then(() => navigate('/'))}
-                className="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">
-                Logout
-              </button>
-            ) : (
-              <button onClick={() => navigate('/login')}
-                className="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">
-                Login
-              </button>
-            )}
-          </div>
+          <ProfileDropdown user={user} navigate={navigate} />
         </div>
       </header>
 
@@ -228,7 +312,7 @@ export default function StudyMaterial() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md px-gutter max-w-container-max mx-auto">
           <div className="flex flex-col gap-xs">
             <div className="font-headline-sm text-headline-sm font-bold text-primary">DataWiz</div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">&copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform.</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">&copy; 2026 DataWiz. CDAC C-CAT Exam Prep Platform.</p>
           </div>
           <div className="flex flex-wrap gap-md md:justify-end">
             <button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Privacy Policy</button>
@@ -238,6 +322,55 @@ export default function StudyMaterial() {
           </div>
         </div>
       </footer>
+
+      {/* Fullscreen PDF Viewer Modal */}
+      {activePdf && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-surface-container-lowest animate-fade-in" style={{ animationDuration: '0.2s' }}>
+          {/* Header */}
+          <header className="flex justify-between items-center px-gutter py-4 bg-surface/85 backdrop-blur-xl border-b border-outline-variant shadow-sm">
+            <div className="flex items-center gap-md min-w-0">
+              <button
+                onClick={() => setActivePdf(null)}
+                className="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-all active:scale-95 cursor-pointer font-label-md text-label-md shrink-0"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+                <span>Close Reader</span>
+              </button>
+              <div className="h-6 w-[1px] bg-outline-variant mx-1 shrink-0" />
+              <h2 className="font-headline-sm text-headline-sm text-on-surface truncate pr-md font-bold">
+                {activePdf.title}
+              </h2>
+            </div>
+            <div className="flex items-center gap-sm shrink-0">
+              <button
+                onClick={() => window.open(activePdf.url, '_blank')}
+                className="flex items-center gap-xs px-4 py-2 border border-primary text-primary rounded-full hover:bg-primary/5 active:scale-95 transition-all text-xs font-bold font-label-md"
+                title="Open in new tab"
+              >
+                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                <span className="hidden sm:inline">New Tab</span>
+              </button>
+              <button
+                onClick={() => setActivePdf(null)}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all active:scale-95"
+                aria-label="Close reader"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          </header>
+
+          {/* PDF Frame Container */}
+          <div className="flex-grow w-full h-full bg-[#525659] flex items-center justify-center relative">
+            <iframe
+              src={`${activePdf.url}#toolbar=1`}
+              title={activePdf.title}
+              className="w-full h-full border-none"
+              allow="autoplay"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
