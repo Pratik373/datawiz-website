@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { STARTER_PRICE_INR, formatINR } from '../pricingConfig'
@@ -28,6 +28,98 @@ const FREE_TEST_TOPICS = [
     topics: ['C Programming', 'Data Structures', 'Operating Systems & Networking', 'OOP Concepts', 'Basics of Big Data & AI'],
   },
 ]
+
+function ProfileDropdown({ user, navigate }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!user) {
+    return (
+      <button
+        onClick={() => navigate('/login')}
+        className="px-4 py-2 border border-primary text-primary font-label-md text-sm md:text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all justify-self-end whitespace-nowrap"
+      >
+        Login
+      </button>
+    )
+  }
+
+  const initials = (user.user_metadata?.full_name || user.email || 'U')
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
+
+  return (
+    <div className="relative justify-self-end" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 group"
+        aria-label="Profile menu"
+      >
+        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/50 overflow-hidden transition-all">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
+        </div>
+        <span
+          className="material-symbols-outlined text-on-surface-variant text-[18px] transition-transform"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          expand_more
+        </span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50 animate-fade-in">
+          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+            <p className="font-label-md text-label-md text-on-surface truncate text-left">{displayName}</p>
+            <p className="text-xs text-on-surface-variant truncate mt-0.5 text-left">{user.email}</p>
+          </div>
+          <div className="p-1">
+            <button
+              onClick={() => {
+                navigate('/')
+                setOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-on-surface hover:bg-surface-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px] text-primary">home</span>
+              Home
+            </button>
+            <button
+              onClick={() => {
+                supabase.auth.signOut().then(() => {
+                  setOpen(false)
+                  navigate('/')
+                })
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function MockTestPortal() {
   const navigate = useNavigate()
@@ -278,16 +370,7 @@ export default function MockTestPortal() {
             <div className="hidden md:block h-6 w-[1px] bg-outline-variant mx-2" />
           </div>
           <div className="font-headline-md text-[28px] md:text-headline-md font-bold text-on-surface justify-self-center md:mr-auto">DataWiz</div>
-          {user ? (
-            <button onClick={() => supabase.auth.signOut().then(() => navigate('/'))} className="justify-self-end text-on-surface-variant hover:text-primary font-label-md text-sm md:text-label-md whitespace-nowrap">
-              Logout
-            </button>
-          ) : (
-            <button onClick={() => navigate('/login')} className="justify-self-end bg-primary text-on-primary px-3 md:px-6 py-2 rounded-full font-label-md text-xs md:text-label-md leading-none whitespace-nowrap">
-              <span className="hidden sm:inline">Login / Sign Up</span>
-              <span className="sm:hidden">Login</span>
-            </button>
-          )}
+          <ProfileDropdown user={user} navigate={navigate} />
         </div>
       </header>
 

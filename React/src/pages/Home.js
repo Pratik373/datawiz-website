@@ -1,6 +1,84 @@
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { supabase } from '../supabaseClient'
 
 const heroImg = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyOXogB7LYDkE7jxtYEi1yAzkvpqJyP5jhpeGAOs4kYoBSp_BQ7pZVodLs7aoLI-_xw6gkKDnki2-ql5CAwKO0I-Mis6aZBzRcYFsR832PVwWTmwlpU7FW5q3YzMKhEo89YFHaEp_ripjxmXwid_Iqi0qELm-O8P636KK31y5y9CJ9aYqU_6k65oAlZZ6HS6ydcPwvfkE9J47FrnKIw0U12gaFYpDslM9N0M_jd8vQ_japZTacf3GYgEBYlqAABZjjM4ZzTonLDiM'
+
+function ProfileButton({ goTo }) {
+  const [user, setUser] = useState(null)
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  if (!user) {
+    return (
+      <button onClick={() => goTo('/login')} className="px-md py-2 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all">
+        Login
+      </button>
+    )
+  }
+
+  const initials = (user.user_metadata?.full_name || user.email || 'U')
+    .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-2 group"
+        aria-label="Profile menu"
+      >
+        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/50 overflow-hidden transition-all">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
+        </div>
+        <span className="material-symbols-outlined text-on-surface-variant text-[18px] transition-transform" style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>expand_more</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50 animate-fade-in">
+          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
+            <p className="font-label-md text-label-md text-on-surface truncate">{displayName}</p>
+            <p className="text-xs text-on-surface-variant truncate mt-0.5">{user.email}</p>
+          </div>
+          <div className="p-1">
+            <button
+              onClick={() => { goTo('/tests'); setOpen(false) }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-on-surface hover:bg-surface-container transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px] text-primary">quiz</span>
+              My Tests
+            </button>
+            <button
+              onClick={() => supabase.auth.signOut().then(() => setOpen(false))}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function Home() {
   const navigate = useNavigate()
@@ -29,9 +107,7 @@ export default function Home() {
             <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => scrollTo('follow')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Follow</button>
           </nav>
-          <button onClick={() => goTo('/login')} className="px-md py-2 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all">
-            Login
-          </button>
+          <ProfileButton goTo={goTo} />
         </div>
       </header>
 
