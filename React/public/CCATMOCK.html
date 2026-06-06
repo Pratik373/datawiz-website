@@ -39,10 +39,7 @@ header{
     z-index:5;
 }
 
-header h1{
-    font-size:20px;
-    margin:0;
-}
+header h1{font-size:20px;margin:0}
 
 .timer-wrap{
     display:flex;
@@ -60,10 +57,7 @@ header h1{
     text-align:center;
 }
 
-.timer.active{
-    background:white;
-    color:var(--navy);
-}
+.timer.active{background:white;color:var(--navy)}
 
 .container{
     width:min(1180px,94%);
@@ -92,15 +86,8 @@ header h1{
     background:#fbfdff;
 }
 
-.mini-card h3{
-    margin:0 0 8px;
-    color:var(--navy);
-}
-
-.mini-card ul{
-    margin:8px 0 0;
-    padding-left:20px;
-}
+.mini-card h3{margin:0 0 8px;color:var(--navy)}
+.mini-card ul{margin:8px 0 0;padding-left:20px}
 
 .top-actions{
     display:flex;
@@ -122,8 +109,7 @@ button{
 button:hover{background:#0d55b5}
 button:disabled{opacity:0.6;cursor:not-allowed}
 
-#examScreen,
-#resultScreen{display:none}
+#examScreen,#resultScreen{display:none}
 
 .exam-layout{
     display:grid;
@@ -144,13 +130,8 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     margin-bottom:14px;
 }
 
-.section-tabs button{
-    padding:10px;
-    font-size:14px;
-}
-
+.section-tabs button{padding:10px;font-size:14px}
 .section-tabs button.active{background:var(--navy)}
-
 .section-tabs button:disabled{
     background:#edf2f7;
     color:#667085;
@@ -194,11 +175,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     box-shadow:0 2px 6px rgba(16,24,40,0.04);
 }
 
-.question{
-    font-size:18px;
-    margin-bottom:12px;
-    font-weight:bold;
-}
+.question{font-size:18px;margin-bottom:12px;font-weight:bold}
 
 .topic{
     display:inline-block;
@@ -260,11 +237,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     padding:14px;
 }
 
-.score-box strong{
-    display:block;
-    font-size:24px;
-    margin-top:4px;
-}
+.score-box strong{display:block;font-size:24px;margin-top:4px}
 
 @media(max-width:760px){
     header{align-items:flex-start;flex-direction:column}
@@ -281,7 +254,8 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
-        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;">Logout</button>
+        <button id="yourTestsBtn" onclick="window.location.href='/tests'" style="background:var(--green);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Your Tests</button>
+        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;color:white;border:none;border-radius:7px;cursor:pointer;">Logout</button>
     </div>
 </header>
 
@@ -318,7 +292,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
             </div>
         </div>
         <div class="top-actions">
-            <button id="startExamBtn" onclick="startExam()">Start Exam</button>
+            <button onclick="startExam()">Start Exam</button>
         </div>
     </section>
 
@@ -354,130 +328,132 @@ button:disabled{opacity:0.6;cursor:not-allowed}
 
 <script>
 const questions = [
+
 // ── SECTION A: ENGLISH (Q1–10) ──
-{id:1,section:"A",topic:"English",q:"Choose the word closest in meaning to RECALCITRANT:",o:["Obedient","Stubborn","Timid","Enthusiastic"],a:1},
-{id:2,section:"A",topic:"English",q:"Select the ANTONYM of LOQUACIOUS:",o:["Talkative","Verbose","Taciturn","Garrulous"],a:2},
-{id:3,section:"A",topic:"English",q:"Identify the error in the sentence: 'Neither the manager nor the employees was present at the meeting.'",o:["Neither the manager","nor the employees","was present","at the meeting"],a:2},
-{id:4,section:"A",topic:"English",q:"Choose the correct indirect speech: He said, 'I am going to Delhi tomorrow.'",o:["He said that he was going to Delhi the next day","He said that he is going to Delhi tomorrow","He told that he was going to Delhi tomorrow","He said that he went to Delhi the next day"],a:0},
-{id:5,section:"A",topic:"English",q:"Choose the correctly spelled word:",o:["Conscientious","Consciencious","Consciencous","Conscientous"],a:0},
-{id:6,section:"A",topic:"English",q:"'A person who pretends to be what he is not' — one word substitute:",o:["Hypocrite","Fanatic","Egoist","Altruist"],a:0},
-{id:7,section:"A",topic:"English",q:"Choose the best meaning of the idiom 'Burn the midnight oil':",o:["Set fire to something","Work late into the night","Waste energy","Travel overnight"],a:1},
-{id:8,section:"A",topic:"English",q:"Fill in the blank: By the time we arrived, the train _____ already left.",o:["has","have","had","was"],a:2},
-{id:9,section:"A",topic:"English",q:"Choose the sentence with correct use of subjunctive mood:",o:["If I was you, I would apologize","If I were you, I would apologize","If I am you, I would apologize","If I be you, I would apologize"],a:1},
-{id:10,section:"A",topic:"English",q:"The phrase 'ad hoc' means:",o:["For this specific purpose","Against the law","In good faith","At first sight"],a:0},
+{id:1,section:"A",topic:"English",q:"Choose the synonym of ABUNDANT:",o:["Scarce","Plentiful","Empty","Tiny"],a:1},
+{id:2,section:"A",topic:"English",q:"Choose the antonym of ANCIENT:",o:["Old","Historic","Modern","Classic"],a:2},
+{id:3,section:"A",topic:"English",q:"Fill in the blank: She _____ to the market every Sunday.",o:["go","goes","going","gone"],a:1},
+{id:4,section:"A",topic:"English",q:"Identify the error: 'He don't know the answer.'",o:["He","don't","know","the answer"],a:1},
+{id:5,section:"A",topic:"English",q:"Choose the correctly spelled word:",o:["Recieve","Receive","Receve","Receeve"],a:1},
+{id:6,section:"A",topic:"English",q:"One word for 'a doctor who treats children':",o:["Cardiologist","Dermatologist","Pediatrician","Neurologist"],a:2},
+{id:7,section:"A",topic:"English",q:"Meaning of idiom 'Break the ice':",o:["Break something","Start a conversation","End a fight","Win a game"],a:1},
+{id:8,section:"A",topic:"English",q:"Choose passive voice of: 'Ram wrote a letter.'",o:["A letter was written by Ram","A letter is written by Ram","Ram was written a letter","A letter wrote Ram"],a:0},
+{id:9,section:"A",topic:"English",q:"Fill in the blank: He is good _____ playing cricket.",o:["in","on","at","of"],a:2},
+{id:10,section:"A",topic:"English",q:"Choose the correct sentence:",o:["I have went there","I have gone there","I have go there","I went there yesterday but I have go again"],a:1},
 
 // ── SECTION A: QUANTITATIVE APTITUDE (Q11–25) ──
-{id:11,section:"A",topic:"Quantitative Aptitude",q:"A sum of money doubles itself in 8 years at simple interest. What is the rate of interest per annum?",o:["10%","12%","12.5%","15%"],a:2},
-{id:12,section:"A",topic:"Quantitative Aptitude",q:"A can do a work in 12 days and B in 18 days. They work together for 4 days, then A leaves. How many more days will B take to finish?",o:["8","9","10","11"],a:2},
-{id:13,section:"A",topic:"Quantitative Aptitude",q:"A train 200 m long passes a standing man in 10 sec and a platform in 22 sec. What is the length of the platform?",o:["140 m","200 m","240 m","260 m"],a:2},
-{id:14,section:"A",topic:"Quantitative Aptitude",q:"If log 2 = 0.301, find log 50.",o:["1.301","1.699","1.602","2.301"],a:1},
-{id:15,section:"A",topic:"Quantitative Aptitude",q:"A shopkeeper marks his goods 40% above cost price and gives a 20% discount. What is his profit %?",o:["10%","12%","20%","16%"],a:1},
-{id:16,section:"A",topic:"Quantitative Aptitude",q:"Two pipes A and B fill a tank in 20 min and 30 min. Pipe C drains it in 15 min. If all three are open, how long to fill?",o:["60 min","90 min","120 min","45 min"],a:2},
-{id:17,section:"A",topic:"Quantitative Aptitude",q:"What is the next term in the series: 3, 8, 15, 24, 35, ?",o:["46","48","50","52"],a:1},
-{id:18,section:"A",topic:"Quantitative Aptitude",q:"The average of 5 consecutive odd numbers is 31. What is the largest number?",o:["33","35","37","39"],a:1},
-{id:19,section:"A",topic:"Quantitative Aptitude",q:"A sphere of radius 3 cm is melted and recast into a cylinder of radius 3 cm. What is the height of the cylinder?",o:["2 cm","4 cm","5 cm","6 cm"],a:1},
-{id:20,section:"A",topic:"Quantitative Aptitude",q:"If x² - 5x + 6 = 0, which of the following is a root?",o:["1","4","3","5"],a:2},
-{id:21,section:"A",topic:"Quantitative Aptitude",q:"In how many ways can the letters of the word 'LEVEL' be arranged?",o:["60","30","20","40"],a:0},
-{id:22,section:"A",topic:"Quantitative Aptitude",q:"A bag has 4 red, 3 blue, 2 green balls. A ball is drawn at random. Probability it is NOT red:",o:["4/9","5/9","2/3","1/3"],a:1},
-{id:23,section:"A",topic:"Quantitative Aptitude",q:"If 3x + 2y = 12 and x - y = 1, find x:",o:["2","3","14/5","4"],a:2},
-{id:24,section:"A",topic:"Quantitative Aptitude",q:"Compound interest on Rs.8000 at 10% p.a. for 2 years compounded annually:",o:["1680","1600","1440","1800"],a:0},
-{id:25,section:"A",topic:"Quantitative Aptitude",q:"Speed of a boat in still water is 12 km/h. Speed of stream is 4 km/h. Time to go 48 km upstream:",o:["4 hr","6 hr","8 hr","5 hr"],a:1},
+{id:11,section:"A",topic:"Quantitative Aptitude",q:"A sum of Rs.5000 earns simple interest of Rs.1000 in 4 years. What is the rate of interest per annum?",o:["4%","5%","6%","8%"],a:1},
+{id:12,section:"A",topic:"Quantitative Aptitude",q:"A can do a work in 10 days, B in 15 days. How many days will they take together?",o:["5","6","8","12"],a:1},
+{id:13,section:"A",topic:"Quantitative Aptitude",q:"A train 150 m long runs at 54 km/h. Time to cross a pole is:",o:["8 sec","10 sec","12 sec","15 sec"],a:1},
+{id:14,section:"A",topic:"Quantitative Aptitude",q:"What is 30% of 250?",o:["65","70","75","80"],a:2},
+{id:15,section:"A",topic:"Quantitative Aptitude",q:"A shopkeeper buys at Rs.200 and sells at Rs.250. Profit % is:",o:["20%","25%","30%","50%"],a:1},
+{id:16,section:"A",topic:"Quantitative Aptitude",q:"LCM of 8, 12 and 16 is:",o:["24","36","48","96"],a:2},
+{id:17,section:"A",topic:"Quantitative Aptitude",q:"Series: 2, 5, 10, 17, 26, ?",o:["35","36","37","38"],a:2},
+{id:18,section:"A",topic:"Quantitative Aptitude",q:"Average of 5 numbers is 20. If one number is removed and average becomes 18, the removed number is:",o:["25","28","30","32"],a:1},
+{id:19,section:"A",topic:"Quantitative Aptitude",q:"Compound interest on Rs.1000 at 10% per annum for 2 years:",o:["Rs.200","Rs.210","Rs.220","Rs.100"],a:1},
+{id:20,section:"A",topic:"Quantitative Aptitude",q:"If 3x = 21, find x:",o:["5","6","7","8"],a:2},
+{id:21,section:"A",topic:"Quantitative Aptitude",q:"Probability of getting an even number on a dice roll:",o:["1/6","1/3","1/2","2/3"],a:2},
+{id:22,section:"A",topic:"Quantitative Aptitude",q:"Area of a rectangle with length 12 cm and breadth 8 cm:",o:["80 cm²","96 cm²","100 cm²","40 cm²"],a:1},
+{id:23,section:"A",topic:"Quantitative Aptitude",q:"Speed = 60 km/h, Time = 2.5 hours. Distance =",o:["120 km","150 km","180 km","200 km"],a:1},
+{id:24,section:"A",topic:"Quantitative Aptitude",q:"HCF of 36 and 48 is:",o:["6","9","12","18"],a:2},
+{id:25,section:"A",topic:"Quantitative Aptitude",q:"A number is increased by 20% and then decreased by 20%. Net change is:",o:["No change","4% decrease","4% increase","2% decrease"],a:1},
 
 // ── SECTION A: LOGICAL REASONING (Q26–40) ──
-{id:26,section:"A",topic:"Logical Reasoning",q:"Statement: All doctors are surgeons. Some surgeons are nurses. Conclusion: I. Some nurses are doctors. II. All surgeons are doctors. Which is valid?",o:["Only I","Only II","Both I and II","Neither I nor II"],a:3},
-{id:27,section:"A",topic:"Logical Reasoning",q:"A is the father of B. C is the mother of B. D is the brother of C. What is D's relationship to B?",o:["Uncle","Grandfather","Cousin","Brother"],a:0},
-{id:28,section:"A",topic:"Logical Reasoning",q:"Find the missing number in the matrix: [2, 4, 8], [3, 9, 27], [4, 16, ?]",o:["32","48","64","56"],a:2},
-{id:29,section:"A",topic:"Logical Reasoning",q:"If FRIEND is coded as HUMJTK, how is ENEMY coded?",o:["GOFPA","GPGOA","GPFPA","GOFOA"],a:0},
-{id:30,section:"A",topic:"Logical Reasoning",q:"Series: 1, 2, 6, 24, 120, ?",o:["620","720","840","960"],a:1},
-{id:31,section:"A",topic:"Logical Reasoning",q:"Pointing to a photograph, a man said, 'His mother is the only daughter of my mother.' Who is the man to the person in the photo?",o:["Father","Brother","Grandfather","Uncle"],a:0},
-{id:32,section:"A",topic:"Logical Reasoning",q:"Water image of the number '36918' is:",o:["36918","63891","86193","36918 flipped vertically"],a:3},
-{id:33,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: 121, 144, 169, 196, 225, 240",o:["196","225","240","169"],a:2},
-{id:34,section:"A",topic:"Logical Reasoning",q:"If in a certain code, ROSE = 6821, CHAIR = 73456, PREACH = ?",o:["QSFBDI","732641","967348","865138"],a:1},
-{id:35,section:"A",topic:"Logical Reasoning",q:"A clock shows 4:20. What is the angle between the hour and minute hands?",o:["0°","5°","10°","20°"],a:2},
-{id:36,section:"A",topic:"Logical Reasoning",q:"Statements: All cats are dogs. No dog is a bird. Conclusion: No cat is a bird. This is:",o:["Valid deduction","Invalid deduction","Partially valid","Uncertain"],a:0},
-{id:37,section:"A",topic:"Logical Reasoning",q:"Series: AC, FH, KM, PR, ?",o:["UW","UV","VW","TV"],a:0},
-{id:38,section:"A",topic:"Logical Reasoning",q:"Ravi walks 5 km north, turns right 4 km, turns right 5 km, turns left 3 km. How far and in which direction from start?",o:["7 km East","4 km East","3 km West","7 km West"],a:0},
-{id:39,section:"A",topic:"Logical Reasoning",q:"Insert the missing term: 2, 3, 5, 7, 11, 13, ?, 19",o:["15","16","17","18"],a:2},
-{id:40,section:"A",topic:"Logical Reasoning",q:"If 'TABLE' is coded as 'XEFPI', which cipher is used?",o:["Caesar +4","Caesar +3","Reverse alphabet","Atbash"],a:0},
+{id:26,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: 3, 5, 7, 9, 11",o:["3","5","9","11"],a:2},
+{id:27,section:"A",topic:"Logical Reasoning",q:"A is the mother of B. B is the sister of C. What is A's relation to C?",o:["Aunt","Mother","Sister","Grandmother"],a:1},
+{id:28,section:"A",topic:"Logical Reasoning",q:"Series: 1, 4, 9, 16, 25, ?",o:["30","34","36","49"],a:2},
+{id:29,section:"A",topic:"Logical Reasoning",q:"If MANGO = 13+1+14+7+15 = 50, then APPLE = ?",o:["50","51","52","53"],a:1},
+{id:30,section:"A",topic:"Logical Reasoning",q:"Clock shows 6:00. Angle between hour and minute hands:",o:["90°","120°","150°","180°"],a:3},
+{id:31,section:"A",topic:"Logical Reasoning",q:"Series: A, C, F, J, ?",o:["M","N","O","P"],a:2},
+{id:32,section:"A",topic:"Logical Reasoning",q:"Series: 3, 6, 12, 24, 48, ?",o:["60","72","96","120"],a:2},
+{id:33,section:"A",topic:"Logical Reasoning",q:"If RAIN is coded as SBJO, what is SNOW?",o:["TOPX","TNPX","UPOX","TNOX"],a:0},
+{id:34,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: Dog, Cat, Cow, Eagle, Horse",o:["Dog","Cat","Eagle","Cow"],a:2},
+{id:35,section:"A",topic:"Logical Reasoning",q:"All birds can fly. Penguin is a bird. Conclusion:",o:["Penguin can fly (logically valid)","Penguin cannot fly","Penguin is not a bird","None follows"],a:0},
+{id:36,section:"A",topic:"Logical Reasoning",q:"Ravi walks 10 km North, then turns right and walks 5 km. He then turns right and walks 10 km. How far is he from start?",o:["5 km","10 km","15 km","0 km"],a:0},
+{id:37,section:"A",topic:"Logical Reasoning",q:"Series: 5, 11, 23, 47, ?",o:["90","94","95","97"],a:2},
+{id:38,section:"A",topic:"Logical Reasoning",q:"If 5 + 3 = 28, 9 + 1 = 810, then 7 + 2 = ?",o:["59","95","514","45"],a:0},
+{id:39,section:"A",topic:"Logical Reasoning",q:"Find next: 2, 3, 5, 8, 13, 21, ?",o:["30","32","34","36"],a:2},
+{id:40,section:"A",topic:"Logical Reasoning",q:"If today is Wednesday, what day will it be after 100 days?",o:["Monday","Tuesday","Friday","Saturday"],a:3},
 
 // ── SECTION A: COMPUTER FUNDAMENTALS (Q41–50) ──
-{id:41,section:"A",topic:"Computer Fundamentals",q:"Which of these is an example of volatile memory?",o:["ROM","Flash drive","DRAM","SSD"],a:2},
-{id:42,section:"A",topic:"Computer Fundamentals",q:"Convert hexadecimal 2F to decimal:",o:["45","46","47","48"],a:2},
-{id:43,section:"A",topic:"Computer Fundamentals",q:"What is the 2's complement of 0110 0101?",o:["1001 1010","1001 1011","0110 0101","1111 0101"],a:1},
-{id:44,section:"A",topic:"Computer Fundamentals",q:"Which addressing mode is used in 'MOV A, [BX+5]'?",o:["Direct","Immediate","Indexed","Implied"],a:2},
-{id:45,section:"A",topic:"Computer Fundamentals",q:"How many address lines are needed to address 1 MB of memory?",o:["16","18","20","22"],a:2},
-{id:46,section:"A",topic:"Computer Fundamentals",q:"Which of the following is NOT a characteristic of a database management system?",o:["Data independence","Redundancy control","Data inconsistency","Concurrent access"],a:2},
-{id:47,section:"A",topic:"Computer Fundamentals",q:"In a 32-bit system, the maximum addressable memory is:",o:["2 GB","4 GB","8 GB","16 GB"],a:1},
-{id:48,section:"A",topic:"Computer Fundamentals",q:"Which type of software allows the user to write, modify, and debug programs?",o:["Utility","IDE","Firmware","Driver"],a:1},
-{id:49,section:"A",topic:"Computer Fundamentals",q:"Thrashing in operating systems is caused by:",o:["Too much CPU usage","Excessive paging","Memory leak","Deadlock"],a:1},
-{id:50,section:"A",topic:"Computer Fundamentals",q:"Which data structure is used internally by a function call stack?",o:["Queue","Linked List","Stack","Tree"],a:2},
+{id:41,section:"A",topic:"Computer Fundamentals",q:"Which of the following is an example of secondary storage?",o:["RAM","Cache","Hard Disk","Registers"],a:2},
+{id:42,section:"A",topic:"Computer Fundamentals",q:"Convert binary 1010 to decimal:",o:["8","9","10","12"],a:2},
+{id:43,section:"A",topic:"Computer Fundamentals",q:"Which of these is NOT an output device?",o:["Monitor","Printer","Scanner","Speaker"],a:2},
+{id:44,section:"A",topic:"Computer Fundamentals",q:"Full form of ALU:",o:["Arithmetic Logic Unit","Automatic Logic Unit","Arithmetic Load Unit","Array Logic Unit"],a:0},
+{id:45,section:"A",topic:"Computer Fundamentals",q:"Which generation of computers used transistors?",o:["First","Second","Third","Fourth"],a:1},
+{id:46,section:"A",topic:"Computer Fundamentals",q:"The brain of the computer is:",o:["Hard Disk","RAM","CPU","Monitor"],a:2},
+{id:47,section:"A",topic:"Computer Fundamentals",q:"Which of these is a high-level programming language?",o:["Machine language","Assembly language","Python","Binary code"],a:2},
+{id:48,section:"A",topic:"Computer Fundamentals",q:"1 KB is equal to:",o:["100 bytes","512 bytes","1000 bytes","1024 bytes"],a:3},
+{id:49,section:"A",topic:"Computer Fundamentals",q:"What does GUI stand for?",o:["Graphical User Interface","General Utility Interface","Graphical Unified Interface","General User Input"],a:0},
+{id:50,section:"A",topic:"Computer Fundamentals",q:"Which protocol is used to send emails?",o:["HTTP","FTP","SMTP","TCP"],a:2},
 
 // ── SECTION B: C PROGRAMMING (Q51–70) ──
-{id:51,section:"B",topic:"C Programming",q:"What is the output of the following?",code:"#include<stdio.h>\nint main(){\n    int a=5, b=3;\n    printf(\"%d\", a+++b);\n    return 0;\n}",o:["8","9","Compile error","Undefined"],a:0},
-{id:52,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nvoid f(int *p){\n    *p = *p + 10;\n}\nint main(){\n    int x = 5;\n    f(&x);\n    printf(\"%d\", x);\n    return 0;\n}",o:["5","10","15","Garbage"],a:2},
-{id:53,section:"B",topic:"C Programming",q:"Which statement about 'static' local variables in C is TRUE?",o:["Re-initialized every function call","Stored in stack","Retain value between function calls","Allocated on heap"],a:2},
-{id:54,section:"B",topic:"C Programming",q:"What will be the output?",code:"int arr[] = {10, 20, 30, 40};\nprintf(\"%d\", *(arr + 2));",o:["20","30","40","Address"],a:1},
-{id:55,section:"B",topic:"C Programming",q:"What is the output?",code:"int x = 10;\nint *p = &x;\n*p = *p * 2;\nprintf(\"%d\", x);",o:["10","20","Address of x","Undefined"],a:1},
-{id:56,section:"B",topic:"C Programming",q:"What will sizeof(arr) return if: int arr[5];",o:["5","10","20","Depends on compiler"],a:2},
-{id:57,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nint main(){\n    int i;\n    for(i=0; i<5; i++){\n        if(i==3) continue;\n        printf(\"%d \", i);\n    }\n    return 0;\n}",o:["0 1 2 4","0 1 2 3 4","0 1 2","0 1 2 3"],a:0},
-{id:58,section:"B",topic:"C Programming",q:"Which of the following correctly declares a pointer to a function that takes int and returns int?",o:["int *f(int)","int (*f)(int)","int *(f)(int)","(*int) f(int)"],a:1},
-{id:59,section:"B",topic:"C Programming",q:"What is the output?",code:"char s[] = \"Hello\";\nprintf(\"%d\", strlen(s));",o:["5","6","4","Undefined"],a:0},
-{id:60,section:"B",topic:"C Programming",q:"What happens when malloc() fails to allocate memory?",o:["Returns 0","Returns -1","Returns NULL","Throws exception"],a:2},
-{id:61,section:"B",topic:"C Programming",q:"Which of the following is true about a 'const' pointer?",o:["The pointer cannot change what it points to","The value at the address cannot change","Both the pointer and value are const","const has no effect in C"],a:1},
-{id:62,section:"B",topic:"C Programming",q:"What is the output?",code:"int a = 6;\nswitch(a){\n    case 6: printf(\"Six\");\n    case 7: printf(\"Seven\");\n    default: printf(\"Other\");\n}",o:["Six","SixSeven","SixSevenOther","Other"],a:2},
-{id:63,section:"B",topic:"C Programming",q:"What is the output?",code:"int x=5;\nprintf(\"%d %d\", x<<1, x>>1);",o:["10 2","10 3","5 2","5 5"],a:0},
-{id:64,section:"B",topic:"C Programming",q:"In C, which of the following is NOT a storage class?",o:["auto","extern","static","strong"],a:3},
-{id:65,section:"B",topic:"C Programming",q:"What is the output?",code:"int a=10, b=5;\na = a^b;\nb = a^b;\na = a^b;\nprintf(\"%d %d\", a, b);",o:["10 5","5 10","0 0","15 0"],a:1},
-{id:66,section:"B",topic:"C Programming",q:"Which function is used to release dynamically allocated memory?",o:["delete()","remove()","free()","dealloc()"],a:2},
-{id:67,section:"B",topic:"C Programming",q:"What is the output?",code:"int i=1;\nwhile(i<=5){\n    printf(\"%d \", i);\n    i += 2;\n}",o:["1 3 5","1 2 3 4 5","1 3 5 7","Infinite loop"],a:0},
-{id:68,section:"B",topic:"C Programming",q:"Which of the following about arrays in C is correct?",o:["Array size can be changed at runtime","Array name is a constant pointer to first element","Arrays can store mixed types","Array index starts at 1"],a:1},
-{id:69,section:"B",topic:"C Programming",q:"What is the output?",code:"printf(\"%d\", 10 % 3 + 20 / 4);",o:["6","7","8","5"],a:1},
-{id:70,section:"B",topic:"C Programming",q:"Which of the following correctly reads a string with spaces?",o:["scanf(\"%s\", str)","gets(str)","getchar()","scanf(\"%c\", str)"],a:1},
+{id:51,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nint main(){\n    int a = 5;\n    printf(\"%d\", a++);\n    return 0;\n}",o:["5","6","4","Error"],a:0},
+{id:52,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nint main(){\n    int a = 5;\n    printf(\"%d\", ++a);\n    return 0;\n}",o:["5","6","4","Error"],a:1},
+{id:53,section:"B",topic:"C Programming",q:"Which loop is guaranteed to execute at least once?",o:["for loop","while loop","do-while loop","None of these"],a:2},
+{id:54,section:"B",topic:"C Programming",q:"What does the '&' operator do in C?",o:["Multiply","Give address of variable","Dereference a pointer","Logical AND"],a:1},
+{id:55,section:"B",topic:"C Programming",q:"What is the output?",code:"int arr[] = {10, 20, 30, 40, 50};\nprintf(\"%d\", arr[2]);",o:["10","20","30","40"],a:2},
+{id:56,section:"B",topic:"C Programming",q:"Which header file is needed for printf() and scanf()?",o:["stdlib.h","string.h","stdio.h","math.h"],a:2},
+{id:57,section:"B",topic:"C Programming",q:"What is the output?",code:"int i;\nfor(i = 1; i <= 5; i++){\n    if(i == 3) break;\n    printf(\"%d \", i);\n}",o:["1 2","1 2 3","1 2 3 4 5","1 2 4 5"],a:0},
+{id:58,section:"B",topic:"C Programming",q:"Which function is used to find the length of a string?",o:["strcpy()","strcat()","strlen()","strcmp()"],a:2},
+{id:59,section:"B",topic:"C Programming",q:"What will sizeof(int) return on a 32-bit system?",o:["1","2","4","8"],a:2},
+{id:60,section:"B",topic:"C Programming",q:"Which of the following correctly declares a pointer to an integer?",o:["int p;","int &p;","int *p;","*int p;"],a:2},
+{id:61,section:"B",topic:"C Programming",q:"What is the output?",code:"int x = 10, y = 3;\nprintf(\"%d %d\", x/y, x%y);",o:["3 1","3 2","3 3","4 1"],a:0},
+{id:62,section:"B",topic:"C Programming",q:"Which keyword is used to exit a switch case without falling through?",o:["exit","stop","break","return"],a:2},
+{id:63,section:"B",topic:"C Programming",q:"What is the correct way to dynamically allocate memory in C?",o:["new int","alloc(sizeof(int))","malloc(sizeof(int))","create(int)"],a:2},
+{id:64,section:"B",topic:"C Programming",q:"What is the output?",code:"int a = 2;\nwhile(a < 20){\n    a = a * 2;\n}\nprintf(\"%d\", a);",o:["16","20","32","8"],a:2},
+{id:65,section:"B",topic:"C Programming",q:"In C, array index starts from:",o:["1","0","-1","Depends on compiler"],a:1},
+{id:66,section:"B",topic:"C Programming",q:"Which of the following is used to free dynamically allocated memory?",o:["delete()","remove()","free()","clear()"],a:2},
+{id:67,section:"B",topic:"C Programming",q:"What does 'void' as a function return type mean?",o:["Returns 0","Returns nothing","Returns NULL","Returns a pointer"],a:1},
+{id:68,section:"B",topic:"C Programming",q:"What is the output?",code:"printf(\"%d\", 5 > 3 && 2 < 4);",o:["0","1","Error","Undefined"],a:1},
+{id:69,section:"B",topic:"C Programming",q:"Which of the following is the correct format specifier for a float?",o:["%d","%c","%f","%s"],a:2},
+{id:70,section:"B",topic:"C Programming",q:"A recursive function must have:",o:["A loop","A return type of int","A base case to stop recursion","Global variables"],a:2},
 
 // ── SECTION B: DATA STRUCTURES (Q71–80) ──
-{id:71,section:"B",topic:"Data Structures",q:"What is the time complexity of inserting an element at the beginning of a singly linked list?",o:["O(n)","O(log n)","O(1)","O(n²)"],a:2},
-{id:72,section:"B",topic:"Data Structures",q:"Inorder traversal of a Binary Search Tree gives:",o:["Random order","Descending order","Ascending order","Level order"],a:2},
-{id:73,section:"B",topic:"Data Structures",q:"In a max-heap with n elements, what is the index of the parent of node at index i (1-indexed)?",o:["i/2","(i-1)/2","2i","2i+1"],a:0},
-{id:74,section:"B",topic:"Data Structures",q:"Which sorting algorithm is stable AND has O(n log n) worst-case complexity?",o:["Quick sort","Heap sort","Merge sort","Shell sort"],a:2},
-{id:75,section:"B",topic:"Data Structures",q:"A circular queue has front=3, rear=7, size=10. How many elements are in the queue?",o:["3","4","5","7"],a:1},
-{id:76,section:"B",topic:"Data Structures",q:"Which data structure is best for implementing a priority queue?",o:["Stack","Linked List","Heap","Array"],a:2},
-{id:77,section:"B",topic:"Data Structures",q:"What is the worst-case time complexity of Quick Sort?",o:["O(n log n)","O(n)","O(n²)","O(log n)"],a:2},
-{id:78,section:"B",topic:"Data Structures",q:"AVL tree maintains:",o:["All nodes with value > root on right","Balance factor between -1 and +1","Complete tree property","All leaves at same level"],a:1},
-{id:79,section:"B",topic:"Data Structures",q:"Postfix expression for A + B * C - D is:",o:["A B C * + D -","A B + C * D -","A B C + * D -","A B C D * + -"],a:0},
-{id:80,section:"B",topic:"Data Structures",q:"What is the minimum number of nodes in an AVL tree of height h?",o:["h","2h","N(h-1)+N(h-2)+1","2^h"],a:2},
+{id:71,section:"B",topic:"Data Structures",q:"Which data structure follows LIFO (Last In First Out)?",o:["Queue","Stack","Array","Linked List"],a:1},
+{id:72,section:"B",topic:"Data Structures",q:"Which data structure follows FIFO (First In First Out)?",o:["Stack","Tree","Queue","Graph"],a:2},
+{id:73,section:"B",topic:"Data Structures",q:"Binary search can only be applied on:",o:["Linked list","Unsorted array","Sorted array","Stack"],a:2},
+{id:74,section:"B",topic:"Data Structures",q:"Time complexity of linear search in worst case:",o:["O(1)","O(log n)","O(n)","O(n²)"],a:2},
+{id:75,section:"B",topic:"Data Structures",q:"Which traversal of a BST gives elements in sorted order?",o:["Preorder","Postorder","Inorder","Level order"],a:2},
+{id:76,section:"B",topic:"Data Structures",q:"DFS (Depth First Search) uses which data structure?",o:["Queue","Stack","Heap","Array"],a:1},
+{id:77,section:"B",topic:"Data Structures",q:"Time complexity of Bubble Sort in worst case:",o:["O(n)","O(n log n)","O(n²)","O(log n)"],a:2},
+{id:78,section:"B",topic:"Data Structures",q:"Which of the following is NOT a linear data structure?",o:["Array","Queue","Stack","Tree"],a:3},
+{id:79,section:"B",topic:"Data Structures",q:"A binary tree node has at most how many children?",o:["1","2","3","4"],a:1},
+{id:80,section:"B",topic:"Data Structures",q:"In a stack, the element deleted first is the one which was:",o:["Inserted first","Inserted last","In the middle","Smallest"],a:1},
 
 // ── SECTION B: OOP USING C++ (Q81–88) ──
-{id:81,section:"B",topic:"OOP using C++",q:"Which concept allows calling the correct overridden function at runtime using a base class pointer?",o:["Function overloading","Virtual function","Inline function","Constructor"],a:1},
-{id:82,section:"B",topic:"OOP using C++",q:"Which of the following is TRUE about a pure virtual function?",o:["It has a body","It makes the class abstract","It can be instantiated","It is same as virtual function"],a:1},
-{id:83,section:"B",topic:"OOP using C++",q:"What is the output?",code:"class A{\npublic:\n    A(){ cout<<\"A\"; }\n    ~A(){ cout<<\"~A\"; }\n};\nint main(){\n    A obj;\n    return 0;\n}",o:["A","A~A","~AA","A~A~A"],a:1},
-{id:84,section:"B",topic:"OOP using C++",q:"In C++, which operator is used for scope resolution?",o:["->","::","**","."],a:1},
-{id:85,section:"B",topic:"OOP using C++",q:"What is 'diamond problem' in C++?",o:["Memory leak with pointers","Ambiguity due to multiple inheritance","Stack overflow in recursion","Infinite loop in inheritance"],a:1},
-{id:86,section:"B",topic:"OOP using C++",q:"Which keyword is used to prevent a class from being inherited?",o:["abstract","sealed","final","static"],a:2},
-{id:87,section:"B",topic:"OOP using C++",q:"Which of the following is NOT a type of constructor in C++?",o:["Default constructor","Copy constructor","Move constructor","Static constructor"],a:3},
-{id:88,section:"B",topic:"OOP using C++",q:"What does 'this' pointer represent in C++?",o:["Pointer to parent class","Pointer to current object","Pointer to next object","Pointer to virtual table"],a:1},
+{id:81,section:"B",topic:"OOP using C++",q:"Which OOP concept bundles data and functions inside a class?",o:["Inheritance","Polymorphism","Encapsulation","Abstraction"],a:2},
+{id:82,section:"B",topic:"OOP using C++",q:"Which concept allows a child class to use methods of a parent class?",o:["Encapsulation","Inheritance","Polymorphism","Abstraction"],a:1},
+{id:83,section:"B",topic:"OOP using C++",q:"What is the output?",code:"class A{\npublic:\n    A(){ cout<<\"Constructor\"; }\n};\nint main(){\n    A obj;\n    return 0;\n}",o:["Nothing","Constructor","Destructor","Error"],a:1},
+{id:84,section:"B",topic:"OOP using C++",q:"Which access specifier makes class members accessible everywhere?",o:["private","protected","public","default"],a:2},
+{id:85,section:"B",topic:"OOP using C++",q:"Which of the following means 'same function name, different parameters'?",o:["Overriding","Overloading","Inheritance","Encapsulation"],a:1},
+{id:86,section:"B",topic:"OOP using C++",q:"Which is called automatically when an object is destroyed?",o:["Constructor","Destructor","Main function","Inline function"],a:1},
+{id:87,section:"B",topic:"OOP using C++",q:"An object is:",o:["A blueprint","An instance of a class","A function","A variable type"],a:1},
+{id:88,section:"B",topic:"OOP using C++",q:"Which keyword is used to create a class in C++?",o:["struct","object","class","define"],a:2},
 
 // ── SECTION B: OPERATING SYSTEMS (Q89–94) ──
-{id:89,section:"B",topic:"Operating Systems",q:"In a system with 3 processes and 4 resources, deadlock is guaranteed to NEVER occur if each process holds at most:",o:["1 resource","2 resources","3 resources","4 resources"],a:0},
-{id:90,section:"B",topic:"Operating Systems",q:"In Banker's algorithm, a system is in a SAFE state if:",o:["No process is waiting","There exists a safe sequence","All resources are allocated","Deadlock is present"],a:1},
-{id:91,section:"B",topic:"Operating Systems",q:"LRU page replacement chooses the page:",o:["Used most recently","Least frequently used","Not used for the longest time","Loaded first"],a:2},
-{id:92,section:"B",topic:"Operating Systems",q:"Which scheduling is ideal for interactive systems?",o:["FCFS","SJF","Round Robin","Priority Preemptive"],a:2},
-{id:93,section:"B",topic:"Operating Systems",q:"A process in the 'WAITING' state is waiting for:",o:["CPU allocation","I/O event or signal","Memory allocation","Another process to terminate"],a:1},
-{id:94,section:"B",topic:"Operating Systems",q:"Which of the following correctly represents Belady's Anomaly?",o:["More frames always reduce page faults","Increasing frames may INCREASE page faults in FIFO","LRU suffers more than FIFO","Optimal algorithm causes most faults"],a:1},
+{id:89,section:"B",topic:"Operating Systems",q:"Which scheduling algorithm gives CPU to the process with smallest burst time?",o:["FCFS","SJF","Round Robin","Priority"],a:1},
+{id:90,section:"B",topic:"Operating Systems",q:"What is a deadlock?",o:["When CPU is idle","When two or more processes wait for each other indefinitely","When memory is full","When a process finishes"],a:1},
+{id:91,section:"B",topic:"Operating Systems",q:"Which page replacement algorithm replaces the page not used for the longest time?",o:["FIFO","Optimal","LRU","MRU"],a:2},
+{id:92,section:"B",topic:"Operating Systems",q:"Round Robin scheduling uses:",o:["Priority levels","Time quantum","Shortest job first","Arrival time only"],a:1},
+{id:93,section:"B",topic:"Operating Systems",q:"Which of the following is NOT a state of a process?",o:["Running","Waiting","Ready","Compiling"],a:3},
+{id:94,section:"B",topic:"Operating Systems",q:"Virtual memory allows:",o:["Faster CPU","Running programs larger than physical RAM","Multiple CPUs","Permanent storage"],a:1},
 
 // ── SECTION B: COMPUTER NETWORKS (Q95–100) ──
-{id:95,section:"B",topic:"Networking",q:"Which layer of OSI model handles end-to-end error detection and flow control?",o:["Network","Data Link","Transport","Session"],a:2},
-{id:96,section:"B",topic:"Networking",q:"Which protocol is used to assign IP addresses dynamically?",o:["DNS","ARP","DHCP","ICMP"],a:2},
-{id:97,section:"B",topic:"Networking",q:"What is the subnet mask for a /26 network?",o:["255.255.255.0","255.255.255.128","255.255.255.192","255.255.255.240"],a:2},
-{id:98,section:"B",topic:"Networking",q:"Which protocol works at Layer 3 (Network Layer) of OSI model?",o:["TCP","UDP","IP","HTTP"],a:2},
-{id:99,section:"B",topic:"Networking",q:"SSL/TLS operates between which two OSI layers?",o:["Layer 3 and 4","Layer 4 and 5","Layer 5 and 6","Layer 6 and 7"],a:2},
-{id:100,section:"B",topic:"Networking",q:"In CSMA/CD, what happens when a collision is detected?",o:["Packet is re-sent immediately","Jam signal is sent then random backoff","Packet is dropped permanently","Sender waits for ACK"],a:1}
+{id:95,section:"B",topic:"Networking",q:"How many layers are in the OSI model?",o:["5","6","7","8"],a:2},
+{id:96,section:"B",topic:"Networking",q:"HTTP uses which port by default?",o:["21","23","80","443"],a:2},
+{id:97,section:"B",topic:"Networking",q:"Which device connects two different networks?",o:["Hub","Switch","Router","Repeater"],a:2},
+{id:98,section:"B",topic:"Networking",q:"TCP is a _____ protocol.",o:["Connectionless","Connection-oriented","Wireless-only","Broadcast"],a:1},
+{id:99,section:"B",topic:"Networking",q:"DNS is used to:",o:["Assign IP addresses dynamically","Translate domain names to IP addresses","Connect to WiFi","Send emails"],a:1},
+{id:100,section:"B",topic:"Networking",q:"Which layer of OSI model handles MAC addresses?",o:["Physical","Data Link","Network","Transport"],a:1}
+
 ];
 
 let currentSection = "A";
 let examStarted = false;
 let examSubmitted = false;
 let sectionALocked = false;
-let timeLeft = {A:60*60,B:60*60};
+let timeLeft = {A:60*60, B:60*60};
 let timerInterval = null;
 
 function startExam(){
@@ -486,30 +462,29 @@ function startExam(){
     document.getElementById("examScreen").style.display = "block";
     showSection("A");
     updateSubmitButton();
-    timerInterval = setInterval(tickTimer,1000);
+    timerInterval = setInterval(tickTimer, 1000);
 }
 
 function showSection(section){
     if(section === "A" && sectionALocked && !examSubmitted) return;
     currentSection = section;
-    document.getElementById("tabA").classList.toggle("active",section==="A");
-    document.getElementById("tabB").classList.toggle("active",section==="B");
+    document.getElementById("tabA").classList.toggle("active", section==="A");
+    document.getElementById("tabB").classList.toggle("active", section==="B");
     document.getElementById("tabA").disabled = sectionALocked && !examSubmitted;
-    document.getElementById("timerA").classList.toggle("active",section==="A");
-    document.getElementById("timerB").classList.toggle("active",section==="B");
+    document.getElementById("timerA").classList.toggle("active", section==="A");
+    document.getElementById("timerB").classList.toggle("active", section==="B");
     renderQuestions();
     renderNav();
     updateSubmitButton();
 }
 
 function renderQuestions(){
-    const visibleQuestions = questions.filter(q => q.section === currentSection);
+    const qs = questions.filter(q => q.section === currentSection);
     const title = currentSection === "A"
         ? "Section A: English, Aptitude, Reasoning, Computer Fundamentals"
         : "Section B: C Programming, Data Structures, OOP, OS, Networking";
     let html = `<h2 class="section-title">${title}</h2>`;
-
-    visibleQuestions.forEach(q => {
+    qs.forEach(q => {
         html += `<div class="question-card" id="card${q.id}">
             <span class="topic">${q.topic}</span>
             <div class="question">Q${q.id}. ${q.q}</div>
@@ -523,36 +498,33 @@ function renderQuestions(){
         });
         html += `</div>`;
     });
-
     document.getElementById("questions").innerHTML = html;
 }
 
 function renderNav(){
-    const visibleQuestions = questions.filter(q => q.section === currentSection);
+    const qs = questions.filter(q => q.section === currentSection);
     let html = "";
-    visibleQuestions.forEach(q => {
-        const answered = getSelected(q.id) !== null ? "answered" : "";
-        html += `<button class="nav-btn ${answered}" onclick="goToQuestion(${q.id})">${q.id}</button>`;
+    qs.forEach(q => {
+        const cls = getSelected(q.id) !== null ? "answered" : "";
+        html += `<button class="nav-btn ${cls}" onclick="goToQuestion(${q.id})">${q.id}</button>`;
     });
     document.getElementById("navPanel").innerHTML = html;
 }
 
-function saveAnswer(id,value){
-    localStorage.setItem("ccat_q"+id,value);
+function saveAnswer(id, value){
+    localStorage.setItem("ccat_q"+id, value);
     renderNav();
 }
 
 function getSelected(id){
-    const value = localStorage.getItem("ccat_q"+id);
-    return value === null ? null : Number(value);
+    const v = localStorage.getItem("ccat_q"+id);
+    return v === null ? null : Number(v);
 }
 
 function goToQuestion(id){
-    const question = questions.find(q => q.id === id);
-    if(question.section !== currentSection) showSection(question.section);
-    setTimeout(() => {
-        document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"});
-    },50);
+    const q = questions.find(q => q.id === id);
+    if(q.section !== currentSection) showSection(q.section);
+    setTimeout(() => document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"}), 50);
 }
 
 function tickTimer(){
@@ -561,8 +533,7 @@ function tickTimer(){
     updateTimers();
     if(timeLeft[currentSection] <= 0){
         timeLeft[currentSection] = 0;
-        if(currentSection === "A") submitCurrentSection();
-        else submitExam();
+        currentSection === "A" ? submitCurrentSection() : submitExam();
     }
 }
 
@@ -571,15 +542,12 @@ function updateTimers(){
     document.getElementById("timerB").innerHTML = "Section B: " + formatTime(timeLeft.B);
 }
 
-function formatTime(seconds){
-    const min = Math.floor(seconds/60);
-    const sec = seconds%60;
-    return `${min}:${sec<10?"0":""}${sec}`;
+function formatTime(s){
+    return `${Math.floor(s/60)}:${(s%60)<10?"0":""}${s%60}`;
 }
 
 function updateSubmitButton(){
-    const submitBtn = document.getElementById("submitBtn");
-    submitBtn.innerHTML = currentSection === "A"
+    document.getElementById("submitBtn").innerHTML = currentSection === "A"
         ? "Submit Section A &amp; Go to Section B"
         : "Submit Exam";
 }
@@ -587,9 +555,8 @@ function updateSubmitButton(){
 function submitCurrentSection(){
     if(currentSection === "A"){
         sectionALocked = true;
-        timeLeft.A = Math.max(timeLeft.A, 0);
         showSection("B");
-        window.scrollTo({top:0,behavior:"smooth"});
+        window.scrollTo({top:0, behavior:"smooth"});
         return;
     }
     submitExam();
@@ -601,49 +568,46 @@ function submitExam(){
     clearInterval(timerInterval);
     document.getElementById("submitBtn").disabled = true;
 
-    let score = 0, correct = 0, wrong = 0, attempted = 0;
-    let sectionScore = {A:0,B:0}, sectionCorrect = {A:0,B:0};
-
+    let score=0, correct=0, wrong=0, attempted=0;
+    let ss={A:0,B:0}, sc={A:0,B:0};
     questions.forEach(q => {
-        const selected = getSelected(q.id);
-        if(selected !== null){
+        const sel = getSelected(q.id);
+        if(sel !== null){
             attempted++;
-            if(selected === q.a){ score+=3; sectionScore[q.section]+=3; correct++; sectionCorrect[q.section]++; }
-            else { score-=1; sectionScore[q.section]-=1; wrong++; }
+            if(sel === q.a){ score+=3; ss[q.section]+=3; correct++; sc[q.section]++; }
+            else { score-=1; ss[q.section]-=1; wrong++; }
         }
     });
 
-    const unanswered = questions.length - attempted;
     document.getElementById("examScreen").style.display = "none";
     document.getElementById("resultScreen").style.display = "block";
     document.getElementById("resultSummary").innerHTML = `
         <div class="score-box">Total Score<strong>${score}/300</strong></div>
         <div class="score-box">Correct<strong>${correct}</strong></div>
         <div class="score-box">Wrong<strong>${wrong}</strong></div>
-        <div class="score-box">Unanswered<strong>${unanswered}</strong></div>
-        <div class="score-box">Section A<strong>${sectionScore.A}/150</strong><span>${sectionCorrect.A}/50 correct</span></div>
-        <div class="score-box">Section B<strong>${sectionScore.B}/150</strong><span>${sectionCorrect.B}/50 correct</span></div>`;
-
+        <div class="score-box">Unanswered<strong>${questions.length - attempted}</strong></div>
+        <div class="score-box">Section A<strong>${ss.A}/150</strong><span>${sc.A}/50 correct</span></div>
+        <div class="score-box">Section B<strong>${ss.B}/150</strong><span>${sc.B}/50 correct</span></div>`;
     renderReview();
-    window.scrollTo({top:0,behavior:"smooth"});
+    window.scrollTo({top:0, behavior:"smooth"});
 }
 
 function renderReview(){
     let html = "";
-    ["A","B"].forEach(section => {
-        html += `<h2 class="section-title">Section ${section} Answer Key</h2>`;
-        questions.filter(q => q.section === section).forEach(q => {
-            const selected = getSelected(q.id);
-            const selectedText = selected === null ? "Not attempted" : `${String.fromCharCode(65+selected)}) ${q.o[selected]}`;
-            const correctText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
-            const statusClass = selected === null ? "skipped-answer" : selected === q.a ? "correct-answer" : "wrong-answer";
+    ["A","B"].forEach(sec => {
+        html += `<h2 class="section-title">Section ${sec} Answer Key</h2>`;
+        questions.filter(q => q.section === sec).forEach(q => {
+            const sel = getSelected(q.id);
+            const selText = sel === null ? "Not attempted" : `${String.fromCharCode(65+sel)}) ${q.o[sel]}`;
+            const corrText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
+            const cls = sel === null ? "skipped-answer" : sel === q.a ? "correct-answer" : "wrong-answer";
             html += `<div class="question-card">
                 <span class="topic">${q.topic}</span>
                 <div class="question">Q${q.id}. ${q.q}</div>
                 ${q.code ? `<div class="code">${q.code}</div>` : ""}
                 <div class="answer-review">
-                    <div>Your Answer: <span class="${statusClass}">${selectedText}</span></div>
-                    <div>Correct Answer: <span class="correct-answer">${correctText}</span></div>
+                    <div>Your Answer: <span class="${cls}">${selText}</span></div>
+                    <div>Correct Answer: <span class="correct-answer">${corrText}</span></div>
                 </div>
             </div>`;
         });
@@ -654,13 +618,8 @@ function renderReview(){
 function reattemptExam(){
     questions.forEach(q => localStorage.removeItem("ccat_q"+q.id));
     clearInterval(timerInterval);
-    currentSection = "A";
-    examStarted = false;
-    examSubmitted = false;
-    sectionALocked = false;
-    timeLeft = {A:60*60,B:60*60};
-    timerInterval = null;
-
+    currentSection="A"; examStarted=false; examSubmitted=false;
+    sectionALocked=false; timeLeft={A:60*60,B:60*60}; timerInterval=null;
     document.getElementById("submitBtn").disabled = false;
     document.getElementById("tabA").disabled = false;
     document.getElementById("examScreen").style.display = "none";
@@ -668,9 +627,8 @@ function reattemptExam(){
     document.getElementById("startScreen").style.display = "block";
     document.getElementById("resultSummary").innerHTML = "";
     document.getElementById("reviewQuestions").innerHTML = "";
-    updateTimers();
-    updateSubmitButton();
-    window.scrollTo({top:0,behavior:"smooth"});
+    updateTimers(); updateSubmitButton();
+    window.scrollTo({top:0, behavior:"smooth"});
 }
 
 updateTimers();

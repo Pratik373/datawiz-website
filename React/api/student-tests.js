@@ -8,7 +8,7 @@ const DEFAULT_TESTS = [
     duration_minutes: 120,
     type: 'html',
     questions_count: 100,
-    local_url: '/CCAT_Mock_Test_Set1.html',
+    local_url: '/CCATMOCK.html',
     access: 'free',
     created_at: '2026-01-01T00:00:00.000Z',
   },

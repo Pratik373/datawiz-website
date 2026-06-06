@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const DEFAULT_TESTS = [
-  { id: 'free-ccat-set-1', url: '/CCAT_Mock_Test_Set1.html', access: 'free' },
+  { id: 'free-ccat-set-1', url: '/CCATMOCK.html', access: 'free' },
   { id: 'premium-ccat-set-1', url: '/CCAT_Mock_Test_Set1.html', access: 'premium' },
   { id: 'premium-ccat-set-2', url: '/CCAT_Mock_Test_Set2.html', access: 'premium' },
   { id: 'premium-ccat-set-3', url: '/CCAT_Mock_Test_Set3.html', access: 'premium' },
