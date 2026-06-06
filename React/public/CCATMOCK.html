@@ -228,6 +228,9 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     overflow:auto;
     margin-bottom:12px;
     white-space:pre;
+    font-family:monospace;
+    font-size:14px;
+    line-height:1.5;
 }
 
 .answer-review{
@@ -278,203 +281,9 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
-        <div id="creditsDisplay" 
-             style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);">
-             Access: Loading…
-        </div>
-        <button id="navBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" 
-                style="background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;display:none;">
-            Buy Tests
-        </button>
         <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;">Logout</button>
     </div>
 </header>
-
-<!-- Buy Tests Modal -->
-<div id="buyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:none;align-items:center;justify-content:center;">
-  <div style="background:#0b1026;border:1px solid rgba(139,151,255,0.25);border-radius:24px;padding:2.5rem;max-width:520px;width:90%;text-align:center;">
-    <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔒</div>
-    <h2 style="color:#f0f4ff;margin:0 0 0.5rem;">No Tests Remaining</h2>
-    <p style="color:#8e9dcc;margin-bottom:2rem;">Purchase a test pack to continue.</p>
-    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
-        <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
-        <div style="color:#7a8ab8;font-weight:700;text-decoration:line-through;margin-bottom:0.2rem;">₹<span id="starterOriginalPrice">499</span></div>
-        <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹<span id="starterPrice">99</span></div>
-        <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
-        <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
-      </div>
-    </div>
-    <p id="buyModalMsg" style="color:#7ee8b8;margin-top:1rem;font-size:0.9rem;"></p>
-    <button onclick="document.getElementById('buyModal').style.display='none'" style="margin-top:1rem;background:transparent;border:1px solid rgba(255,255,255,0.15);color:#8e9dcc;padding:0.6rem 1.5rem;border-radius:999px;cursor:pointer;">Cancel</button>
-  </div>
-</div>
-
-<!-- Razorpay SDK -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<!-- Supabase Auth Integration -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = 'https://uoqfnvrdbicbepjxapcf.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1';
-const RAZORPAY_KEY_ID = 'rzp_test_Spy62mcDroIz0U';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let currentUserId = null;
-let testsRemaining = 0;
-let starterPrice = 99;
-let starterOriginalPrice = 499;
-
-// ── On load: check session + load credits ──
-async function initPage() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) {
-        currentUserId = null;
-        const creditsEl = document.getElementById('creditsDisplay');
-        if (creditsEl) {
-            creditsEl.textContent = 'Please log in to access the full test.';
-            creditsEl.style.color = '#ffaabf';
-        }
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        const startBtn = document.getElementById('startExamBtn');
-        if (startBtn) startBtn.innerText = 'Login to Start';
-        return;
-    }
-    currentUserId = session.user.id;
-    await loadPlanPrices();
-    await loadCredits();
-}
-
-// Automatically initialize the page on load
-window.addEventListener('DOMContentLoaded', initPage);
-
-async function loadPlanPrices() {
-    try {
-        const res = await fetch('/api/plans');
-        const data = await res.json();
-        starterPrice = data.plans?.starter?.amount || starterPrice;
-        starterOriginalPrice = data.plans?.starter?.original_amount || starterOriginalPrice;
-        const starterPriceEl = document.getElementById('starterPrice');
-        const starterOriginalPriceEl = document.getElementById('starterOriginalPrice');
-        if (starterPriceEl) starterPriceEl.textContent = starterPrice;
-        if (starterOriginalPriceEl) starterOriginalPriceEl.textContent = starterOriginalPrice;
-    } catch (err) {
-        console.warn('Could not load plan prices:', err);
-    }
-}
-
-async function loadCredits() {
-    const { data } = await supabaseClient
-        .from('user_credits')
-        .select('tests_remaining')
-        .eq('user_id', currentUserId)
-        .single();
-    testsRemaining = data?.tests_remaining || 0;
-    updateCreditsDisplay();
-}
-
-function updateCreditsDisplay() {
-    const el = document.getElementById('creditsDisplay');
-    const navBuyBtn = document.getElementById('navBuyBtn');
-    const mainBuyBtn = document.getElementById('mainBuyBtn');
-    
-    if (testsRemaining > 0) {
-        el.innerHTML = `✅ Premium Access`;
-        el.style.color = '#7ee8b8';
-        if(navBuyBtn) navBuyBtn.style.display = 'none';
-        if(mainBuyBtn) mainBuyBtn.style.display = 'none';
-    } else {
-        el.innerHTML = '❌ No Access';
-        el.style.color = '#ffaabf';
-        if(navBuyBtn) navBuyBtn.style.display = 'block';
-        if(mainBuyBtn) mainBuyBtn.style.display = 'block';
-    }
-}
-
-async function checkAndStartExam() {
-    if (!currentUserId) {
-        window.location.href = '/login';
-        return;
-    }
-    await loadCredits();
-    
-    const isAdmin = currentUserId && (await checkAdmin());
-    
-    if (testsRemaining <= 0 && !isAdmin) {
-        document.getElementById('buyModal').style.display = 'flex';
-        return;
-    }
-    
-    // No deduction needed for unlimited access
-    startExam(); 
-}
-
-async function checkAdmin() {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    return user && user.email === 'adminspp@datawiz.com';
-}
-
-// ── Buy plan from modal ──
-async function buyPlan(planId) {
-    document.getElementById('buyModalMsg').textContent = 'Creating order…';
-    try {
-        const orderRes = await fetch('/api/create-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ plan: planId })
-        });
-        const order = await orderRes.json();
-        if (!orderRes.ok) throw new Error(order.error);
-
-        const options = {
-            key: RAZORPAY_KEY_ID,
-            amount: order.amount,
-            currency: order.currency,
-            name: 'Datawiz6',
-            description: order.planName + ' — ' + order.tests + ' Mock Tests',
-            order_id: order.id,
-            theme: { color: planId === 'pro' ? '#4ab9ff' : '#6f57ff' },
-            handler: async function(response) {
-                document.getElementById('buyModalMsg').textContent = 'Verifying payment…';
-                const verifyRes = await fetch('/api/verify-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_order_id:   response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature:  response.razorpay_signature,
-                        user_id:             currentUserId,
-                        tests_to_add:        order.tests,
-                        plan:                planId,
-                        amount:              order.amount / 100
-                    })
-                });
-                const result = await verifyRes.json();
-                if (result.success) {
-                    window.location.reload();
-                } else {
-                    document.getElementById('buyModalMsg').textContent = '❌ Verification failed. Contact support.';
-                }
-            },
-            modal: { ondismiss: () => { document.getElementById('buyModalMsg').textContent = ''; } }
-        };
-        const rzp = new Razorpay(options);
-        rzp.open();
-    } catch(err) {
-        document.getElementById('buyModalMsg').textContent = '❌ ' + err.message;
-    }
-}
-
-// ── Logout ──
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await supabaseClient.auth.signOut();
-    window.location.href = '/login';
-});
-
-initPage();
-</script>
 
 <main class="container">
     <section id="startScreen" class="panel">
@@ -509,8 +318,7 @@ initPage();
             </div>
         </div>
         <div class="top-actions">
-            <button id="startExamBtn" onclick="checkAndStartExam()">Start Exam</button>
-            <button id="mainBuyBtn" onclick="document.getElementById('buyModal').style.display='flex'" style="background:var(--green); margin-left: 10px; display:none;">Buy More Tests</button>
+            <button id="startExamBtn" onclick="startExam()">Start Exam</button>
         </div>
     </section>
 
@@ -524,7 +332,7 @@ initPage();
                 <h3>Question Navigation</h3>
                 <div id="navPanel" class="nav-grid"></div>
                 <div class="top-actions">
-                    <button id="submitBtn" onclick="submitCurrentSection()">Submit Section A & Go to Section B</button>
+                    <button id="submitBtn" onclick="submitCurrentSection()">Submit Section A &amp; Go to Section B</button>
                 </div>
             </aside>
             <section>
@@ -539,113 +347,130 @@ initPage();
         <div class="top-actions">
             <button onclick="reattemptExam()">Reattempt Exam</button>
         </div>
-        <h2>Question Review & Answer Key</h2>
+        <h2>Question Review &amp; Answer Key</h2>
         <div id="reviewQuestions"></div>
     </section>
 </main>
 
 <script>
 const questions = [
-{id:1,section:"A",topic:"English",q:"Choose the synonym of OBSCURE:",o:["Bright","Vague","Clear","Famous"],a:1},
-{id:2,section:"A",topic:"English",q:"Choose the antonym of FRAGILE:",o:["Weak","Delicate","Strong","Tiny"],a:2},
-{id:3,section:"A",topic:"English",q:"Fill in the blank: He _____ to school every day.",o:["go","goes","going","gone"],a:1},
-{id:4,section:"A",topic:"English",q:"Choose the correctly spelled word:",o:["Accomodation","Acommodation","Accommodation","Accommdation"],a:2},
-{id:5,section:"A",topic:"English",q:"One word substitute for 'A person who knows many languages':",o:["Linguist","Philosopher","Scientist","Orator"],a:0},
-{id:6,section:"A",topic:"English",q:"Choose the correct sentence:",o:["She do not like coffee","She does not likes coffee","She does not like coffee","She not like coffee"],a:2},
-{id:7,section:"A",topic:"English",q:"Meaning of idiom 'Hit the nail on the head':",o:["Hit hard","Exactly correct","Miss the target","Build something"],a:1},
-{id:8,section:"A",topic:"English",q:"Choose passive voice: 'They completed the project.'",o:["The project completed them","The project was completed by them","The project has completed","They were completed"],a:1},
-{id:9,section:"A",topic:"English",q:"Choose the correct preposition: He is good ___ mathematics.",o:["in","on","at","for"],a:2},
-{id:10,section:"A",topic:"English",q:"Choose the synonym of BRIEF:",o:["Long","Short","Wide","Thick"],a:1},
-{id:11,section:"A",topic:"Quantitative Aptitude",q:"25% of 480 is:",o:["100","110","120","140"],a:2},
-{id:12,section:"A",topic:"Quantitative Aptitude",q:"A train running at 72 km/hr crosses a pole in 10 sec. What is its length?",o:["100 m","150 m","200 m","250 m"],a:2},
-{id:13,section:"A",topic:"Quantitative Aptitude",q:"Simple interest on Rs.1000 at 10% for 2 years:",o:["100","150","200","250"],a:2},
-{id:14,section:"A",topic:"Quantitative Aptitude",q:"If x + 5 = 15, x =",o:["5","10","15","20"],a:1},
-{id:15,section:"A",topic:"Quantitative Aptitude",q:"Average of 10, 20, 30:",o:["10","20","30","40"],a:1},
-{id:16,section:"A",topic:"Quantitative Aptitude",q:"LCM of 12 and 18:",o:["24","30","36","48"],a:2},
-{id:17,section:"A",topic:"Quantitative Aptitude",q:"Profit percentage if CP = 500 and SP = 600:",o:["10%","15%","20%","25%"],a:2},
-{id:18,section:"A",topic:"Quantitative Aptitude",q:"2, 4, 8, 16, ?",o:["24","30","32","64"],a:2},
-{id:19,section:"A",topic:"Quantitative Aptitude",q:"Pipe A fills a tank in 10 hrs and Pipe B in 15 hrs. Together they fill it in:",o:["5 hrs","6 hrs","8 hrs","12 hrs"],a:1},
-{id:20,section:"A",topic:"Quantitative Aptitude",q:"Square root of 144 is:",o:["10","11","12","14"],a:2},
-{id:21,section:"A",topic:"Quantitative Aptitude",q:"Probability of head in one coin toss:",o:["0","1","1/2","2"],a:2},
-{id:22,section:"A",topic:"Quantitative Aptitude",q:"Area of a square with side 5:",o:["10","20","25","30"],a:2},
-{id:23,section:"A",topic:"Quantitative Aptitude",q:"If speed doubles, time becomes:",o:["Double","Half","Triple","Same"],a:1},
-{id:24,section:"A",topic:"Quantitative Aptitude",q:"Solve: 15 x 4",o:["45","50","60","75"],a:2},
-{id:25,section:"A",topic:"Quantitative Aptitude",q:"HCF of 18 and 24:",o:["4","6","8","12"],a:1},
-{id:26,section:"A",topic:"Logical Reasoning",q:"Find the odd one: 3, 5, 7, 9, 11",o:["3","5","9","11"],a:2},
-{id:27,section:"A",topic:"Logical Reasoning",q:"A is brother of B. B is sister of C. What is A's relation to C?",o:["Brother","Sister","Uncle","Father"],a:0},
-{id:28,section:"A",topic:"Logical Reasoning",q:"1, 4, 9, 16, ?",o:["20","24","25","30"],a:2},
-{id:29,section:"A",topic:"Logical Reasoning",q:"If CAT = 24, DOG = ?",o:["26","30","32","40"],a:0},
-{id:30,section:"A",topic:"Logical Reasoning",q:"Clock angle at 3:00:",o:["0 degree","45 degree","90 degree","180 degree"],a:2},
-{id:31,section:"A",topic:"Logical Reasoning",q:"Choose missing: A, C, E, ?",o:["F","G","H","I"],a:1},
-{id:32,section:"A",topic:"Logical Reasoning",q:"Find next: 2, 6, 12, 20, 30, ?",o:["36","40","42","48"],a:2},
-{id:33,section:"A",topic:"Logical Reasoning",q:"Mirror image of LEFT:",o:["TFEL","LEFT","FELT","TLEF"],a:0},
-{id:34,section:"A",topic:"Logical Reasoning",q:"Find the odd one:",o:["Circle","Square","Triangle","Apple"],a:3},
-{id:35,section:"A",topic:"Logical Reasoning",q:"If all men are human, which statement follows?",o:["All humans are men","Some humans are men","No men are humans","None"],a:1},
-{id:36,section:"A",topic:"Logical Reasoning",q:"Coding: CAT = DBU. DOG = ?",o:["EPH","DPH","EOG","FQI"],a:0},
-{id:37,section:"A",topic:"Logical Reasoning",q:"Find next: 5, 10, 20, 40, ?",o:["50","60","80","100"],a:2},
-{id:38,section:"A",topic:"Logical Reasoning",q:"If SOUTH = 12345 then SO =",o:["12","23","45","34"],a:0},
-{id:39,section:"A",topic:"Logical Reasoning",q:"Find the odd one:",o:["January","March","May","Tuesday"],a:3},
-{id:40,section:"A",topic:"Logical Reasoning",q:"Direction opposite to EAST:",o:["North","South","West","Up"],a:2},
-{id:41,section:"A",topic:"Computer Fundamentals",q:"CPU stands for:",o:["Central Process Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"],a:1},
-{id:42,section:"A",topic:"Computer Fundamentals",q:"RAM is:",o:["Permanent","Volatile","Optical","External"],a:1},
-{id:43,section:"A",topic:"Computer Fundamentals",q:"Which is an input device?",o:["Monitor","Printer","Keyboard","Speaker"],a:2},
-{id:44,section:"A",topic:"Computer Fundamentals",q:"Binary number system base:",o:["2","8","10","16"],a:0},
-{id:45,section:"A",topic:"Computer Fundamentals",q:"HTML stands for:",o:["Hyper Text Markup Language","High Text Machine Language","Hyper Tool Markup Language","None"],a:0},
-{id:46,section:"A",topic:"Computer Fundamentals",q:"Which is an operating system?",o:["Linux","Oracle","Python","Chrome"],a:0},
-{id:47,section:"A",topic:"Computer Fundamentals",q:"Full form of URL:",o:["Uniform Resource Locator","Universal Resource Link","Uniform Reference Link","Unique Resource Locator"],a:0},
-{id:48,section:"A",topic:"Computer Fundamentals",q:"Which memory is fastest?",o:["RAM","ROM","Cache","HDD"],a:2},
-{id:49,section:"A",topic:"Computer Fundamentals",q:"1 Byte =",o:["4 bits","8 bits","16 bits","32 bits"],a:1},
-{id:50,section:"A",topic:"Computer Fundamentals",q:"Which language is machine independent?",o:["Assembly","Java","Machine Language","Binary"],a:1},
-{id:51,section:"B",topic:"C Programming",q:"Output?",code:"int x=5;\nprintf(\"%d\",x++);",o:["5","6","Error","Garbage"],a:0},
-{id:52,section:"B",topic:"C Programming",q:"Which loop executes at least once?",o:["for","while","do-while","none"],a:2},
-{id:53,section:"B",topic:"C Programming",q:"Which operator gives address?",o:["*","&","%","#"],a:1},
-{id:54,section:"B",topic:"C Programming",q:"Header for malloc():",o:["stdio.h","string.h","stdlib.h","math.h"],a:2},
-{id:55,section:"B",topic:"C Programming",q:"Array index starts from:",o:["0","1","-1","Depends"],a:0},
-{id:56,section:"B",topic:"C Programming",q:"Which function finds string length?",o:["strcpy","strlen","strcat","strcmp"],a:1},
-{id:57,section:"B",topic:"C Programming",q:"Recursion means:",o:["Function calling itself","Loop","Array","Pointer"],a:0},
-{id:58,section:"B",topic:"C Programming",q:"Which symbol ends statement?",o:[":",";",".","/"],a:1},
-{id:59,section:"B",topic:"C Programming",q:"Which datatype stores decimal?",o:["int","char","float","long"],a:2},
-{id:60,section:"B",topic:"C Programming",q:"Infinite loop:",o:["for(;;)","while(1)","Both","None"],a:2},
-{id:61,section:"B",topic:"C Programming",q:"Output?",code:"printf(\"%d\",10>5 && 5<2);",o:["0","1","Error","10"],a:0},
-{id:62,section:"B",topic:"C Programming",q:"Which keyword exits loop?",o:["continue","break","stop","return"],a:1},
-{id:63,section:"B",topic:"C Programming",q:"Pointer stores:",o:["Value","Address","Character","Index"],a:1},
-{id:64,section:"B",topic:"C Programming",q:"C is:",o:["Object-oriented only","Procedural","Functional","Scripting only"],a:1},
-{id:65,section:"B",topic:"C Programming",q:"Which function compares strings?",o:["strcpy","strcat","strcmp","strlen"],a:2},
-{id:66,section:"B",topic:"C Programming",q:"Format specifier for integer:",o:["%c","%f","%d","%s"],a:2},
-{id:67,section:"B",topic:"C Programming",q:"Which operator is modulus?",o:["/","//","%","mod"],a:2},
-{id:68,section:"B",topic:"C Programming",q:"Output?",code:"int a=10;\nprintf(\"%d\",++a);",o:["10","11","12","Error"],a:1},
-{id:69,section:"B",topic:"C Programming",q:"Which datatype stores single character?",o:["int","float","char","string"],a:2},
-{id:70,section:"B",topic:"C Programming",q:"Main function usually returns:",o:["char","int","float","void"],a:1},
-{id:71,section:"B",topic:"Data Structures",q:"LIFO structure:",o:["Queue","Stack","Tree","Graph"],a:1},
-{id:72,section:"B",topic:"Data Structures",q:"FIFO structure:",o:["Queue","Stack","Heap","Tree"],a:0},
-{id:73,section:"B",topic:"Data Structures",q:"Binary search requires:",o:["Sorted array","Unsorted array","Linked list","Stack"],a:0},
-{id:74,section:"B",topic:"Data Structures",q:"Worst case linear search:",o:["O(1)","O(log n)","O(n)","O(n^2)"],a:2},
-{id:75,section:"B",topic:"Data Structures",q:"DFS uses:",o:["Queue","Stack","Heap","Array"],a:1},
-{id:76,section:"B",topic:"Data Structures",q:"BFS uses:",o:["Queue","Stack","Tree","Heap"],a:0},
-{id:77,section:"B",topic:"Data Structures",q:"Merge sort complexity:",o:["O(n^2)","O(log n)","O(n log n)","O(n)"],a:2},
-{id:78,section:"B",topic:"Data Structures",q:"Stack overflow occurs when:",o:["Stack empty","Stack full","Queue full","Heap empty"],a:1},
-{id:79,section:"B",topic:"Data Structures",q:"Tree with maximum two children:",o:["AVL","Binary Tree","Heap","Graph"],a:1},
-{id:80,section:"B",topic:"Data Structures",q:"Linked list stores data in:",o:["Continuous memory","Non-continuous memory","Only integers","Only chars"],a:1},
-{id:81,section:"B",topic:"OOP using C++",q:"Wrapping data and methods:",o:["Inheritance","Encapsulation","Polymorphism","Abstraction"],a:1},
-{id:82,section:"B",topic:"OOP using C++",q:"Ability to take many forms:",o:["Inheritance","Encapsulation","Polymorphism","Class"],a:2},
-{id:83,section:"B",topic:"OOP using C++",q:"Parent class is called:",o:["Child","Derived","Base","Object"],a:2},
-{id:84,section:"B",topic:"OOP using C++",q:"Constructor is used to:",o:["Delete object","Initialize object","Copy object","Destroy object"],a:1},
-{id:85,section:"B",topic:"OOP using C++",q:"Runtime polymorphism:",o:["Overloading","Overriding","Constructor","Operator"],a:1},
-{id:86,section:"B",topic:"OOP using C++",q:"Access specifier with maximum restriction:",o:["public","protected","private","default"],a:2},
-{id:87,section:"B",topic:"OOP using C++",q:"Object is:",o:["Blueprint","Instance of class","Function","Method"],a:1},
-{id:88,section:"B",topic:"OOP using C++",q:"C++ supports:",o:["OOP","POP","Both","None"],a:2},
-{id:89,section:"B",topic:"Operating Systems",q:"Which scheduling minimizes average waiting time?",o:["FCFS","SJF","RR","Priority"],a:1},
-{id:90,section:"B",topic:"Operating Systems",q:"Thrashing occurs due to:",o:["High CPU","High paging","Deadlock","Scheduling"],a:1},
-{id:91,section:"B",topic:"Operating Systems",q:"Fastest memory:",o:["RAM","ROM","Cache","HDD"],a:2},
-{id:92,section:"B",topic:"Operating Systems",q:"Deadlock requires:",o:["Mutual exclusion","Hold and wait","Circular wait","All"],a:3},
-{id:93,section:"B",topic:"Operating Systems",q:"Round Robin uses:",o:["Priority","Time quantum","Semaphore","Paging"],a:1},
-{id:94,section:"B",topic:"Operating Systems",q:"Semaphore is used for:",o:["Searching","Synchronization","Paging","Sorting"],a:1},
-{id:95,section:"B",topic:"Networking",q:"OSI model layers:",o:["5","6","7","8"],a:2},
-{id:96,section:"B",topic:"Networking",q:"HTTP uses port:",o:["20","21","80","443"],a:2},
-{id:97,section:"B",topic:"Networking",q:"IPv6 bits:",o:["32","64","128","256"],a:2},
-{id:98,section:"B",topic:"Networking",q:"Router connects:",o:["Computers","Networks","Files","Printers"],a:1},
-{id:99,section:"B",topic:"Networking",q:"TCP is:",o:["Connectionless","Connection-oriented","Wireless","None"],a:1},
-{id:100,section:"B",topic:"Networking",q:"DNS converts:",o:["IP to MAC","Domain to IP","Port to IP","MAC to IP"],a:1}
+// ── SECTION A: ENGLISH (Q1–10) ──
+{id:1,section:"A",topic:"English",q:"Choose the word closest in meaning to RECALCITRANT:",o:["Obedient","Stubborn","Timid","Enthusiastic"],a:1},
+{id:2,section:"A",topic:"English",q:"Select the ANTONYM of LOQUACIOUS:",o:["Talkative","Verbose","Taciturn","Garrulous"],a:2},
+{id:3,section:"A",topic:"English",q:"Identify the error in the sentence: 'Neither the manager nor the employees was present at the meeting.'",o:["Neither the manager","nor the employees","was present","at the meeting"],a:2},
+{id:4,section:"A",topic:"English",q:"Choose the correct indirect speech: He said, 'I am going to Delhi tomorrow.'",o:["He said that he was going to Delhi the next day","He said that he is going to Delhi tomorrow","He told that he was going to Delhi tomorrow","He said that he went to Delhi the next day"],a:0},
+{id:5,section:"A",topic:"English",q:"Choose the correctly spelled word:",o:["Conscientious","Consciencious","Consciencous","Conscientous"],a:0},
+{id:6,section:"A",topic:"English",q:"'A person who pretends to be what he is not' — one word substitute:",o:["Hypocrite","Fanatic","Egoist","Altruist"],a:0},
+{id:7,section:"A",topic:"English",q:"Choose the best meaning of the idiom 'Burn the midnight oil':",o:["Set fire to something","Work late into the night","Waste energy","Travel overnight"],a:1},
+{id:8,section:"A",topic:"English",q:"Fill in the blank: By the time we arrived, the train _____ already left.",o:["has","have","had","was"],a:2},
+{id:9,section:"A",topic:"English",q:"Choose the sentence with correct use of subjunctive mood:",o:["If I was you, I would apologize","If I were you, I would apologize","If I am you, I would apologize","If I be you, I would apologize"],a:1},
+{id:10,section:"A",topic:"English",q:"The phrase 'ad hoc' means:",o:["For this specific purpose","Against the law","In good faith","At first sight"],a:0},
+
+// ── SECTION A: QUANTITATIVE APTITUDE (Q11–25) ──
+{id:11,section:"A",topic:"Quantitative Aptitude",q:"A sum of money doubles itself in 8 years at simple interest. What is the rate of interest per annum?",o:["10%","12%","12.5%","15%"],a:2},
+{id:12,section:"A",topic:"Quantitative Aptitude",q:"A can do a work in 12 days and B in 18 days. They work together for 4 days, then A leaves. How many more days will B take to finish?",o:["8","9","10","11"],a:2},
+{id:13,section:"A",topic:"Quantitative Aptitude",q:"A train 200 m long passes a standing man in 10 sec and a platform in 22 sec. What is the length of the platform?",o:["140 m","200 m","240 m","260 m"],a:2},
+{id:14,section:"A",topic:"Quantitative Aptitude",q:"If log 2 = 0.301, find log 50.",o:["1.301","1.699","1.602","2.301"],a:1},
+{id:15,section:"A",topic:"Quantitative Aptitude",q:"A shopkeeper marks his goods 40% above cost price and gives a 20% discount. What is his profit %?",o:["10%","12%","20%","16%"],a:1},
+{id:16,section:"A",topic:"Quantitative Aptitude",q:"Two pipes A and B fill a tank in 20 min and 30 min. Pipe C drains it in 15 min. If all three are open, how long to fill?",o:["60 min","90 min","120 min","45 min"],a:2},
+{id:17,section:"A",topic:"Quantitative Aptitude",q:"What is the next term in the series: 3, 8, 15, 24, 35, ?",o:["46","48","50","52"],a:1},
+{id:18,section:"A",topic:"Quantitative Aptitude",q:"The average of 5 consecutive odd numbers is 31. What is the largest number?",o:["33","35","37","39"],a:1},
+{id:19,section:"A",topic:"Quantitative Aptitude",q:"A sphere of radius 3 cm is melted and recast into a cylinder of radius 3 cm. What is the height of the cylinder?",o:["2 cm","4 cm","5 cm","6 cm"],a:1},
+{id:20,section:"A",topic:"Quantitative Aptitude",q:"If x² - 5x + 6 = 0, which of the following is a root?",o:["1","4","3","5"],a:2},
+{id:21,section:"A",topic:"Quantitative Aptitude",q:"In how many ways can the letters of the word 'LEVEL' be arranged?",o:["60","30","20","40"],a:0},
+{id:22,section:"A",topic:"Quantitative Aptitude",q:"A bag has 4 red, 3 blue, 2 green balls. A ball is drawn at random. Probability it is NOT red:",o:["4/9","5/9","2/3","1/3"],a:1},
+{id:23,section:"A",topic:"Quantitative Aptitude",q:"If 3x + 2y = 12 and x - y = 1, find x:",o:["2","3","14/5","4"],a:2},
+{id:24,section:"A",topic:"Quantitative Aptitude",q:"Compound interest on Rs.8000 at 10% p.a. for 2 years compounded annually:",o:["1680","1600","1440","1800"],a:0},
+{id:25,section:"A",topic:"Quantitative Aptitude",q:"Speed of a boat in still water is 12 km/h. Speed of stream is 4 km/h. Time to go 48 km upstream:",o:["4 hr","6 hr","8 hr","5 hr"],a:1},
+
+// ── SECTION A: LOGICAL REASONING (Q26–40) ──
+{id:26,section:"A",topic:"Logical Reasoning",q:"Statement: All doctors are surgeons. Some surgeons are nurses. Conclusion: I. Some nurses are doctors. II. All surgeons are doctors. Which is valid?",o:["Only I","Only II","Both I and II","Neither I nor II"],a:3},
+{id:27,section:"A",topic:"Logical Reasoning",q:"A is the father of B. C is the mother of B. D is the brother of C. What is D's relationship to B?",o:["Uncle","Grandfather","Cousin","Brother"],a:0},
+{id:28,section:"A",topic:"Logical Reasoning",q:"Find the missing number in the matrix: [2, 4, 8], [3, 9, 27], [4, 16, ?]",o:["32","48","64","56"],a:2},
+{id:29,section:"A",topic:"Logical Reasoning",q:"If FRIEND is coded as HUMJTK, how is ENEMY coded?",o:["GOFPA","GPGOA","GPFPA","GOFOA"],a:0},
+{id:30,section:"A",topic:"Logical Reasoning",q:"Series: 1, 2, 6, 24, 120, ?",o:["620","720","840","960"],a:1},
+{id:31,section:"A",topic:"Logical Reasoning",q:"Pointing to a photograph, a man said, 'His mother is the only daughter of my mother.' Who is the man to the person in the photo?",o:["Father","Brother","Grandfather","Uncle"],a:0},
+{id:32,section:"A",topic:"Logical Reasoning",q:"Water image of the number '36918' is:",o:["36918","63891","86193","36918 flipped vertically"],a:3},
+{id:33,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: 121, 144, 169, 196, 225, 240",o:["196","225","240","169"],a:2},
+{id:34,section:"A",topic:"Logical Reasoning",q:"If in a certain code, ROSE = 6821, CHAIR = 73456, PREACH = ?",o:["QSFBDI","732641","967348","865138"],a:1},
+{id:35,section:"A",topic:"Logical Reasoning",q:"A clock shows 4:20. What is the angle between the hour and minute hands?",o:["0°","5°","10°","20°"],a:2},
+{id:36,section:"A",topic:"Logical Reasoning",q:"Statements: All cats are dogs. No dog is a bird. Conclusion: No cat is a bird. This is:",o:["Valid deduction","Invalid deduction","Partially valid","Uncertain"],a:0},
+{id:37,section:"A",topic:"Logical Reasoning",q:"Series: AC, FH, KM, PR, ?",o:["UW","UV","VW","TV"],a:0},
+{id:38,section:"A",topic:"Logical Reasoning",q:"Ravi walks 5 km north, turns right 4 km, turns right 5 km, turns left 3 km. How far and in which direction from start?",o:["7 km East","4 km East","3 km West","7 km West"],a:0},
+{id:39,section:"A",topic:"Logical Reasoning",q:"Insert the missing term: 2, 3, 5, 7, 11, 13, ?, 19",o:["15","16","17","18"],a:2},
+{id:40,section:"A",topic:"Logical Reasoning",q:"If 'TABLE' is coded as 'XEFPI', which cipher is used?",o:["Caesar +4","Caesar +3","Reverse alphabet","Atbash"],a:0},
+
+// ── SECTION A: COMPUTER FUNDAMENTALS (Q41–50) ──
+{id:41,section:"A",topic:"Computer Fundamentals",q:"Which of these is an example of volatile memory?",o:["ROM","Flash drive","DRAM","SSD"],a:2},
+{id:42,section:"A",topic:"Computer Fundamentals",q:"Convert hexadecimal 2F to decimal:",o:["45","46","47","48"],a:2},
+{id:43,section:"A",topic:"Computer Fundamentals",q:"What is the 2's complement of 0110 0101?",o:["1001 1010","1001 1011","0110 0101","1111 0101"],a:1},
+{id:44,section:"A",topic:"Computer Fundamentals",q:"Which addressing mode is used in 'MOV A, [BX+5]'?",o:["Direct","Immediate","Indexed","Implied"],a:2},
+{id:45,section:"A",topic:"Computer Fundamentals",q:"How many address lines are needed to address 1 MB of memory?",o:["16","18","20","22"],a:2},
+{id:46,section:"A",topic:"Computer Fundamentals",q:"Which of the following is NOT a characteristic of a database management system?",o:["Data independence","Redundancy control","Data inconsistency","Concurrent access"],a:2},
+{id:47,section:"A",topic:"Computer Fundamentals",q:"In a 32-bit system, the maximum addressable memory is:",o:["2 GB","4 GB","8 GB","16 GB"],a:1},
+{id:48,section:"A",topic:"Computer Fundamentals",q:"Which type of software allows the user to write, modify, and debug programs?",o:["Utility","IDE","Firmware","Driver"],a:1},
+{id:49,section:"A",topic:"Computer Fundamentals",q:"Thrashing in operating systems is caused by:",o:["Too much CPU usage","Excessive paging","Memory leak","Deadlock"],a:1},
+{id:50,section:"A",topic:"Computer Fundamentals",q:"Which data structure is used internally by a function call stack?",o:["Queue","Linked List","Stack","Tree"],a:2},
+
+// ── SECTION B: C PROGRAMMING (Q51–70) ──
+{id:51,section:"B",topic:"C Programming",q:"What is the output of the following?",code:"#include<stdio.h>\nint main(){\n    int a=5, b=3;\n    printf(\"%d\", a+++b);\n    return 0;\n}",o:["8","9","Compile error","Undefined"],a:0},
+{id:52,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nvoid f(int *p){\n    *p = *p + 10;\n}\nint main(){\n    int x = 5;\n    f(&x);\n    printf(\"%d\", x);\n    return 0;\n}",o:["5","10","15","Garbage"],a:2},
+{id:53,section:"B",topic:"C Programming",q:"Which statement about 'static' local variables in C is TRUE?",o:["Re-initialized every function call","Stored in stack","Retain value between function calls","Allocated on heap"],a:2},
+{id:54,section:"B",topic:"C Programming",q:"What will be the output?",code:"int arr[] = {10, 20, 30, 40};\nprintf(\"%d\", *(arr + 2));",o:["20","30","40","Address"],a:1},
+{id:55,section:"B",topic:"C Programming",q:"What is the output?",code:"int x = 10;\nint *p = &x;\n*p = *p * 2;\nprintf(\"%d\", x);",o:["10","20","Address of x","Undefined"],a:1},
+{id:56,section:"B",topic:"C Programming",q:"What will sizeof(arr) return if: int arr[5];",o:["5","10","20","Depends on compiler"],a:2},
+{id:57,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nint main(){\n    int i;\n    for(i=0; i<5; i++){\n        if(i==3) continue;\n        printf(\"%d \", i);\n    }\n    return 0;\n}",o:["0 1 2 4","0 1 2 3 4","0 1 2","0 1 2 3"],a:0},
+{id:58,section:"B",topic:"C Programming",q:"Which of the following correctly declares a pointer to a function that takes int and returns int?",o:["int *f(int)","int (*f)(int)","int *(f)(int)","(*int) f(int)"],a:1},
+{id:59,section:"B",topic:"C Programming",q:"What is the output?",code:"char s[] = \"Hello\";\nprintf(\"%d\", strlen(s));",o:["5","6","4","Undefined"],a:0},
+{id:60,section:"B",topic:"C Programming",q:"What happens when malloc() fails to allocate memory?",o:["Returns 0","Returns -1","Returns NULL","Throws exception"],a:2},
+{id:61,section:"B",topic:"C Programming",q:"Which of the following is true about a 'const' pointer?",o:["The pointer cannot change what it points to","The value at the address cannot change","Both the pointer and value are const","const has no effect in C"],a:1},
+{id:62,section:"B",topic:"C Programming",q:"What is the output?",code:"int a = 6;\nswitch(a){\n    case 6: printf(\"Six\");\n    case 7: printf(\"Seven\");\n    default: printf(\"Other\");\n}",o:["Six","SixSeven","SixSevenOther","Other"],a:2},
+{id:63,section:"B",topic:"C Programming",q:"What is the output?",code:"int x=5;\nprintf(\"%d %d\", x<<1, x>>1);",o:["10 2","10 3","5 2","5 5"],a:0},
+{id:64,section:"B",topic:"C Programming",q:"In C, which of the following is NOT a storage class?",o:["auto","extern","static","strong"],a:3},
+{id:65,section:"B",topic:"C Programming",q:"What is the output?",code:"int a=10, b=5;\na = a^b;\nb = a^b;\na = a^b;\nprintf(\"%d %d\", a, b);",o:["10 5","5 10","0 0","15 0"],a:1},
+{id:66,section:"B",topic:"C Programming",q:"Which function is used to release dynamically allocated memory?",o:["delete()","remove()","free()","dealloc()"],a:2},
+{id:67,section:"B",topic:"C Programming",q:"What is the output?",code:"int i=1;\nwhile(i<=5){\n    printf(\"%d \", i);\n    i += 2;\n}",o:["1 3 5","1 2 3 4 5","1 3 5 7","Infinite loop"],a:0},
+{id:68,section:"B",topic:"C Programming",q:"Which of the following about arrays in C is correct?",o:["Array size can be changed at runtime","Array name is a constant pointer to first element","Arrays can store mixed types","Array index starts at 1"],a:1},
+{id:69,section:"B",topic:"C Programming",q:"What is the output?",code:"printf(\"%d\", 10 % 3 + 20 / 4);",o:["6","7","8","5"],a:1},
+{id:70,section:"B",topic:"C Programming",q:"Which of the following correctly reads a string with spaces?",o:["scanf(\"%s\", str)","gets(str)","getchar()","scanf(\"%c\", str)"],a:1},
+
+// ── SECTION B: DATA STRUCTURES (Q71–80) ──
+{id:71,section:"B",topic:"Data Structures",q:"What is the time complexity of inserting an element at the beginning of a singly linked list?",o:["O(n)","O(log n)","O(1)","O(n²)"],a:2},
+{id:72,section:"B",topic:"Data Structures",q:"Inorder traversal of a Binary Search Tree gives:",o:["Random order","Descending order","Ascending order","Level order"],a:2},
+{id:73,section:"B",topic:"Data Structures",q:"In a max-heap with n elements, what is the index of the parent of node at index i (1-indexed)?",o:["i/2","(i-1)/2","2i","2i+1"],a:0},
+{id:74,section:"B",topic:"Data Structures",q:"Which sorting algorithm is stable AND has O(n log n) worst-case complexity?",o:["Quick sort","Heap sort","Merge sort","Shell sort"],a:2},
+{id:75,section:"B",topic:"Data Structures",q:"A circular queue has front=3, rear=7, size=10. How many elements are in the queue?",o:["3","4","5","7"],a:1},
+{id:76,section:"B",topic:"Data Structures",q:"Which data structure is best for implementing a priority queue?",o:["Stack","Linked List","Heap","Array"],a:2},
+{id:77,section:"B",topic:"Data Structures",q:"What is the worst-case time complexity of Quick Sort?",o:["O(n log n)","O(n)","O(n²)","O(log n)"],a:2},
+{id:78,section:"B",topic:"Data Structures",q:"AVL tree maintains:",o:["All nodes with value > root on right","Balance factor between -1 and +1","Complete tree property","All leaves at same level"],a:1},
+{id:79,section:"B",topic:"Data Structures",q:"Postfix expression for A + B * C - D is:",o:["A B C * + D -","A B + C * D -","A B C + * D -","A B C D * + -"],a:0},
+{id:80,section:"B",topic:"Data Structures",q:"What is the minimum number of nodes in an AVL tree of height h?",o:["h","2h","N(h-1)+N(h-2)+1","2^h"],a:2},
+
+// ── SECTION B: OOP USING C++ (Q81–88) ──
+{id:81,section:"B",topic:"OOP using C++",q:"Which concept allows calling the correct overridden function at runtime using a base class pointer?",o:["Function overloading","Virtual function","Inline function","Constructor"],a:1},
+{id:82,section:"B",topic:"OOP using C++",q:"Which of the following is TRUE about a pure virtual function?",o:["It has a body","It makes the class abstract","It can be instantiated","It is same as virtual function"],a:1},
+{id:83,section:"B",topic:"OOP using C++",q:"What is the output?",code:"class A{\npublic:\n    A(){ cout<<\"A\"; }\n    ~A(){ cout<<\"~A\"; }\n};\nint main(){\n    A obj;\n    return 0;\n}",o:["A","A~A","~AA","A~A~A"],a:1},
+{id:84,section:"B",topic:"OOP using C++",q:"In C++, which operator is used for scope resolution?",o:["->","::","**","."],a:1},
+{id:85,section:"B",topic:"OOP using C++",q:"What is 'diamond problem' in C++?",o:["Memory leak with pointers","Ambiguity due to multiple inheritance","Stack overflow in recursion","Infinite loop in inheritance"],a:1},
+{id:86,section:"B",topic:"OOP using C++",q:"Which keyword is used to prevent a class from being inherited?",o:["abstract","sealed","final","static"],a:2},
+{id:87,section:"B",topic:"OOP using C++",q:"Which of the following is NOT a type of constructor in C++?",o:["Default constructor","Copy constructor","Move constructor","Static constructor"],a:3},
+{id:88,section:"B",topic:"OOP using C++",q:"What does 'this' pointer represent in C++?",o:["Pointer to parent class","Pointer to current object","Pointer to next object","Pointer to virtual table"],a:1},
+
+// ── SECTION B: OPERATING SYSTEMS (Q89–94) ──
+{id:89,section:"B",topic:"Operating Systems",q:"In a system with 3 processes and 4 resources, deadlock is guaranteed to NEVER occur if each process holds at most:",o:["1 resource","2 resources","3 resources","4 resources"],a:0},
+{id:90,section:"B",topic:"Operating Systems",q:"In Banker's algorithm, a system is in a SAFE state if:",o:["No process is waiting","There exists a safe sequence","All resources are allocated","Deadlock is present"],a:1},
+{id:91,section:"B",topic:"Operating Systems",q:"LRU page replacement chooses the page:",o:["Used most recently","Least frequently used","Not used for the longest time","Loaded first"],a:2},
+{id:92,section:"B",topic:"Operating Systems",q:"Which scheduling is ideal for interactive systems?",o:["FCFS","SJF","Round Robin","Priority Preemptive"],a:2},
+{id:93,section:"B",topic:"Operating Systems",q:"A process in the 'WAITING' state is waiting for:",o:["CPU allocation","I/O event or signal","Memory allocation","Another process to terminate"],a:1},
+{id:94,section:"B",topic:"Operating Systems",q:"Which of the following correctly represents Belady's Anomaly?",o:["More frames always reduce page faults","Increasing frames may INCREASE page faults in FIFO","LRU suffers more than FIFO","Optimal algorithm causes most faults"],a:1},
+
+// ── SECTION B: COMPUTER NETWORKS (Q95–100) ──
+{id:95,section:"B",topic:"Networking",q:"Which layer of OSI model handles end-to-end error detection and flow control?",o:["Network","Data Link","Transport","Session"],a:2},
+{id:96,section:"B",topic:"Networking",q:"Which protocol is used to assign IP addresses dynamically?",o:["DNS","ARP","DHCP","ICMP"],a:2},
+{id:97,section:"B",topic:"Networking",q:"What is the subnet mask for a /26 network?",o:["255.255.255.0","255.255.255.128","255.255.255.192","255.255.255.240"],a:2},
+{id:98,section:"B",topic:"Networking",q:"Which protocol works at Layer 3 (Network Layer) of OSI model?",o:["TCP","UDP","IP","HTTP"],a:2},
+{id:99,section:"B",topic:"Networking",q:"SSL/TLS operates between which two OSI layers?",o:["Layer 3 and 4","Layer 4 and 5","Layer 5 and 6","Layer 6 and 7"],a:2},
+{id:100,section:"B",topic:"Networking",q:"In CSMA/CD, what happens when a collision is detected?",o:["Packet is re-sent immediately","Jam signal is sent then random backoff","Packet is dropped permanently","Sender waits for ACK"],a:1}
 ];
 
 let currentSection = "A";
@@ -665,9 +490,7 @@ function startExam(){
 }
 
 function showSection(section){
-    if(section === "A" && sectionALocked && !examSubmitted){
-        return;
-    }
+    if(section === "A" && sectionALocked && !examSubmitted) return;
     currentSection = section;
     document.getElementById("tabA").classList.toggle("active",section==="A");
     document.getElementById("tabB").classList.toggle("active",section==="B");
@@ -687,22 +510,17 @@ function renderQuestions(){
     let html = `<h2 class="section-title">${title}</h2>`;
 
     visibleQuestions.forEach(q => {
-        html += `
-        <div class="question-card" id="card${q.id}">
+        html += `<div class="question-card" id="card${q.id}">
             <span class="topic">${q.topic}</span>
             <div class="question">Q${q.id}. ${q.q}</div>
-            ${q.code ? `<div class="code">${q.code}</div>` : ""}
-        `;
-
+            ${q.code ? `<div class="code">${q.code}</div>` : ""}`;
         q.o.forEach((opt,i) => {
             const checked = getSelected(q.id) === i ? "checked" : "";
-            html += `
-            <label class="option">
+            html += `<label class="option">
                 <input type="radio" name="q${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id},${i})">
                 ${String.fromCharCode(65+i)}) ${opt}
             </label>`;
         });
-
         html += `</div>`;
     });
 
@@ -731,28 +549,20 @@ function getSelected(id){
 
 function goToQuestion(id){
     const question = questions.find(q => q.id === id);
-    if(question.section !== currentSection){
-        showSection(question.section);
-    }
+    if(question.section !== currentSection) showSection(question.section);
     setTimeout(() => {
         document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"});
     },50);
 }
 
 function tickTimer(){
-    if(!examStarted || examSubmitted){
-        return;
-    }
+    if(!examStarted || examSubmitted) return;
     timeLeft[currentSection]--;
     updateTimers();
     if(timeLeft[currentSection] <= 0){
         timeLeft[currentSection] = 0;
-        if(currentSection === "A"){
-            submitCurrentSection();
-        }
-        else{
-            submitExam();
-        }
+        if(currentSection === "A") submitCurrentSection();
+        else submitExam();
     }
 }
 
@@ -764,61 +574,42 @@ function updateTimers(){
 function formatTime(seconds){
     const min = Math.floor(seconds/60);
     const sec = seconds%60;
-    return `${min}:${sec<10 ? "0" : ""}${sec}`;
+    return `${min}:${sec<10?"0":""}${sec}`;
 }
 
 function updateSubmitButton(){
     const submitBtn = document.getElementById("submitBtn");
-    if(currentSection === "A"){
-        submitBtn.innerHTML = "Submit Section A & Go to Section B";
-    }
-    else{
-        submitBtn.innerHTML = "Submit Exam";
-    }
+    submitBtn.innerHTML = currentSection === "A"
+        ? "Submit Section A &amp; Go to Section B"
+        : "Submit Exam";
 }
 
 function submitCurrentSection(){
     if(currentSection === "A"){
         sectionALocked = true;
-        timeLeft.A = Math.max(timeLeft.A,0);
+        timeLeft.A = Math.max(timeLeft.A, 0);
         showSection("B");
         window.scrollTo({top:0,behavior:"smooth"});
         return;
     }
-
     submitExam();
 }
 
 function submitExam(){
-    if(examSubmitted){
-        return;
-    }
+    if(examSubmitted) return;
     examSubmitted = true;
     clearInterval(timerInterval);
     document.getElementById("submitBtn").disabled = true;
 
-    let score = 0;
-    let correct = 0;
-    let wrong = 0;
-    let attempted = 0;
-    let sectionScore = {A:0,B:0};
-    let sectionCorrect = {A:0,B:0};
+    let score = 0, correct = 0, wrong = 0, attempted = 0;
+    let sectionScore = {A:0,B:0}, sectionCorrect = {A:0,B:0};
 
     questions.forEach(q => {
         const selected = getSelected(q.id);
         if(selected !== null){
             attempted++;
-            if(selected === q.a){
-                score += 3;
-                sectionScore[q.section] += 3;
-                correct++;
-                sectionCorrect[q.section]++;
-            }
-            else{
-                score -= 1;
-                sectionScore[q.section] -= 1;
-                wrong++;
-            }
+            if(selected === q.a){ score+=3; sectionScore[q.section]+=3; correct++; sectionCorrect[q.section]++; }
+            else { score-=1; sectionScore[q.section]-=1; wrong++; }
         }
     });
 
@@ -831,8 +622,7 @@ function submitExam(){
         <div class="score-box">Wrong<strong>${wrong}</strong></div>
         <div class="score-box">Unanswered<strong>${unanswered}</strong></div>
         <div class="score-box">Section A<strong>${sectionScore.A}/150</strong><span>${sectionCorrect.A}/50 correct</span></div>
-        <div class="score-box">Section B<strong>${sectionScore.B}/150</strong><span>${sectionCorrect.B}/50 correct</span></div>
-    `;
+        <div class="score-box">Section B<strong>${sectionScore.B}/150</strong><span>${sectionCorrect.B}/50 correct</span></div>`;
 
     renderReview();
     window.scrollTo({top:0,behavior:"smooth"});
@@ -847,8 +637,7 @@ function renderReview(){
             const selectedText = selected === null ? "Not attempted" : `${String.fromCharCode(65+selected)}) ${q.o[selected]}`;
             const correctText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
             const statusClass = selected === null ? "skipped-answer" : selected === q.a ? "correct-answer" : "wrong-answer";
-            html += `
-            <div class="question-card">
+            html += `<div class="question-card">
                 <span class="topic">${q.topic}</span>
                 <div class="question">Q${q.id}. ${q.q}</div>
                 ${q.code ? `<div class="code">${q.code}</div>` : ""}
@@ -863,10 +652,7 @@ function renderReview(){
 }
 
 function reattemptExam(){
-    questions.forEach(q => {
-        localStorage.removeItem("ccat_q"+q.id);
-    });
-
+    questions.forEach(q => localStorage.removeItem("ccat_q"+q.id));
     clearInterval(timerInterval);
     currentSection = "A";
     examStarted = false;
@@ -882,7 +668,6 @@ function reattemptExam(){
     document.getElementById("startScreen").style.display = "block";
     document.getElementById("resultSummary").innerHTML = "";
     document.getElementById("reviewQuestions").innerHTML = "";
-
     updateTimers();
     updateSubmitButton();
     window.scrollTo({top:0,behavior:"smooth"});
