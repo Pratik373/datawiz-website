@@ -250,7 +250,7 @@ export default function Home() {
             <div className="bg-primary p-md text-center">
               <span className="text-on-primary uppercase tracking-widest font-bold text-[12px]">POPULAR CHOICE</span>
             </div>
-            <div className="p-lg text-center space-y-md">
+            <div className="px-md py-lg text-center space-y-md">
               <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
               <div className="flex items-center justify-center gap-sm">
                 <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
@@ -262,9 +262,9 @@ export default function Home() {
                   '100 Questions & 120 Minutes Per Test',
                   'Easy, Medium & Hard Level Question Papers'
                 ].map((item) => (
-                  <li key={item} className="flex items-center gap-base text-body-md">
-                    <span className="material-symbols-outlined text-primary">check_circle</span>
-                    {item}
+                  <li key={item} className="flex items-start gap-base text-body-md">
+                    <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>

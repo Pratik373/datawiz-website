@@ -526,8 +526,8 @@ export default function MockTestPortal() {
                   </div>
                 </div>
                 {['5 Full-length Mock Tests (100 Qs each)', '120 mins per test', 'Instant access after payment'].map(f => (
-                  <div key={f} className="flex items-center gap-2 text-left">
-                    <span className="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+                  <div key={f} className="flex items-start gap-2 text-left">
+                    <span className="material-symbols-outlined text-primary text-[16px] shrink-0 mt-[2px]">check_circle</span>
                     <span className="text-sm text-on-surface-variant">{f}</span>
                   </div>
                 ))}
