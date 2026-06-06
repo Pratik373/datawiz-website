@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://datawiz-website-dpc8.vercel.app/sitemap.xml
+Sitemap: https://www.datawiz.in/sitemap.xml

@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'https://datawiz-website-dpc8.vercel.app',
+      target: 'https://www.datawiz.in',
       changeOrigin: true,
     })
   )
