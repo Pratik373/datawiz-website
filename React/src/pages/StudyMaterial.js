@@ -1,32 +1,105 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
-
-const materials = [
-  { title: 'Data Structures Mastery', desc: 'Comprehensive guide to trees, graphs, and algorithms. Includes solved problems.', size: '4.2 MB', section: 'Section B' },
-  { title: 'Operating Systems Essentials', desc: 'In-depth concepts of process management, deadlocks, and memory allocation.', size: '3.8 MB', section: 'Section B' },
-  { title: 'Quantitative Aptitude Guide', desc: 'Mental math shortcuts and practice questions for Section A logical reasoning.', size: '5.1 MB', section: 'Section A' },
-  { title: 'C Programming Fundamentals', desc: 'Pointers, memory management, and pre-processor directives for Section B.', size: '2.5 MB', section: 'Section B' },
-  { title: 'Computer Architecture', desc: 'CPU pipelining, cache memory, and instruction set architectures explained.', size: '6.4 MB', section: 'Section B' },
-  { title: 'Logical Reasoning Pro', desc: 'Critical thinking, syllogisms, and sequence pattern matching for Section A.', size: '3.1 MB', section: 'Section A' },
-  { title: 'Database Management Systems', desc: 'SQL queries, normalization, and transaction processing for Section B.', size: '4.0 MB', section: 'Section B' },
-  { title: 'English Comprehension', desc: 'Reading passages, grammar rules, and vocabulary building for Section A.', size: '2.8 MB', section: 'Section A' },
-]
 
 export default function StudyMaterial() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
+  const [materials, setMaterials] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [actionLoading, setActionLoading] = useState('')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
+
+  const fetchMaterials = useCallback(async () => {
+    setLoading(true)
+    setError('')
+
+    const response = await fetch('/api/study-materials')
+    const payload = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+      setError(payload.error || 'Could not load study materials.')
+      setMaterials([])
+      setLoading(false)
+      return
+    }
+
+    const files = (payload.materials || [])
+      .filter((file) => file.name && file.name !== '.emptyFolderPlaceholder' && !file.name.endsWith('/'))
+      .map((file) => {
+        return {
+          name: file.name,
+          title: formatTitle(file.name),
+          desc: 'PDF study material from the DataWiz C-CAT resource library.',
+          size: formatSize(file.size),
+          section: inferSection(file.name),
+        }
+      })
+
+    setMaterials(files)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    fetchMaterials()
+  }, [fetchMaterials])
+
+  const handleMaterialAction = async (material, download = false) => {
+    if (!user) {
+      sessionStorage.setItem('redirectAfterLogin', '/study-material')
+      navigate('/login')
+      return
+    }
+
+    const actionKey = `${material.name}:${download ? 'download' : 'view'}`
+    setActionLoading(actionKey)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const response = await fetch('/api/study-materials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token || ''}`,
+        },
+        body: JSON.stringify({ fileName: material.name, download }),
+      })
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          sessionStorage.setItem('redirectAfterLogin', '/study-material')
+          navigate('/login')
+          return
+        }
+        throw new Error(payload.error || 'Could not open this material.')
+      }
+
+      window.open(payload.url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setActionLoading('')
+    }
+  }
 
   const filtered = materials.filter((m) =>
     m.title.toLowerCase().includes(search.toLowerCase()) ||
-    m.desc.toLowerCase().includes(search.toLowerCase())
+    m.desc.toLowerCase().includes(search.toLowerCase()) ||
+    m.name.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -63,7 +136,7 @@ export default function StudyMaterial() {
           </div>
           <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-sm">Study Materials</h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            Download or view PDFs for Section A and Section B prep. All materials are updated for the 2024 academic cycle.
+            Download or view PDFs for C-CAT prep. Materials are loaded live from the DataWiz resource library.
           </p>
         </section>
 
@@ -79,10 +152,27 @@ export default function StudyMaterial() {
           </div>
         </section>
 
-        {filtered.length > 0 ? (
+        {loading ? (
+          <section className="flex flex-col items-center justify-center py-xl px-gutter text-center">
+            <div className="w-48 h-48 bg-surface-container rounded-full flex items-center justify-center mb-md">
+              <span className="material-symbols-outlined text-[80px] text-outline-variant">hourglass_empty</span>
+            </div>
+            <h2 className="font-headline-md text-headline-md text-on-surface mb-xs">Loading materials</h2>
+            <p className="font-body-md text-body-md text-on-surface-variant max-w-sm">Fetching PDFs from Supabase Storage...</p>
+          </section>
+        ) : error ? (
+          <section className="flex flex-col items-center justify-center py-xl px-gutter text-center">
+            <div className="w-48 h-48 bg-surface-container rounded-full flex items-center justify-center mb-md">
+              <span className="material-symbols-outlined text-[80px] text-outline-variant">cloud_off</span>
+            </div>
+            <h2 className="font-headline-md text-headline-md text-on-surface mb-xs">Could not load materials</h2>
+            <p className="font-body-md text-body-md text-on-surface-variant max-w-sm mb-lg">{error}</p>
+            <button onClick={fetchMaterials} className="text-primary font-label-md text-label-md hover:underline">Try again</button>
+          </section>
+        ) : filtered.length > 0 ? (
           <section className="max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md pb-xl">
             {filtered.map((material) => (
-              <div key={material.title} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col h-full"
+              <div key={material.name} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col h-full"
                 style={{ transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
                 onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0px 4px 12px rgba(44, 44, 42, 0.05)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '' }}>
@@ -96,16 +186,26 @@ export default function StudyMaterial() {
                 <p className="font-body-sm text-body-sm text-on-surface-variant mb-lg">{material.desc}</p>
                 <div className="mt-auto flex flex-col gap-sm">
                   <div className="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant mb-xs">
-                    <span>File Size: {material.size}</span>
+                    <span>File Size: {material.size || 'Unknown'}</span>
                     <span>{material.section}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-sm">
-                    <button className="flex items-center justify-center gap-xs py-2 border border-primary text-primary rounded-full font-label-md text-label-md hover:bg-primary/5 transition-colors">
-                      View
+                    <button
+                      type="button"
+                      onClick={() => handleMaterialAction(material, false)}
+                      disabled={Boolean(actionLoading)}
+                      className="flex items-center justify-center gap-xs py-2 border border-primary text-primary rounded-full font-label-md text-label-md hover:bg-primary/5 transition-colors"
+                    >
+                      {actionLoading === `${material.name}:view` ? 'Opening...' : 'View'}
                     </button>
-                    <button className="flex items-center justify-center gap-xs py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => handleMaterialAction(material, true)}
+                      disabled={Boolean(actionLoading)}
+                      className="flex items-center justify-center gap-xs py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:opacity-90 transition-opacity"
+                    >
                       <span className="material-symbols-outlined text-[18px]">download</span>
-                      Download
+                      {actionLoading === `${material.name}:download` ? 'Opening...' : 'Download'}
                     </button>
                   </div>
                 </div>
@@ -140,4 +240,31 @@ export default function StudyMaterial() {
       </footer>
     </div>
   )
+}
+
+function formatTitle(fileName) {
+  return fileName
+    .replace(/\.[^/.]+$/, '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function formatSize(bytes) {
+  if (!bytes) return ''
+  const mb = bytes / (1024 * 1024)
+  if (mb >= 1) return `${mb.toFixed(1)} MB`
+  return `${Math.ceil(bytes / 1024)} KB`
+}
+
+function inferSection(fileName) {
+  const text = fileName.toLowerCase()
+  if (text.includes('aptitude') || text.includes('english') || text.includes('reasoning') || text.includes('quicker')) {
+    return 'Section A'
+  }
+  if (text.includes('computer') || text.includes('data') || text.includes('operating') || text.includes('digital') || text.includes('microprocessor') || text.includes(' c ')) {
+    return 'Section B'
+  }
+  return 'PDF'
 }

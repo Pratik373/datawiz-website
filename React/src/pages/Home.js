@@ -25,7 +25,7 @@ export default function Home() {
           <nav className="hidden md:flex gap-lg items-center">
             <button onClick={() => scrollTo('footer')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">About</button>
             <button onClick={() => goTo('/study-material')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Study Materials</button>
-            <button onClick={() => goTo('/mock-tests')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Mock Test</button>
+            <button onClick={() => goTo('/tests')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Your Tests</button>
             <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => scrollTo('follow')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Follow</button>
           </nav>
@@ -48,7 +48,7 @@ export default function Home() {
               India's most focused C-CAT prep &mdash; Sections A &amp; B. Master the entrance exam with a companion built for technical excellence.
             </p>
             <div className="flex flex-col sm:flex-row gap-base mt-sm">
-              <button onClick={() => goTo('/mock-tests')} className="px-lg py-4 bg-primary text-on-primary font-label-md text-label-md rounded-full hover:bg-primary-container shadow-sm active:scale-95 transition-all">
+              <button onClick={() => goTo('/tests')} className="px-lg py-4 bg-primary text-on-primary font-label-md text-label-md rounded-full hover:bg-primary-container shadow-sm active:scale-95 transition-all">
                 Get Free Access
               </button>
               <button onClick={() => goTo('/study-material')} className="px-lg py-4 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-white active:scale-95 transition-all">
@@ -132,7 +132,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="p-md">
-                <button onClick={() => goTo('/mock-tests')} className="w-full py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md shadow-sm active:scale-95 transition-all">Start Test</button>
+                <button onClick={() => goTo('/tests')} className="w-full py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md shadow-sm active:scale-95 transition-all">Start Test</button>
               </div>
             </div>
             <div className="bg-white border border-outline-variant rounded-xl overflow-hidden flex flex-col hover-card transition-all">

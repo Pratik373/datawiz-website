@@ -1,54 +1,124 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
-import { listAdminTestPapers } from '../adminApi'
 import { STARTER_PRICE_INR, formatINR } from '../pricingConfig'
 
 const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62mcDroIz0U'
-const API_BASE = process.env.REACT_APP_API_URL || (window.location.hostname === 'localhost' ? 'https://datawiz-website-dpc8.vercel.app' : '')
+const API_BASE = process.env.REACT_APP_API_URL || ''
+const PREMIUM_TEST_LIMIT = 5
+const PREMIUM_SERIES_COUNT = 5
+const QUESTIONS_PER_TEST = 100
+const TEST_DURATION_MINUTES = 120
+const PREMIUM_SERIES_TESTS = Array.from({ length: PREMIUM_SERIES_COUNT }, (_, index) => {
+  const testNumber = index + 1
+  return {
+    id: `premium-ccat-set-${testNumber}`,
+    title: `Test ${testNumber}`,
+    local_url: `/CCAT_Mock_Test_Set${testNumber}.html`,
+    isPremium: true,
+  }
+})
+const FREE_TEST_TOPICS = [
+  {
+    section: 'Section A',
+    topics: ['English', 'Quantitative Aptitude & Reasoning', 'Computer Fundamentals & Concepts of Programming'],
+  },
+  {
+    section: 'Section B',
+    topics: ['C Programming', 'Data Structures', 'Operating Systems & Networking', 'OOP Concepts', 'Basics of Big Data & AI'],
+  },
+]
 
 export default function MockTestPortal() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
-  const [, setTests] = useState([])
+  const [tests, setTests] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [startingId, setStartingId] = useState('')
   const [showUnlockModal, setShowUnlockModal] = useState(false)
+  const [hasPremiumAccess, setHasPremiumAccess] = useState(false)
+  const [accessLoading, setAccessLoading] = useState(false)
+
+  const loadUserAccess = useCallback(async (nextUser) => {
+    if (!nextUser?.id) {
+      setHasPremiumAccess(false)
+      return
+    }
+
+    setAccessLoading(true)
+    try {
+      const response = await fetch(`${API_BASE}/api/user-test-access`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: nextUser.id }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      setHasPremiumAccess(response.ok && Boolean(payload.hasPremiumAccess))
+    } catch {
+      setHasPremiumAccess(false)
+    } finally {
+      setAccessLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
+      loadUserAccess(session?.user)
       if (session?.user && sessionStorage.getItem('pendingPayment')) {
         sessionStorage.removeItem('pendingPayment')
         setShowUnlockModal(true)
       }
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      setUser(s?.user ?? null)
-      if (s?.user && sessionStorage.getItem('pendingPayment')) {
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      loadUserAccess(session?.user)
+      if (session?.user && sessionStorage.getItem('pendingPayment')) {
         sessionStorage.removeItem('pendingPayment')
         setShowUnlockModal(true)
       }
     })
+
     return () => subscription.unsubscribe()
-  }, [])
+  }, [loadUserAccess])
 
   useEffect(() => {
     loadTests()
   }, [])
 
+  const normalizedTests = useMemo(() => {
+    return tests.map((test, index) => ({
+      ...test,
+      isFree: test.access === 'free' || index === 0,
+      isPremium: test.access === 'premium' || (index > 0 && index <= PREMIUM_TEST_LIMIT),
+      isSoon: index > PREMIUM_TEST_LIMIT,
+    }))
+  }, [tests])
+
+  const freeTest = normalizedTests.find((test) => test.isFree)
+  const premiumTests = PREMIUM_SERIES_TESTS
+
   const loadTests = async () => {
+    setLoading(true)
+    setError('')
     try {
-      const data = await listAdminTestPapers()
-      setTests(Array.isArray(data) ? data : [])
-    } catch {
+      const response = await fetch(`${API_BASE}/api/student-tests`)
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(payload.error || 'Could not load tests.')
+      setTests(Array.isArray(payload.tests) ? payload.tests : [])
+    } catch (err) {
+      setError(err.message)
       setTests([])
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handlePayment = async (planKey) => {
     if (!user) {
-      sessionStorage.setItem('redirectAfterLogin', '/mock-tests')
+      sessionStorage.setItem('redirectAfterLogin', '/tests')
       sessionStorage.setItem('pendingPayment', 'true')
       navigate('/login')
       return
@@ -60,10 +130,9 @@ export default function MockTestPortal() {
         body: JSON.stringify({ plan: planKey, user_id: user.id, email: user.email }),
       })
       const order = await res.json()
-      if (!res.ok || order.error) {
-        throw new Error(order.details || order.error || 'Failed to create order')
-      }
-      const options = {
+      if (!res.ok || order.error) throw new Error(order.details || order.error || 'Failed to create order')
+
+      const rzp = new window.Razorpay({
         key: RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
@@ -83,247 +152,198 @@ export default function MockTestPortal() {
               amount: order.amount,
             }),
           })
-          alert('Payment successful!')
           setShowUnlockModal(false)
+          setHasPremiumAccess(true)
+          loadUserAccess(user)
+          alert('Payment successful!')
         },
-        modal: { ondismiss: () => {} },
-      }
-      const rzp = new window.Razorpay(options)
+      })
       rzp.open()
     } catch (err) {
       alert('Payment failed: ' + err.message)
     }
   }
 
-  const startTest = (test) => {
+  const startTest = async (test) => {
+    if (test.isFree && test.local_url) {
+      window.location.href = test.local_url
+      return
+    }
+
     if (!user) {
-      sessionStorage.setItem('redirectAfterLogin', '/mock-tests')
+      sessionStorage.setItem('redirectAfterLogin', '/tests')
       navigate('/login')
       return
     }
-    if (test.type === 'html' && test.local_url) {
-      window.open(test.local_url, '_blank')
-      return
+
+    setStartingId(test.id)
+    try {
+      const response = await fetch(`${API_BASE}/api/start-test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, test_id: test.id }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok || payload.error) throw new Error(payload.error || 'Could not start this test.')
+      if (payload.url) {
+        window.location.href = payload.url
+        return
+      }
+      alert(payload.message || `Starting test: ${test.title}`)
+    } catch (err) {
+      if (err.message.includes('Access denied')) setShowUnlockModal(true)
+      else alert(err.message)
+    } finally {
+      setStartingId('')
     }
-    alert('Starting test: ' + test.title)
   }
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F8F7F4' }}>
-        <div className="text-on-surface-variant">Loading...</div>
+        <div className="text-on-surface-variant">Loading tests...</div>
       </div>
     )
   }
 
-  const isLoggedIn = !!user
-
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F8F7F4' }}>
       <header className="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant">
-        <div className="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
-          <div className="flex items-center gap-md">
-            <button onClick={() => navigate('/')} className="flex items-center gap-xs text-primary font-label-md text-label-md transition-all active:scale-95">
+        <div className="grid grid-cols-[1fr_auto_1fr] md:flex md:justify-between items-center gap-sm px-gutter py-3 md:py-4 max-w-container-max mx-auto">
+          <div className="flex items-center gap-sm md:gap-md min-w-0 justify-self-start">
+            <button onClick={() => navigate('/')} className="flex items-center gap-xs text-primary font-label-md text-sm md:text-label-md leading-tight transition-all active:scale-95">
               <span className="material-symbols-outlined">arrow_back</span>
-              Back to Home
+              <span className="hidden sm:inline">Back to Home</span>
+              <span className="sm:hidden">Back</span>
             </button>
             <div className="hidden md:block h-6 w-[1px] bg-outline-variant mx-2" />
-            <div className="font-headline-md text-headline-md font-bold text-on-surface">DataWiz</div>
           </div>
-          <div className="flex items-center gap-md">
-            {isLoggedIn ? (
-              <>
-                <div className="hidden sm:flex items-center gap-sm">
-                  <span className="text-on-surface-variant font-body-sm text-body-sm">{user.email}</span>
-                  <span className="bg-[#e3f2fd] text-[#006565] px-3 py-1 rounded-full text-xs font-bold border border-primary/20">Free Access</span>
-                </div>
-                <button onClick={() => supabase.auth.signOut().then(() => navigate('/'))}
-                  className="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md active:scale-95">
-                  <span className="material-symbols-outlined">logout</span>
-                  Logout
-                </button>
-              </>
-            ) : (
-              <button onClick={() => navigate('/login')}
-                className="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md active:scale-95 duration-150 shadow-sm">
-                Login / Sign Up
-              </button>
-            )}
-          </div>
+          <div className="font-headline-md text-[28px] md:text-headline-md font-bold text-on-surface justify-self-center md:mr-auto">DataWiz</div>
+          {user ? (
+            <button onClick={() => supabase.auth.signOut().then(() => navigate('/'))} className="justify-self-end text-on-surface-variant hover:text-primary font-label-md text-sm md:text-label-md whitespace-nowrap">
+              Logout
+            </button>
+          ) : (
+            <button onClick={() => navigate('/login')} className="justify-self-end bg-primary text-on-primary px-3 md:px-6 py-2 rounded-full font-label-md text-xs md:text-label-md leading-none whitespace-nowrap">
+              <span className="hidden sm:inline">Login / Sign Up</span>
+              <span className="sm:hidden">Login</span>
+            </button>
+          )}
         </div>
       </header>
 
-      <main className="flex-grow pt-[120px] pb-xl px-gutter max-w-container-max mx-auto w-full">
-        <div className="mb-lg text-center md:text-left">
-          <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-xs">
-            {isLoggedIn ? 'Mock Test Portal' : 'CDAC C-CAT Mock Tests'}
-          </h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">
-            {isLoggedIn
-              ? `Try the free test below. Unlock all premium tests for ${formatINR(STARTER_PRICE_INR)}.`
-              : 'Sign in to track your progress and unlock premium tests. Master every section with our industry-leading preparation engine.'}
+      <main className="flex-grow pt-[96px] pb-lg px-gutter max-w-container-max mx-auto w-full">
+        <div className="mb-md text-center md:text-left">
+          <h1 className="font-display-lg text-[44px] md:text-[52px] leading-tight text-on-surface mb-xs">Your Tests</h1>
+          <p className="font-body-lg text-[20px] leading-snug text-on-surface-variant">
+            Start the free mock test or unlock the 5-test premium series for {formatINR(STARTER_PRICE_INR)}.
           </p>
         </div>
 
-        {!isLoggedIn && (
-          <div className="flex flex-wrap items-center gap-md mb-md p-sm bg-surface-container rounded-xl">
-            <div className="flex items-center gap-xs px-sm py-1 bg-surface-container-lowest rounded-lg border border-outline-variant">
-              <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
-              <span className="font-label-md text-label-md">3 Free Tests</span>
-            </div>
-            <div className="flex items-center gap-xs px-sm py-1 bg-surface-container-lowest rounded-lg border border-outline-variant">
-              <span className="material-symbols-outlined text-secondary text-[18px]">workspace_premium</span>
-              <span className="font-label-md text-label-md">15 Premium Tests</span>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-md">
-          <div className="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col md:flex-row gap-md relative overflow-hidden">
-            <div className="flex-1 space-y-md">
-              <div className="flex items-center gap-sm">
-                <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Available Now</span>
-                <span className="text-on-surface-variant font-body-sm text-body-sm flex items-center gap-xs">
-                  <span className="material-symbols-outlined text-[18px]">timer</span> 60 Mins
-                </span>
-              </div>
-              <div>
-                <h2 className="font-headline-md text-headline-md mb-xs">C-CAT Section A: Quantitative Aptitude & Reasoning</h2>
-                <p className="text-on-surface-variant font-body-md text-body-md">Comprehensive mock test covering the essential logical reasoning and quantitative sections for the upcoming CDAC C-CAT exam.</p>
-              </div>
-              <div className="flex flex-wrap gap-md py-base border-y border-outline-variant">
-                <div className="flex flex-col">
-                  <span className="text-on-surface-variant text-xs uppercase font-bold tracking-tighter">Questions</span>
-                  <span className="font-headline-sm text-headline-sm">50 MCQs</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-on-surface-variant text-xs uppercase font-bold tracking-tighter">Passing Score</span>
-                  <span className="font-headline-sm text-headline-sm">40%</span>
-                </div>
-              </div>
-              <button onClick={() => startTest({ title: 'C-CAT Section A' })}
-                className="bg-primary hover:bg-primary-container text-white px-lg py-sm rounded-full font-label-md text-label-md transition-all active:scale-95 w-full md:w-auto shadow-sm">
-                Start Free Test
-              </button>
-            </div>
-            <div className="w-full md:w-1/3 h-48 md:h-auto rounded-lg overflow-hidden shrink-0 bg-surface-container" />
-          </div>
-
-          <div className="md:col-span-4 bg-primary text-on-primary-container rounded-xl p-md flex flex-col justify-between shadow-lg relative group">
-            <div className="space-y-sm">
-              <span className="material-symbols-outlined text-secondary-container text-[48px]">workspace_premium</span>
-              <h3 className="font-headline-md text-headline-md leading-tight">Master the C-CAT with Premium Access</h3>
-              <p className="font-body-md text-body-md opacity-90">Get 15+ full-length mock tests, detailed performance analytics, and topic-wise practice sets.</p>
-            </div>
-            <div className="mt-md">
-              <button onClick={() => setShowUnlockModal(true)}
-                className="w-full bg-secondary-container text-on-secondary-fixed font-label-md text-label-md py-sm rounded-full transition-transform group-hover:scale-[1.02] active:scale-95">
-                Upgrade Now &mdash; {formatINR(STARTER_PRICE_INR)}
-              </button>
-            </div>
-          </div>
-
-          <div className="md:col-span-12 mt-base">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm">
-              Premium Mock Tests
-              <span className="h-[1px] flex-1 bg-outline-variant" />
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-              {[1, 2].map((i) => (
-                <div key={i} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col hover:shadow-md transition-shadow relative">
-                  <div className="absolute top-md right-md">
-                    <span className="material-symbols-outlined text-outline">lock</span>
-                  </div>
-                  <div className="mb-md">
-                    <h4 className="font-headline-sm text-headline-sm text-on-surface mb-xs pr-8">
-                      {i === 1 ? 'Section B: Computer Fundamentals' : 'Section C: Data Structures & Algorithms'}
-                    </h4>
-                    <div className="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
-                      <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[18px]">timer</span> {i === 1 ? '90m' : '120m'}</span>
-                      <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[18px]">quiz</span> {i === 1 ? '75 Qs' : '100 Qs'}</span>
-                    </div>
-                  </div>
-                  <p className="text-on-surface-variant font-body-sm text-body-sm mb-lg flex-1">
-                    {i === 1 ? 'Advanced coverage of OS, Networking, and Data Structures according to the latest syllabus.' : 'Deep dive into sorting, searching, and advanced programming concepts for high-scoring aspirants.'}
-                  </p>
-                  <button onClick={() => setShowUnlockModal(true)}
-                    className="w-full border-2 border-secondary-container text-secondary font-label-md text-label-md py-sm rounded-full hover:bg-secondary-container/10 transition-colors flex items-center justify-center gap-xs active:scale-95">
-                    <span className="material-symbols-outlined text-[18px]">lock</span> Unlock &mdash; {formatINR(STARTER_PRICE_INR)}
-                  </button>
-                </div>
-              ))}
-              <div className="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col opacity-80 relative">
-                <div className="mb-md">
-                  <div className="flex justify-between items-start mb-xs">
-                    <h4 className="font-headline-sm text-headline-sm text-on-surface-variant pr-8">Full-Length Grand Mock #1</h4>
-                    <span className="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase">Soon</span>
-                  </div>
-                  <div className="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
-                    <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[18px]">timer</span> 180m</span>
-                    <span className="flex items-center gap-xs"><span className="material-symbols-outlined text-[18px]">quiz</span> 150 Qs</span>
-                  </div>
-                </div>
-                <p className="text-on-surface-variant font-body-sm text-body-sm mb-lg flex-1 italic">Real exam simulation with all three sections combined. Releasing on June 15th.</p>
-                <button disabled className="w-full bg-surface-variant text-on-surface-variant font-label-md text-label-md py-sm rounded-full cursor-not-allowed">
-                  Coming Soon
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-wrap items-center gap-md mb-sm p-xs bg-surface-container rounded-xl">
+          <InfoPill icon="verified" label={freeTest ? '1 Free Test' : 'No Free Test'} />
+          <InfoPill icon="workspace_premium" label={`${PREMIUM_SERIES_COUNT} Test Premium Series`} />
         </div>
 
-        {!isLoggedIn && (
-          <div className="mt-lg p-lg rounded-xl bg-primary-container text-on-primary-container flex flex-col md:flex-row items-center justify-between gap-md relative overflow-hidden">
-            <div className="relative z-10 max-w-lg">
-              <h2 className="font-headline-md text-headline-md mb-xs">Prepare Smarter with Personal Analytics</h2>
-              <p className="opacity-90">Sign in to see detailed performance heatmaps, topic-wise accuracy, and time management insights for every mock test you take.</p>
-            </div>
-            <div className="relative z-10 flex flex-col sm:flex-row gap-sm w-full md:w-auto">
-              <button onClick={() => navigate('/login')} className="bg-surface-container-lowest text-primary px-8 py-3 rounded-full font-label-md text-label-md shadow-md active:scale-95">
-                Create Account
-              </button>
-              <button onClick={() => navigate('/login')} className="border-2 border-surface-container-lowest text-on-primary px-8 py-3 rounded-full font-label-md text-label-md active:scale-95">
-                Sign In
-              </button>
-            </div>
-            <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-primary rounded-full opacity-20" />
+        {error ? (
+          <EmptyState icon="cloud_off" title="Could not load tests" message={error} action="Try again" onAction={loadTests} />
+        ) : tests.length === 0 ? (
+          <EmptyState icon="quiz" title="No tests available" message="Create test papers from the admin dashboard to publish them here." />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-md items-stretch">
+            {freeTest && (
+              <section className="order-2 lg:order-1 lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-sm flex flex-col justify-between gap-md">
+                <div className="space-y-sm">
+                  <div className="flex items-center justify-between gap-sm">
+                    <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Free</span>
+                    <Meta icon="timer" text={`${TEST_DURATION_MINUTES} Mins`} />
+                  </div>
+                  <div>
+                    <h3 className="font-headline-md text-[25px] leading-tight mb-1">{freeTest.title}</h3>
+                    <p className="text-on-surface-variant font-body-md text-[18px] leading-snug">{freeTest.description || 'Start with the free C-CAT mock test.'}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-md py-3 border-y border-outline-variant">
+                    <Stat label="Questions" value={`${QUESTIONS_PER_TEST} MCQs`} />
+                    <Stat label="Access" value="Free" />
+                  </div>
+                  <div className="space-y-sm">
+                    <h4 className="font-label-md text-label-md text-on-surface">Topics Covered</h4>
+                    <div className="space-y-xs">
+                      {FREE_TEST_TOPICS.map((group) => (
+                        <div key={group.section} className="grid grid-cols-[64px_1fr] gap-sm">
+                          <div className="bg-secondary-container text-on-secondary-fixed rounded-lg px-2 py-1 text-xs font-bold flex items-center justify-center text-center min-h-[46px]">
+                            {group.section}
+                          </div>
+                          <ul className="space-y-0.5 text-on-surface-variant font-body-sm text-[15px] leading-snug">
+                            {group.topics.map((topic) => (
+                              <li key={topic} className="flex gap-xs">
+                                <span className="material-symbols-outlined text-primary text-[16px] mt-[2px]">check_circle</span>
+                                <span>{topic}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => startTest(freeTest)} className="bg-primary text-white px-lg py-3 rounded-full font-label-md text-label-md transition-all active:scale-95 w-full shadow-sm">
+                  {startingId === freeTest.id ? 'Starting...' : 'Start Free Test'}
+                </button>
+              </section>
+            )}
+
+            <section className="order-1 lg:order-2 lg:col-span-8 bg-primary text-on-primary-container rounded-xl p-md md:p-lg flex flex-col shadow-lg relative overflow-hidden">
+              <div className="space-y-md relative z-10">
+                <div className="flex flex-wrap items-center gap-sm">
+                  <span className="bg-secondary-container text-on-secondary-fixed px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider">
+                    Best Value
+                  </span>
+                  <Meta icon="workspace_premium" text={`${PREMIUM_SERIES_COUNT} Full-Length Tests`} />
+                  <Meta icon="timer" text={`${TEST_DURATION_MINUTES} Mins Each`} />
+                </div>
+                <div className="max-w-2xl">
+                  <h2 className="font-display-md text-[28px] md:text-[36px] leading-tight mb-xs">
+                    Premium C-CAT 5 Test Series
+                  </h2>
+                  <p className="font-body-lg text-[20px] leading-snug opacity-90">
+                    {hasPremiumAccess ? 'Your premium tests are unlocked and ready to start.' : 'Unlock the complete premium mock test set after login and payment.'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-sm max-w-xl">
+                  <SeriesStat label="Tests" value={PREMIUM_SERIES_COUNT} />
+                  <SeriesStat label="Questions" value={`${PREMIUM_SERIES_COUNT * QUESTIONS_PER_TEST}`} />
+                  <SeriesStat label="Access" value={hasPremiumAccess ? 'Unlocked' : 'Premium'} />
+                </div>
+                {hasPremiumAccess && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-sm max-w-3xl">
+                    {premiumTests.map((test, index) => (
+                      <button
+                        key={test.id}
+                        onClick={() => startTest(test)}
+                        className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg p-sm text-left active:scale-95 transition-all flex flex-col gap-sm"
+                      >
+                        <span className="block text-xs uppercase font-bold opacity-75">Premium Test {index + 1}</span>
+                        <span className="block font-headline-sm text-headline-sm leading-tight">{test.title}</span>
+                        <span className="mt-auto inline-flex items-center justify-center gap-xs bg-secondary-container text-on-secondary-fixed rounded-full px-sm py-2 font-label-md text-label-md">
+                          <span className="material-symbols-outlined text-[18px]">play_circle</span>
+                          {startingId === test.id ? 'Starting...' : 'Start Test'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {!hasPremiumAccess && (
+                <button onClick={() => setShowUnlockModal(true)} className="relative z-10 mt-md w-full sm:w-auto sm:self-start bg-secondary-container text-on-secondary-fixed font-label-md text-sm md:text-label-md px-lg md:px-xl py-3 rounded-full active:scale-95 whitespace-nowrap">
+                  <span className="hidden sm:inline">{accessLoading ? 'Checking Access...' : `Upgrade Now - ${formatINR(STARTER_PRICE_INR)}`}</span>
+                  <span className="sm:hidden">{accessLoading ? 'Checking...' : `Upgrade - ${formatINR(STARTER_PRICE_INR)}`}</span>
+                </button>
+              )}
+              <span className="material-symbols-outlined absolute right-6 bottom-4 text-secondary-container/20 text-[100px] pointer-events-none">workspace_premium</span>
+            </section>
           </div>
         )}
-
-        <footer className="w-full py-lg mt-xl border-t border-outline-variant bg-surface-container-low -mx-gutter px-gutter">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-md max-w-container-max mx-auto">
-            <div className="space-y-sm">
-              <div className="flex items-center gap-xs">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-on-primary font-bold text-[14px]">D6</span>
-                </div>
-                <span className="font-headline-sm text-headline-sm font-bold text-primary">DataWiz</span>
-              </div>
-              <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
-                &copy; 2024 DataWiz. CDAC C-CAT Exam Prep Platform. Helping engineers transition into advanced computing since 2021.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-lg md:justify-end items-start">
-              <div className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">Resources</span>
-                <ul className="space-y-xs">
-                  <li><button onClick={() => navigate('/study-material')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Study Materials</button></li>
-                  <li><button onClick={() => navigate('/mock-tests')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Mock Test</button></li>
-                  <li><button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Pricing</button></li>
-                </ul>
-              </div>
-              <div className="space-y-xs">
-                <span className="font-label-md text-label-md text-on-surface">Company</span>
-                <ul className="space-y-xs">
-                  <li><button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Privacy Policy</button></li>
-                  <li><button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Terms of Service</button></li>
-                  <li><button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">Contact Us</button></li>
-                  <li><button onClick={() => navigate('/')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">FAQ</button></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </footer>
       </main>
 
       {showUnlockModal && (
@@ -334,18 +354,15 @@ export default function MockTestPortal() {
             </button>
             <div className="text-center space-y-md">
               <div className="w-16 h-16 bg-secondary-fixed rounded-full flex items-center justify-center mx-auto">
-                <span className="material-symbols-outlined text-secondary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
+                <span className="material-symbols-outlined text-secondary text-[32px]">lock</span>
               </div>
-              <h2 className="font-headline-md text-headline-md">Unlock Premium Access</h2>
-              <p className="text-on-surface-variant font-body-md text-body-md">Get access to all premium mock tests, performance analytics, and more.</p>
-              <div className="bg-surface-container rounded-lg p-md">
-                <div className="flex items-center justify-between">
-                  <span className="font-label-md text-label-md">Starter Pack</span>
-                  <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
-                </div>
+              <h2 className="font-headline-md text-headline-md">Unlock Premium Tests</h2>
+              <p className="text-on-surface-variant font-body-md text-body-md">Get access to the 5-test premium series.</p>
+              <div className="bg-surface-container rounded-lg p-md flex items-center justify-between">
+                <span className="font-label-md text-label-md">Test Series</span>
+                <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
               </div>
-              <button onClick={() => handlePayment('starter')}
-                className="w-full py-4 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:bg-primary-container transition-all active:scale-95">
+              <button onClick={() => handlePayment('starter')} className="w-full py-4 bg-primary text-on-primary rounded-full font-label-md text-label-md active:scale-95">
                 Proceed to Payment
               </button>
               <button onClick={() => setShowUnlockModal(false)} className="w-full text-on-surface-variant font-body-sm text-body-sm hover:text-primary">
@@ -356,5 +373,54 @@ export default function MockTestPortal() {
         </div>
       )}
     </div>
+  )
+}
+
+function InfoPill({ icon, label }) {
+  return (
+    <div className="flex items-center gap-xs px-sm py-1 bg-surface-container-lowest rounded-lg border border-outline-variant">
+      <span className="material-symbols-outlined text-primary text-[18px]">{icon}</span>
+      <span className="font-label-md text-label-md">{label}</span>
+    </div>
+  )
+}
+
+function Meta({ icon, text }) {
+  return (
+    <span className="flex items-center gap-xs">
+      <span className="material-symbols-outlined text-[18px]">{icon}</span>
+      {text}
+    </span>
+  )
+}
+
+function Stat({ label, value }) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-on-surface-variant text-xs uppercase font-bold tracking-tighter">{label}</span>
+      <span className="font-headline-sm text-headline-sm">{value}</span>
+    </div>
+  )
+}
+
+function SeriesStat({ label, value }) {
+  return (
+    <div className="bg-white/10 rounded-lg p-sm">
+      <span className="block text-xs uppercase font-bold tracking-tighter opacity-80 mb-1">{label}</span>
+      <span className="font-headline-md text-headline-md">{value}</span>
+    </div>
+  )
+}
+
+function EmptyState({ icon, title, message, action, onAction }) {
+  return (
+    <section className="flex flex-col items-center justify-center py-xl px-gutter text-center">
+      <div className="w-48 h-48 bg-surface-container rounded-full flex items-center justify-center mb-md">
+        <span className="material-symbols-outlined text-[80px] text-outline-variant">{icon}</span>
+      </div>
+      <h2 className="font-headline-md text-headline-md text-on-surface mb-xs">{title}</h2>
+      <p className="font-body-md text-body-md text-on-surface-variant max-w-sm mb-lg">{message}</p>
+      {action && <button onClick={onAction} className="text-primary font-label-md text-label-md hover:underline">{action}</button>}
+    </section>
   )
 }
