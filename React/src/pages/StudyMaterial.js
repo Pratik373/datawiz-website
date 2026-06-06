@@ -102,6 +102,7 @@ export default function StudyMaterial() {
   const [error, setError] = useState('')
   const [actionLoading, setActionLoading] = useState('')
   const [search, setSearch] = useState('')
+  const [activePdf, setActivePdf] = useState(null) // { url, title }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -180,7 +181,11 @@ export default function StudyMaterial() {
         throw new Error(payload.error || 'Could not open this material.')
       }
 
-      window.open(payload.url, '_blank', 'noopener,noreferrer')
+      if (download) {
+        window.open(payload.url, '_blank', 'noopener,noreferrer')
+      } else {
+        setActivePdf({ url: payload.url, title: material.title })
+      }
     } catch (err) {
       setError(err.message)
     } finally {
@@ -317,6 +322,55 @@ export default function StudyMaterial() {
           </div>
         </div>
       </footer>
+
+      {/* Fullscreen PDF Viewer Modal */}
+      {activePdf && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-surface-container-lowest animate-fade-in" style={{ animationDuration: '0.2s' }}>
+          {/* Header */}
+          <header className="flex justify-between items-center px-gutter py-4 bg-surface/85 backdrop-blur-xl border-b border-outline-variant shadow-sm">
+            <div className="flex items-center gap-md min-w-0">
+              <button
+                onClick={() => setActivePdf(null)}
+                className="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-all active:scale-95 cursor-pointer font-label-md text-label-md shrink-0"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+                <span>Close Reader</span>
+              </button>
+              <div className="h-6 w-[1px] bg-outline-variant mx-1 shrink-0" />
+              <h2 className="font-headline-sm text-headline-sm text-on-surface truncate pr-md font-bold">
+                {activePdf.title}
+              </h2>
+            </div>
+            <div className="flex items-center gap-sm shrink-0">
+              <button
+                onClick={() => window.open(activePdf.url, '_blank')}
+                className="flex items-center gap-xs px-4 py-2 border border-primary text-primary rounded-full hover:bg-primary/5 active:scale-95 transition-all text-xs font-bold font-label-md"
+                title="Open in new tab"
+              >
+                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                <span className="hidden sm:inline">New Tab</span>
+              </button>
+              <button
+                onClick={() => setActivePdf(null)}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-all active:scale-95"
+                aria-label="Close reader"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          </header>
+
+          {/* PDF Frame Container */}
+          <div className="flex-grow w-full h-full bg-[#525659] flex items-center justify-center relative">
+            <iframe
+              src={`${activePdf.url}#toolbar=1`}
+              title={activePdf.title}
+              className="w-full h-full border-none"
+              allow="autoplay"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
