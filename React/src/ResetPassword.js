@@ -299,8 +299,8 @@ export default function ResetPassword() {
 function LogoRow() {
   return (
     <div className="login-logo-row">
-      <img src={logoUrl} alt="DataWiz" className="login-logo" />
-      <span className="login-brand">DataWiz</span>
+      <img src={logoUrl} alt="Datawiz6" className="login-logo" />
+      <span className="login-brand">Datawiz6</span>
     </div>
   );
 }
