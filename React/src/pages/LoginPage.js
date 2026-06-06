@@ -30,7 +30,7 @@ export default function LoginPage() {
       sessionStorage.removeItem('redirectAfterLogin')
       navigate(redirectTo)
     } else {
-      navigate('/mock-tests')
+      navigate('/tests')
     }
   }, [navigate])
 
@@ -103,7 +103,7 @@ export default function LoginPage() {
     const savedRedirect = sessionStorage.getItem('redirectAfterLogin')
     const redirectTarget = savedRedirect
       ? `${window.location.origin}${savedRedirect}`
-      : `${window.location.origin}/mock-tests`
+      : `${window.location.origin}/tests`
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectTarget, queryParams: { prompt: 'select_account', access_type: 'offline' } },
