@@ -82,12 +82,31 @@ function ProfileButton({ goTo }) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
+    return () => subscription.unsubscribe()
+  }, [])
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
   const goTo = (path) => {
     window.scrollTo(0, 0)
     navigate(path)
+  }
+
+  const handleUnlockAll = () => {
+    if (user) {
+      sessionStorage.setItem('pendingPayment', 'true')
+      navigate('/tests')
+    } else {
+      sessionStorage.setItem('redirectAfterLogin', '/tests')
+      sessionStorage.setItem('pendingPayment', 'true')
+      navigate('/login')
+    }
   }
 
   return (
@@ -191,21 +210,19 @@ export default function Home() {
               <p className="text-on-surface-variant">Simulate the real exam experience with our curated sets.</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md max-w-4xl mx-auto">
             <div className="bg-white border border-outline-variant rounded-xl overflow-hidden flex flex-col hover-card transition-all">
               <div className="p-md border-b border-outline-variant flex justify-between items-start">
                 <span className="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold rounded uppercase tracking-wider">FREE</span>
                 <span className="material-symbols-outlined text-on-surface-variant">schedule</span>
               </div>
               <div className="p-md flex-grow space-y-sm">
-                <h4 className="font-headline-sm text-headline-sm">Entrance Baseline Test</h4>
+                <h4 className="font-headline-sm text-headline-sm">Free C-CAT Mock Test</h4>
                 <div className="flex items-center gap-xs text-on-surface-variant text-body-sm">
                   <span className="material-symbols-outlined text-[16px]">list_alt</span>
-                  <span>50 Questions</span>
+                  <span>100 Questions</span>
                 </div>
-                <div className="w-full bg-surface-container h-1 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full w-[0%]" />
-                </div>
+                <p className="text-body-sm text-on-surface-variant">A full free C-CAT mock test available to every visitor without login.</p>
               </div>
               <div className="p-md">
                 <button onClick={() => goTo('/tests')} className="w-full py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md shadow-sm active:scale-95 transition-all">Start Test</button>
@@ -217,17 +234,12 @@ export default function Home() {
                 <span className="material-symbols-outlined text-on-surface-variant">lock</span>
               </div>
               <div className="p-md flex-grow space-y-sm">
-                <h4 className="font-headline-sm text-headline-sm">PDF Practice Set A</h4>
-                <p className="text-body-sm text-on-surface-variant">Full section coverage with detailed explanations in PDF format.</p>
+                <h4 className="font-headline-sm text-headline-sm">Premium C-CAT Mock Test — Set 1</h4>
+                <p className="text-body-sm text-on-surface-variant">Full-length premium C-CAT mock paper. Unlock with the Starter Pack.</p>
               </div>
               <div className="p-md">
-                <button className="w-full py-2 border border-outline text-on-surface-variant rounded-full font-label-md text-label-md active:scale-95 transition-all">Unlock Now</button>
+                <button onClick={() => goTo('/tests')} className="w-full py-2 border border-outline text-on-surface-variant rounded-full font-label-md text-label-md active:scale-95 transition-all">Unlock Now</button>
               </div>
-            </div>
-            <div className="bg-surface-container-low border border-dashed border-outline-variant rounded-xl overflow-hidden flex flex-col items-center justify-center p-xl text-center space-y-sm">
-              <span className="material-symbols-outlined text-outline text-4xl">hourglass_empty</span>
-              <h4 className="font-headline-sm text-headline-sm text-on-surface-variant">More Tests</h4>
-              <p className="text-body-sm text-on-surface-variant">New Section B tests dropping every Monday.</p>
             </div>
           </div>
         </section>
@@ -244,14 +256,18 @@ export default function Home() {
                 <span className="text-on-surface-variant line-through font-body-lg text-body-lg">₹499</span>
               </div>
               <ul className="text-left space-y-sm py-md">
-                {['All Section A Mock Tests', '1000+ Practice MCQs', 'Weekly Performance Reports'].map((item) => (
+                {[
+                  '5 Full-Length Mock Tests (Sections A & B)',
+                  '100 Questions & 120 Minutes Per Test',
+                  'Easy, Medium & Hard Level Question Papers'
+                ].map((item) => (
                   <li key={item} className="flex items-center gap-base text-body-md">
                     <span className="material-symbols-outlined text-primary">check_circle</span>
                     {item}
                   </li>
                 ))}
               </ul>
-              <button onClick={() => goTo('/login')} className="w-full py-4 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-full shadow hover:bg-secondary-fixed transition-all active:scale-95 font-bold uppercase tracking-wide">
+              <button onClick={handleUnlockAll} className="w-full py-4 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-full shadow hover:bg-secondary-fixed transition-all active:scale-95 font-bold uppercase tracking-wide">
                 Unlock All Tests
               </button>
             </div>

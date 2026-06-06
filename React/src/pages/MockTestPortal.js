@@ -138,7 +138,7 @@ export default function MockTestPortal() {
   const loadUserAccess = useCallback(async (nextUser) => {
     if (!nextUser?.id) {
       setHasPremiumAccess(false)
-      return
+      return false
     }
 
     setAccessLoading(true)
@@ -149,34 +149,119 @@ export default function MockTestPortal() {
         body: JSON.stringify({ user_id: nextUser.id }),
       })
       const payload = await response.json().catch(() => ({}))
-      setHasPremiumAccess(response.ok && Boolean(payload.hasPremiumAccess))
+      const hasAccess = response.ok && Boolean(payload.hasPremiumAccess)
+      setHasPremiumAccess(hasAccess)
+      return hasAccess
     } catch {
       setHasPremiumAccess(false)
+      return false
     } finally {
       setAccessLoading(false)
     }
   }, [])
 
+  const handlePayment = useCallback(async (planKey, currentUser = user) => {
+    const activeUser = currentUser || user
+    if (!activeUser) {
+      sessionStorage.setItem('redirectAfterLogin', '/tests')
+      sessionStorage.setItem('pendingPayment', 'true')
+      navigate('/login')
+      return
+    }
+    setPaymentError('')
+    try {
+      const res = await fetch(`${API_BASE}/api/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: planKey, user_id: activeUser.id, email: activeUser.email }),
+      })
+      const order = await res.json()
+      if (!res.ok || order.error) throw new Error(order.details || order.error || 'Failed to create order')
+
+      const rzp = new window.Razorpay({
+        key: RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'DataWiz',
+        description: `${order.planName} Plan`,
+        order_id: order.id,
+        prefill: { email: activeUser.email },
+        theme: { color: '#4A7C59' },
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                ...response,
+                user_id: activeUser.id,
+                tests_to_add: order.tests,
+                plan: planKey,
+                amount: order.amount,
+              }),
+            })
+            const verifyData = await verifyRes.json().catch(() => ({}))
+            if (!verifyRes.ok || verifyData.error) {
+              throw new Error(verifyData.details || verifyData.error || 'Payment verification failed')
+            }
+            // Close modal and unlock tests immediately
+            setShowUnlockModal(false)
+            setHasPremiumAccess(true)
+            setPaymentSuccess(true)
+            // Re-verify access from server in the background
+            loadUserAccess(activeUser)
+            // Auto-dismiss success banner after 6 seconds
+            setTimeout(() => setPaymentSuccess(false), 6000)
+          } catch (verifyErr) {
+            setShowUnlockModal(false)
+            setPaymentError('Payment was received but verification failed. Please contact support or refresh the page.')
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            // User closed Razorpay modal without paying — no action needed
+          },
+        },
+      })
+      rzp.open()
+    } catch (err) {
+      setPaymentError('Could not start payment: ' + err.message)
+    }
+  }, [user, navigate, loadUserAccess])
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
-      loadUserAccess(session?.user)
-      if (session?.user && sessionStorage.getItem('pendingPayment')) {
-        sessionStorage.removeItem('pendingPayment')
-        setShowUnlockModal(true)
+      if (session?.user) {
+        const hasAccess = await loadUserAccess(session.user)
+        if (sessionStorage.getItem('pendingPayment')) {
+          sessionStorage.removeItem('pendingPayment')
+          if (!hasAccess) {
+            handlePayment('starter', session.user)
+          }
+        }
+      } else {
+        setHasPremiumAccess(false)
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
-      loadUserAccess(session?.user)
-      if (session?.user && sessionStorage.getItem('pendingPayment')) {
-        sessionStorage.removeItem('pendingPayment')
-        setShowUnlockModal(true)
+      if (session?.user) {
+        const hasAccess = await loadUserAccess(session.user)
+        if (sessionStorage.getItem('pendingPayment')) {
+          sessionStorage.removeItem('pendingPayment')
+          if (!hasAccess) {
+            handlePayment('starter', session.user)
+          }
+        }
+      } else {
+        setHasPremiumAccess(false)
       }
     })
 
     return () => subscription.unsubscribe()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadUserAccess])
 
   useEffect(() => {
@@ -208,74 +293,6 @@ export default function MockTestPortal() {
       setTests([])
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handlePayment = async (planKey) => {
-    if (!user) {
-      sessionStorage.setItem('redirectAfterLogin', '/tests')
-      sessionStorage.setItem('pendingPayment', 'true')
-      navigate('/login')
-      return
-    }
-    setPaymentError('')
-    try {
-      const res = await fetch(`${API_BASE}/api/create-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: planKey, user_id: user.id, email: user.email }),
-      })
-      const order = await res.json()
-      if (!res.ok || order.error) throw new Error(order.details || order.error || 'Failed to create order')
-
-      const rzp = new window.Razorpay({
-        key: RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'DataWiz',
-        description: `${order.planName} Plan`,
-        order_id: order.id,
-        prefill: { email: user.email },
-        theme: { color: '#4A7C59' },
-        handler: async (response) => {
-          try {
-            const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...response,
-                user_id: user.id,
-                tests_to_add: order.tests,
-                plan: planKey,
-                amount: order.amount,
-              }),
-            })
-            const verifyData = await verifyRes.json().catch(() => ({}))
-            if (!verifyRes.ok || verifyData.error) {
-              throw new Error(verifyData.details || verifyData.error || 'Payment verification failed')
-            }
-            // Close modal and unlock tests immediately
-            setShowUnlockModal(false)
-            setHasPremiumAccess(true)
-            setPaymentSuccess(true)
-            // Re-verify access from server in the background
-            loadUserAccess(user)
-            // Auto-dismiss success banner after 6 seconds
-            setTimeout(() => setPaymentSuccess(false), 6000)
-          } catch (verifyErr) {
-            setShowUnlockModal(false)
-            setPaymentError('Payment was received but verification failed. Please contact support or refresh the page.')
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            // User closed Razorpay modal without paying — no action needed
-          },
-        },
-      })
-      rzp.open()
-    } catch (err) {
-      setPaymentError('Could not start payment: ' + err.message)
     }
   }
 
@@ -477,7 +494,7 @@ export default function MockTestPortal() {
                 )}
               </div>
               {!hasPremiumAccess && (
-                <button onClick={() => setShowUnlockModal(true)} className="relative z-10 mt-md w-full sm:w-auto sm:self-start bg-secondary-container text-on-secondary-fixed font-label-md text-sm md:text-label-md px-lg md:px-xl py-3 rounded-full active:scale-95 whitespace-nowrap">
+                <button onClick={() => handlePayment('starter')} className="relative z-10 mt-md w-full sm:w-auto sm:self-start bg-secondary-container text-on-secondary-fixed font-label-md text-sm md:text-label-md px-lg md:px-xl py-3 rounded-full active:scale-95 whitespace-nowrap">
                   <span className="hidden sm:inline">{accessLoading ? 'Checking Access...' : `Upgrade Now - ${formatINR(STARTER_PRICE_INR)}`}</span>
                   <span className="sm:hidden">{accessLoading ? 'Checking...' : `Upgrade - ${formatINR(STARTER_PRICE_INR)}`}</span>
                 </button>
