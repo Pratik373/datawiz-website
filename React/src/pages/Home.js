@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabaseClient'
+import { STARTER_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
 
 const heroImg = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyOXogB7LYDkE7jxtYEi1yAzkvpqJyP5jhpeGAOs4kYoBSp_BQ7pZVodLs7aoLI-_xw6gkKDnki2-ql5CAwKO0I-Mis6aZBzRcYFsR832PVwWTmwlpU7FW5q3YzMKhEo89YFHaEp_ripjxmXwid_Iqi0qELm-O8P636KK31y5y9CJ9aYqU_6k65oAlZZ6HS6ydcPwvfkE9J47FrnKIw0U12gaFYpDslM9N0M_jd8vQ_japZTacf3GYgEBYlqAABZjjM4ZzTonLDiM'
 
@@ -252,8 +253,8 @@ export default function Home() {
             <div className="p-lg text-center space-y-md">
               <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
               <div className="flex items-center justify-center gap-sm">
-                <span className="text-primary font-display-lg text-[40px] font-extrabold">₹99</span>
-                <span className="text-on-surface-variant line-through font-body-lg text-body-lg">₹499</span>
+                <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
+                <span className="text-on-surface-variant line-through font-body-lg text-body-lg">{formatINR(STARTER_ORIGINAL_PRICE_INR)}</span>
               </div>
               <ul className="text-left space-y-sm py-md">
                 {[
