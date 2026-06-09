@@ -297,25 +297,25 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="bg-surface-container-low py-sm border-y border-outline-variant">
-        <div className="max-w-container-max mx-auto px-gutter flex flex-wrap items-center gap-md">
+      <div className="bg-surface-container-low py-sm border-y border-outline-variant w-full overflow-hidden">
+        <div className="max-w-container-max mx-auto px-gutter flex flex-col sm:flex-row items-center justify-between gap-md w-full">
           <span className="font-label-md text-label-md text-on-surface flex items-center gap-xs">
             <span className="material-symbols-outlined text-primary">auto_stories</span>
             15 Books available
           </span>
-          <div className="flex flex-wrap gap-xs">
+          <div className="flex flex-wrap justify-center sm:justify-start gap-xs">
             <span className="px-3 py-1 bg-white border border-outline-variant rounded-full text-xs font-medium text-on-surface-variant">Mathematics</span>
             <span className="px-3 py-1 bg-white border border-outline-variant rounded-full text-xs font-medium text-on-surface-variant">English</span>
             <span className="px-3 py-1 bg-white border border-outline-variant rounded-full text-xs font-medium text-on-surface-variant">Data Structures</span>
             <span className="px-3 py-1 bg-white border border-outline-variant rounded-full text-xs font-medium text-on-surface-variant">Operating Systems</span>
           </div>
-          <button onClick={() => goTo('/study-material')} className="ml-auto text-primary font-bold text-label-md flex items-center gap-xs hover:underline cursor-pointer">
+          <button onClick={() => goTo('/study-material')} className="text-primary font-bold text-label-md flex items-center gap-xs hover:underline cursor-pointer sm:ml-auto">
             Explore All <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         </div>
       </div>
 
-      <main className="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+      <main className="w-full max-w-container-max mx-auto px-gutter py-xl space-y-xl overflow-hidden">
         <section className="space-y-md" id="about">
           <div className="text-center max-w-xl mx-auto space-y-base">
             <h2 className="font-headline-md text-headline-md text-on-surface">Comprehensive Focus</h2>
@@ -387,8 +387,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="pricing" className="py-lg">
-          <div className="max-w-md mx-auto bg-white border-2 border-primary rounded-xl overflow-hidden shadow-sm">
+        <section id="pricing" className="py-lg w-full">
+          <div className="max-w-md mx-auto w-full bg-white border-2 border-primary rounded-xl overflow-hidden shadow-sm">
             <div className="bg-primary p-md text-center">
               <span className="text-on-primary uppercase tracking-widest font-bold text-[12px]">POPULAR CHOICE</span>
             </div>
@@ -417,7 +417,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="reviews" className="space-y-md py-md overflow-hidden">
+        <section id="reviews" className="space-y-md py-md overflow-hidden w-full">
           <div className="text-center max-w-xl mx-auto space-y-base mb-sm px-gutter">
             <h2 className="font-headline-md text-headline-md text-on-surface">Reviews</h2>
             <p className="text-on-surface-variant font-body-md text-body-md">
@@ -425,7 +425,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="select-none pointer-events-auto marquee-fade">
+          <div className="select-none pointer-events-auto marquee-fade w-full overflow-hidden">
             <div className="flex overflow-hidden w-full">
               <div className="flex gap-md pr-md animate-marquee-left pause-hover">
                 {marqueeRow.map((review, idx) => (
@@ -436,7 +436,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="follow" className="grid grid-cols-1 sm:grid-cols-3 gap-md">
+        <section id="follow" className="grid grid-cols-1 sm:grid-cols-3 gap-md w-full">
           {[
             { icon: 'play_circle', color: 'text-red-600', bg: 'bg-red-100', title: 'YouTube', desc: 'Visual tutorials', url: 'https://www.youtube.com/@Datawiz6' },
             { icon: 'share', color: 'text-blue-700', bg: 'bg-blue-100', title: 'LinkedIn', desc: 'Study community', url: 'https://www.linkedin.com/in/datawiz6/' },
@@ -455,7 +455,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer id="footer" className="bg-surface-container-low py-lg mt-xl border-t border-outline-variant">
+      <footer id="footer" className="bg-surface-container-low py-lg mt-xl border-t border-outline-variant w-full overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md px-gutter max-w-container-max mx-auto">
           <div className="space-y-base">
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="font-headline-sm text-headline-sm font-bold text-primary cursor-pointer">DataWiz</button>
