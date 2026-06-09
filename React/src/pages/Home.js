@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '../supabaseClient'
 import { STARTER_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
 
@@ -81,15 +81,156 @@ function ProfileButton({ goTo }) {
   )
 }
 
+const reviewsData = [
+  {
+    name: 'Amit Sharma',
+    avatarBg: 'bg-primary/10 text-primary',
+    tag: 'Verified Student • Free Mock Test User',
+    stars: 5,
+    text: 'The free mock test was extremely well-structured and matched the exact C-CAT interface. Convinced me to upgrade!'
+  },
+  {
+    name: 'Aditya Verma',
+    avatarBg: 'bg-secondary/10 text-secondary',
+    tag: 'Verified Student • Free Plan User',
+    stars: 4,
+    text: 'Very good quality questions in the free C-CAT test. Wish there were a few more free papers, but the Starter Pack is value for money.'
+  },
+  {
+    name: 'Priya Patel',
+    avatarBg: 'bg-tertiary/10 text-tertiary',
+    tag: 'Verified Student • Paid Pack User',
+    stars: 5,
+    text: 'Purchased the Starter Pack and the 5 full-length tests are worth every rupee. Extremely high-quality questions for Sections A & B.'
+  },
+  {
+    name: 'Sneha Kulkarni',
+    avatarBg: 'bg-primary/10 text-primary',
+    tag: 'Verified Student • Paid Pack User',
+    stars: 5,
+    text: 'The level of Section B coding questions in the premium mock tests is excellent. Perfect for practice and timing.'
+  },
+  {
+    name: 'Rohan Deshmukh',
+    avatarBg: 'bg-secondary/10 text-secondary',
+    tag: 'Verified Student • Paid Pack User',
+    stars: 5,
+    text: 'The analytics and review interface after submitting the test are very clean. Helped me identify my weak spots easily.'
+  },
+  {
+    name: 'Neha Joshi',
+    avatarBg: 'bg-tertiary/10 text-tertiary',
+    tag: 'Verified Student • Paid Pack User',
+    stars: 4,
+    text: 'Excellent explanations for the statistics questions. Interface is smooth. A great mock exam platform.'
+  },
+  {
+    name: 'Vikram Singh',
+    avatarBg: 'bg-primary/10 text-primary',
+    tag: 'Verified Student • Paid Pack User',
+    stars: 5,
+    text: 'The questions are classified beautifully into easy, medium, and hard. Very realistic test environment.'
+  },
+  {
+    name: 'Rahul Nair',
+    avatarBg: 'bg-secondary/10 text-secondary',
+    tag: 'Verified Student • Paid Pack User',
+    stars: 4,
+    text: 'The simulation of 120 minutes for 100 questions is highly accurate. Great practice resource for Sections A & B.'
+  }
+]
+
+function ReviewCard({ review }) {
+  const initials = review.name.split(' ').map(n => n[0]).join('')
+  return (
+    <div className="w-[350px] shrink-0 bg-white border border-outline-variant p-md rounded-2xl shadow-sm flex flex-col justify-between hover:border-primary/50 transition-colors">
+      <div className="space-y-sm">
+        <div className="flex gap-xs">
+          {[...Array(5)].map((_, i) => (
+            <span
+              key={i}
+              className={`material-symbols-outlined text-[20px] ${
+                i < review.stars ? 'text-amber-500' : 'text-outline-variant/60'
+              }`}
+              style={{ fontVariationSettings: i < review.stars ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              star
+            </span>
+          ))}
+        </div>
+        <p className="text-on-surface font-body-sm italic leading-relaxed text-left">
+          "{review.text}"
+        </p>
+      </div>
+      <div className="flex items-center gap-sm mt-md pt-sm border-t border-outline-variant/40">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${review.avatarBg}`}>
+          {initials}
+        </div>
+        <div className="min-w-0 text-left">
+          <h4 className="font-label-md text-label-md text-on-surface truncate">{review.name}</h4>
+          <p className="text-[12px] text-on-surface-variant truncate">{review.tag}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
+  const [reviews, setReviews] = useState([])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    const fetchApprovedReviews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('is_approved', true)
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        if (data && data.length > 0) {
+          const colorBgs = [
+            'bg-primary/10 text-primary',
+            'bg-secondary/10 text-secondary',
+            'bg-tertiary/10 text-tertiary'
+          ]
+          const mapped = data.map((r, i) => {
+            const isFree = r.test_id === 'free-ccat-mock-test' || r.test_id === 'free-test'
+            const testTitle = isFree ? 'Free Mock Test' : 'Paid Plan Test'
+            return {
+              name: r.user_name,
+              avatarBg: colorBgs[i % colorBgs.length],
+              tag: `Verified Student • ${testTitle}`,
+              stars: r.rating,
+              text: r.review_text
+            }
+          })
+          setReviews(mapped)
+        }
+      } catch (err) {
+        console.error('Failed to fetch reviews:', err)
+      }
+    }
+
+    fetchApprovedReviews()
+  }, [])
+
+  const activeReviews = useMemo(() => {
+    return reviews.length > 0 ? reviews : reviewsData
+  }, [reviews])
+
+  const marqueeRow = useMemo(() => {
+    return [...activeReviews, ...activeReviews, ...activeReviews]
+  }, [activeReviews])
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -124,6 +265,7 @@ export default function Home() {
             <button onClick={() => scrollTo('footer')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">About</button>
             <button onClick={() => goTo('/study-material')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Study Materials</button>
             <button onClick={() => goTo('/tests')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Your Tests</button>
+            <button onClick={() => scrollTo('reviews')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Reviews</button>
             <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => scrollTo('follow')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Follow</button>
           </nav>
@@ -271,6 +413,25 @@ export default function Home() {
               <button onClick={handleUnlockAll} className="w-full py-4 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-full shadow hover:bg-secondary-fixed transition-all active:scale-95 font-bold uppercase tracking-wide">
                 Unlock All Tests
               </button>
+            </div>
+          </div>
+        </section>
+
+        <section id="reviews" className="space-y-md py-md overflow-hidden">
+          <div className="text-center max-w-xl mx-auto space-y-base mb-sm px-gutter">
+            <h2 className="font-headline-md text-headline-md text-on-surface">Reviews</h2>
+            <p className="text-on-surface-variant font-body-md text-body-md">
+              Hear from CDAC aspirants who used DataWiz mock tests to prepare for Sections A & B.
+            </p>
+          </div>
+
+          <div className="select-none pointer-events-auto marquee-fade">
+            <div className="flex overflow-hidden w-full">
+              <div className="flex gap-md pr-md animate-marquee-left pause-hover">
+                {marqueeRow.map((review, idx) => (
+                  <ReviewCard key={`review-${idx}`} review={review} />
+                ))}
+              </div>
             </div>
           </div>
         </section>

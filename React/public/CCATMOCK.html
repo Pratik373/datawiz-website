@@ -565,6 +565,8 @@ function submitCurrentSection(){
 function submitExam(){
     if(examSubmitted) return;
     examSubmitted = true;
+    localStorage.setItem('ccat_test_completed', 'true');
+    localStorage.setItem('ccat_test_completed_id', 'free-ccat-mock-test');
     clearInterval(timerInterval);
     document.getElementById("submitBtn").disabled = true;
 
@@ -633,5 +635,321 @@ function reattemptExam(){
 
 updateTimers();
 </script>
+
+
+<!-- Supabase CDN and Review Interceptor -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const originalSubmitExam = window.submitExam;
+  if (!originalSubmitExam) return;
+
+  const testId = 'free-ccat-mock-test';
+
+  // Create style element for overlay
+  const style = document.createElement('style');
+  style.textContent = `
+    .review-overlay-container {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .review-card {
+      background: white !important;
+      border-radius: 16px !important;
+      width: 100% !important;
+      max-width: 440px !important;
+      padding: 28px !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+      text-align: center !important;
+      border: 1px solid #e2e8f0 !important;
+      animation: reviewFadeIn 0.3s ease-out;
+    }
+    @keyframes reviewFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .review-icon-wrap {
+      width: 64px !important;
+      height: 64px !important;
+      background: #f0fdf4 !important;
+      color: #15803d !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 auto 16px !important;
+    }
+    .review-icon {
+      font-size: 32px !important;
+      font-weight: bold !important;
+    }
+    .review-title {
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 0 8px 0 !important;
+    }
+    .review-subtitle {
+      font-size: 14px !important;
+      color: #475569 !important;
+      line-height: 1.5 !important;
+      margin: 0 0 20px 0 !important;
+    }
+    .stars-row {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 12px !important;
+      margin-bottom: 20px !important;
+    }
+    .star-btn {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+      font-size: 36px !important;
+      color: #cbd5e1 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      transition: transform 0.1s, color 0.1s !important;
+    }
+    .star-btn:hover,
+    .star-btn:focus,
+    .star-btn:active {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      transform: scale(1.1) !important;
+      color: #cbd5e1 !important;
+    }
+    .star-btn.active {
+      color: #eab308 !important;
+    }
+    .star-btn.active:hover,
+    .star-btn.active:focus,
+    .star-btn.active:active {
+      color: #eab308 !important;
+    }
+    .review-textarea {
+      width: 100% !important;
+      height: 100px !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 12px !important;
+      padding: 12px !important;
+      font-size: 14px !important;
+      resize: none !important;
+      outline: none !important;
+      margin-bottom: 12px !important;
+      transition: border-color 0.2s !important;
+      background: white !important;
+      color: #0f172a !important;
+    }
+    .review-textarea:focus {
+      border-color: #1769d2 !important;
+    }
+    .review-error {
+      color: #b42318 !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      margin: -6px 0 12px !important;
+      text-align: left !important;
+    }
+    .review-btn-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+    .review-submit-btn {
+      background: #1769d2 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 9999px !important;
+      padding: 12px !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      transition: opacity 0.2s !important;
+      width: 100% !important;
+    }
+    .review-submit-btn:hover {
+      background: #0d55b5 !important;
+    }
+    .review-skip-btn {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      color: #475569 !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      text-decoration: underline !important;
+      width: 100% !important;
+      text-align: center !important;
+      padding: 4px !important;
+    }
+    .review-skip-btn:hover {
+      background: transparent !important;
+      color: #0f172a !important;
+      text-decoration: underline !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.submitExam = function() {
+    // Call the original exam submit logic to compute result
+    originalSubmitExam();
+
+    // Hide result screen immediately
+    const resultScreen = document.getElementById("resultScreen");
+    if (resultScreen) {
+      resultScreen.style.display = "none";
+    }
+
+    // Create the overlay DOM elements
+    const overlay = document.createElement('div');
+    overlay.className = 'review-overlay-container';
+    overlay.innerHTML = `
+      <div class="review-card">
+        <div class="review-icon-wrap">
+          <span class="review-icon">✍</span>
+        </div>
+        <h2 class="review-title">Submit Test Review</h2>
+        <p class="review-subtitle">
+          Please leave a quick review of your experience. Your feedback helps us improve the quality of our mock tests.
+        </p>
+        <div class="stars-row">
+          <button type="button" class="star-btn active" data-star="1">★</button>
+          <button type="button" class="star-btn active" data-star="2">★</button>
+          <button type="button" class="star-btn active" data-star="3">★</button>
+          <button type="button" class="star-btn active" data-star="4">★</button>
+          <button type="button" class="star-btn active" data-star="5">★</button>
+        </div>
+        <textarea 
+          class="review-textarea" 
+          placeholder="Write your review here (minimum 10 characters)..."
+        ></textarea>
+        <div class="review-error" style="display:none"></div>
+        <div class="review-btn-row">
+          <button type="button" class="review-submit-btn">Submit Review</button>
+          <button type="button" class="review-skip-btn">Skip for now</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let selectedRating = 5;
+    const stars = overlay.querySelectorAll('.star-btn');
+    stars.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rating = parseInt(btn.getAttribute('data-star'));
+        selectedRating = rating;
+        stars.forEach(s => {
+          const sRating = parseInt(s.getAttribute('data-star'));
+          if (sRating <= rating) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+      });
+    });
+
+    const textarea = overlay.querySelector('.review-textarea');
+    const errDiv = overlay.querySelector('.review-error');
+    const submitBtn = overlay.querySelector('.review-submit-btn');
+    const skipBtn = overlay.querySelector('.review-skip-btn');
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    const showResults = () => {
+      overlay.remove();
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+    };
+
+    submitBtn.addEventListener('click', async () => {
+      const text = textarea.value.trim();
+      if (!text) {
+        errDiv.textContent = 'Review text is required.';
+        errDiv.style.display = 'block';
+        return;
+      }
+      if (text.length < 10) {
+        errDiv.textContent = 'Please write at least 10 characters.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      errDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        let user = null;
+        if (supabaseClient) {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          user = session?.user;
+        }
+
+        if (!user) {
+          alert('You must be logged in to submit a review. The review will be skipped and you can review later.');
+          showResults();
+          return;
+        }
+
+        const { error } = await supabaseClient.from('reviews').insert({
+          user_id: user.id,
+          user_name: user.user_metadata?.full_name || user.email.split('@')[0] || 'User',
+          user_email: user.email,
+          rating: selectedRating,
+          review_text: text,
+          test_id: testId,
+          is_approved: false
+        });
+
+        if (error) throw error;
+
+        // Success - remove local storage flags since review is submitted
+        localStorage.removeItem('ccat_test_completed');
+        localStorage.removeItem('ccat_test_completed_id');
+        alert('Thank you! Your review has been submitted for admin approval.');
+        showResults();
+      } catch (err) {
+        console.error('Error submitting review:', err);
+        errDiv.textContent = err.message || 'Failed to submit review. Please try skipping.';
+        errDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    });
+
+    skipBtn.addEventListener('click', () => {
+      showResults();
+    });
+  };
+})();
+</script>
+
 </body>
 </html>
