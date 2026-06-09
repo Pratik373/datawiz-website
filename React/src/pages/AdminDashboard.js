@@ -92,12 +92,10 @@ export default function AdminDashboard() {
         {[
           ['analytics', 'Analytics'],
           ['users', 'Users'],
-          ['leaderboard', 'Leaderboard'],
-          ['tests', 'Test Papers'],
-          ['results', 'Test Results'],
           ['payments', 'Payments'],
           ['upload', 'Create Test'],
           ['whitelist', '🛡 Beta Access'],
+          ['reviews', 'Reviews'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -119,6 +117,7 @@ export default function AdminDashboard() {
         {activeTab === 'payments' && <PaymentsPanel showNotice={showNotice} />}
         {activeTab === 'upload' && <CreateTestPanel showNotice={showNotice} />}
         {activeTab === 'whitelist' && <WhitelistPanel showNotice={showNotice} />}
+        {activeTab === 'reviews' && <ReviewsPanel showNotice={showNotice} />}
       </main>
     </div>
   );
@@ -1363,6 +1362,219 @@ function WhitelistPanel({ showNotice }) {
                     >
                       Remove
                     </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ReviewsPanel({ showNotice }) {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all'); // 'all', 'pending', 'approved'
+  const [updatingId, setUpdatingId] = useState('');
+  const [deletingId, setDeletingId] = useState('');
+
+  const fetchReviews = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setReviews(data || []);
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotice]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  const handleApprove = async (id, isApproved) => {
+    setUpdatingId(id);
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .update({ is_approved: isApproved })
+        .eq('id', id);
+
+      if (error) throw error;
+      showNotice(isApproved ? 'Review approved!' : 'Review unapproved.');
+      await fetchReviews();
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setUpdatingId('');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this review? This cannot be undone.')) return;
+    setDeletingId(id);
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      showNotice('Review deleted successfully.');
+      await fetchReviews();
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setDeletingId('');
+    }
+  };
+
+  const filteredReviews = useMemo(() => {
+    return reviews.filter((r) => {
+      const query = search.toLowerCase().trim();
+      const matchesSearch =
+        !query ||
+        r.user_name.toLowerCase().includes(query) ||
+        r.user_email?.toLowerCase().includes(query) ||
+        r.review_text.toLowerCase().includes(query) ||
+        r.test_id.toLowerCase().includes(query);
+
+      const matchesFilter =
+        filter === 'all' ||
+        (filter === 'approved' && r.is_approved) ||
+        (filter === 'pending' && !r.is_approved);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [reviews, search, filter]);
+
+  return (
+    <section className="admin-panel">
+      <PanelHeader title="Customer Reviews" subtitle="Manage and moderate student feedback for display on the landing page." />
+
+      <div className="admin-toolbar">
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', flex: 1 }}>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by student, email, review text or test ID"
+            style={{ flex: 1, minWidth: '280px' }}
+          />
+          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <option value="all">All Reviews</option>
+            <option value="pending">Pending Approval</option>
+            <option value="approved">Approved</option>
+          </select>
+        </div>
+        <button className="admin-secondary-btn" onClick={fetchReviews} disabled={loading}>
+          {loading ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="admin-empty">Loading reviews...</div>
+      ) : filteredReviews.length === 0 ? (
+        <div className="admin-empty">No reviews found.</div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Test ID</th>
+                <th>Rating</th>
+                <th>Review Content</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredReviews.map((r) => (
+                <tr key={r.id}>
+                  <td>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <strong>{r.user_name}</strong>
+                      <span style={{ fontSize: '0.8rem', opacity: 0.75 }}>{r.user_email}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span style={{ fontSize: '0.85rem', fontFamily: 'monospace', opacity: 0.85 }}>
+                      {r.test_id}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', color: '#ffb400' }}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span
+                          key={i}
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: '18px',
+                            fontVariationSettings: i < r.rating ? "'FILL' 1" : "'FILL' 0"
+                          }}
+                        >
+                          star
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td style={{ whiteSpace: 'normal', minWidth: '250px', maxWidth: '400px' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.4' }}>
+                      {r.review_text}
+                    </p>
+                  </td>
+                  <td>
+                    <span style={{ fontSize: '0.85rem', opacity: 0.85 }}>
+                      {formatDate(r.created_at)}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`review-status ${r.is_approved ? 'approved' : 'pending'}`}>
+                      {r.is_approved ? 'Approved' : 'Pending'}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {r.is_approved ? (
+                        <button
+                          className="admin-secondary-btn"
+                          style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem' }}
+                          onClick={() => handleApprove(r.id, false)}
+                          disabled={updatingId === r.id}
+                        >
+                          Unapprove
+                        </button>
+                      ) : (
+                        <button
+                          className="admin-primary-btn"
+                          style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem', background: '#22c55e' }}
+                          onClick={() => handleApprove(r.id, true)}
+                          disabled={updatingId === r.id}
+                        >
+                          Approve
+                        </button>
+                      )}
+                      <button
+                        className="admin-danger-btn-small"
+                        style={{ padding: '0.35rem 0.7rem', fontSize: '0.8rem' }}
+                        onClick={() => handleDelete(r.id)}
+                        disabled={deletingId === r.id}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

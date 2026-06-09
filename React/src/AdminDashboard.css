@@ -204,7 +204,8 @@
 }
 
 .plan-badge,
-.payment-status {
+.payment-status,
+.review-status {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
@@ -232,12 +233,14 @@
   color: #ffd894;
 }
 
-.payment-status.completed {
+.payment-status.completed,
+.review-status.approved {
   background: rgba(32, 160, 110, 0.14);
   color: #7ee8b8;
 }
 
-.payment-status.pending {
+.payment-status.pending,
+.review-status.pending {
   background: rgba(255, 170, 50, 0.11);
   color: #ffd080;
 }
