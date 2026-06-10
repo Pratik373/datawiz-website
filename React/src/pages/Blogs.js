@@ -114,10 +114,10 @@ export default function Blogs() {
   const blogPosts = [
     {
       id: 'ai-courses',
-      title: "The Only Free AI Course List You'll Need in 2025",
+      title: "The Only Free AI Course List You'll Need in 2026",
       excerpt: "8 world-class AI courses from Google, IBM, Harvard, MIT & Anthropic — curated so you don't waste a single hour. Perfect for CDAC aspirants, professionals, and students alike.",
       author: 'DataWiz Team',
-      date: 'June 2025',
+      date: 'June 2026',
       readTime: '8 min read',
       tag: 'AI Learning Guide',
       icon: 'psychology',
