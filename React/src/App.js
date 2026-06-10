@@ -8,6 +8,9 @@ import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import StudyMaterial from './pages/StudyMaterial'
 import MockTestPortal from './pages/MockTestPortal'
+import Blogs from './pages/Blogs'
+import AiCoursesBlog from './pages/AiCoursesBlog'
+import WhatsHappeningBlog from './pages/WhatsHappeningBlog'
 
 function MaintenanceGate({ children }) {
   const MAINTENANCE = process.env.REACT_APP_MAINTENANCE_MODE === 'true'
@@ -89,6 +92,9 @@ function App() {
           <Route path="/study-material" element={<StudyMaterial />} />
           <Route path="/tests" element={<MockTestPortal />} />
           <Route path="/mock-tests" element={<MockTestPortal />} />
+          <Route path="/blogs" element={<Blogs />} />
+          <Route path="/blogs/ai-courses" element={<AiCoursesBlog />} />
+          <Route path="/blogs/whats-happening-in-ai" element={<WhatsHappeningBlog />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>
