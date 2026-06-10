@@ -179,6 +179,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [reviews, setReviews] = useState([])
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null))
@@ -264,14 +265,100 @@ export default function Home() {
           <nav className="hidden md:flex gap-lg items-center">
             <button onClick={() => scrollTo('footer')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">About</button>
             <button onClick={() => goTo('/study-material')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Study Materials</button>
+            <button onClick={() => goTo('/blogs')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Blogs</button>
             <button onClick={() => goTo('/tests')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Your Tests</button>
             <button onClick={() => scrollTo('reviews')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Reviews</button>
             <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => scrollTo('follow')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Follow</button>
           </nav>
-          <ProfileButton goTo={goTo} />
+          <div className="flex items-center gap-sm">
+            <ProfileButton goTo={goTo} />
+            <button 
+              onClick={() => setMobileMenuOpen(true)} 
+              className="md:hidden w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full active:scale-95 transition-all"
+              aria-label="Open menu"
+            >
+              <span className="material-symbols-outlined text-[24px]">menu</span>
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Mobile Collapsible Side Panel Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex justify-end">
+          {/* Backdrop overlay */}
+          <div 
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+          />
+
+          {/* Drawer Body */}
+          <div className="relative w-[220px] h-full bg-white shadow-xl flex flex-col z-10 animate-slide-in-right">
+            <div className="flex justify-between items-center px-4 py-3 border-b border-outline-variant">
+              <span className="font-headline-sm text-headline-sm font-bold text-on-surface">Menu</span>
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <nav className="flex flex-col p-4 gap-base overflow-y-auto">
+              <button 
+                onClick={() => { setMobileMenuOpen(false); scrollTo('footer') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">info</span>
+                About
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); goTo('/study-material') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">auto_stories</span>
+                Study Materials
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); goTo('/blogs') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">feed</span>
+                Blogs
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); goTo('/tests') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">quiz</span>
+                Your Tests
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); scrollTo('reviews') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">rate_review</span>
+                Reviews
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); scrollTo('pricing') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">payments</span>
+                Pricing
+              </button>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); scrollTo('follow') }} 
+                className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">share</span>
+                Follow
+              </button>
+            </nav>
+          </div>
+        </div>
+      )}
 
       <section className="pt-xl overflow-hidden">
         <div className="relative h-[600px] w-full">

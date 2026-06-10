@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What Is Currently Happening in AI? | 2026 Edition</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'Inter', sans-serif;
+    background: #0d0d0f;
+    color: #e8e6e0;
+    line-height: 1.8;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #0d0d0f 0%, #13111a 50%, #0d0d0f 100%);
+    border-bottom: 1px solid #2a2040;
+    padding: 80px 24px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(99,72,198,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(99,72,198,0.2);
+    color: #a98cf5;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(99,72,198,0.4);
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 700;
+    color: #f5f2ff;
+    line-height: 1.2;
+    max-width: 800px;
+    margin: 0 auto 20px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(90deg, #a98cf5, #7ed9e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero .subtitle {
+    font-size: 1.15rem;
+    color: #9996a8;
+    max-width: 560px;
+    margin: 0 auto 32px;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 13px;
+    color: #7370a0;
+  }
+
+  .meta span { display: flex; align-items: center; gap: 6px; }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  .intro-box {
+    background: rgba(99,72,198,0.08);
+    border: 1px solid rgba(99,72,198,0.2);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 56px;
+    font-size: 1.05rem;
+    color: #cdc8e8;
+    line-height: 1.9;
+  }
+
+  .section {
+    margin-bottom: 60px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #a98cf5;
+    margin-bottom: 10px;
+  }
+
+  .section h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #f5f2ff;
+    margin-bottom: 18px;
+    line-height: 1.3;
+  }
+
+  .section p {
+    font-size: 1.05rem;
+    color: #b8b5cc;
+    margin-bottom: 16px;
+    line-height: 1.85;
+  }
+
+  .highlight {
+    color: #e2dcff;
+    font-weight: 500;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #1e1c2e;
+    margin: 60px 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin: 28px 0;
+  }
+
+  .stat-card {
+    background: #13111a;
+    border: 1px solid #2a2040;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #a98cf5;
+    display: block;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: #7370a0;
+    margin-top: 4px;
+  }
+
+  .model-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin: 28px 0;
+  }
+
+  .model-card {
+    background: #13111a;
+    border: 1px solid #2a2040;
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+
+  .model-card .badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  .badge-anthropic { background: rgba(99,72,198,0.15); color: #a98cf5; border: 1px solid rgba(99,72,198,0.3); }
+  .badge-openai   { background: rgba(29,198,138,0.12); color: #5edcb0; border: 1px solid rgba(29,198,138,0.3); }
+  .badge-google   { background: rgba(56,152,230,0.12); color: #72b9f0; border: 1px solid rgba(56,152,230,0.3); }
+  .badge-meta     { background: rgba(255,168,56,0.12); color: #ffc87a; border: 1px solid rgba(255,168,56,0.3); }
+
+  .model-card h3 { font-size: 1rem; font-weight: 600; color: #e8e6f0; margin-bottom: 6px; }
+  .model-card p  { font-size: 13px; color: #7370a0; line-height: 1.6; }
+
+  .callout {
+    background: linear-gradient(135deg, rgba(14,130,100,0.1), rgba(14,100,130,0.06));
+    border-left: 3px solid #1d9e75;
+    border-radius: 0 10px 10px 0;
+    padding: 20px 24px;
+    margin: 28px 0;
+  }
+
+  .callout p {
+    font-size: 1rem;
+    color: #9edfc9;
+    margin: 0;
+    line-height: 1.8;
+  }
+
+  .callout strong { color: #5edcb0; font-weight: 600; }
+
+  .list-clean {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+  }
+
+  .list-clean li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #1e1c2e;
+    font-size: 1rem;
+    color: #b8b5cc;
+    line-height: 1.7;
+  }
+
+  .list-clean li:last-child { border-bottom: none; }
+
+  .list-clean li .dot {
+    width: 8px; height: 8px;
+    background: #a98cf5;
+    border-radius: 50%;
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  .worry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .worry-card {
+    background: #13111a;
+    border: 1px solid #2a2040;
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  .worry-card .icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .worry-card h4 { font-size: 14px; font-weight: 600; color: #e2dcff; margin-bottom: 6px; }
+  .worry-card p  { font-size: 13px; color: #7370a0; line-height: 1.6; }
+
+  .conclusion-box {
+    background: linear-gradient(135deg, #13111a, #0f0d18);
+    border: 1px solid #2a2040;
+    border-radius: 14px;
+    padding: 36px 32px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .conclusion-box h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f5f2ff;
+    margin-bottom: 16px;
+  }
+
+  .conclusion-box p {
+    font-size: 1rem;
+    color: #9996a8;
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.85;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 60px 20px 40px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="tag">📡 June 2026 Edition</div>
+  <h1>What Is Currently <span>Happening in AI?</span></h1>
+  <p class="subtitle">A simple, no-jargon guide to the biggest things going on in Artificial Intelligence right now.</p>
+  <div class="meta">
+    <span>📅 June 2026</span>
+    <span>⏱ 6 min read</span>
+    <span>🤖 Tech &amp; AI</span>
+  </div>
+</section>
+
+<div class="container">
+
+  <div class="intro-box">
+    AI is everywhere right now — in your phone, your apps, your search results, and even your doctor's office. But with so much happening so fast, it can be hard to keep up. This article breaks it all down in plain English. No technical degree required!
+  </div>
+
+
+  <div class="section">
+    <div class="section-label">01 — The big picture</div>
+    <h2>More people than ever are using AI</h2>
+    <p>Let's start with something that shows just how big AI has become. A recent global report found that nearly <span class="highlight">18% of the world's working-age population</span> is now actively using AI tools — that's about 1 in every 5.5 working adults on the planet.</p>
+    <p>And the number keeps going up. That's up from 16.3% just a few months ago. Countries like South Korea, Japan, and Thailand are seeing some of the biggest jumps in AI adoption.</p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <span class="num">17.8%</span>
+        <div class="label">of working adults use AI globally</div>
+      </div>
+      <div class="stat-card">
+        <span class="num">26</span>
+        <div class="label">countries where 30%+ people use AI</div>
+      </div>
+      <div class="stat-card">
+        <span class="num">500+</span>
+        <div class="label">AI models available to developers</div>
+      </div>
+    </div>
+
+    <p>This isn't just tech nerds anymore. Everyday people are using AI to write emails, summarise documents, generate images, get medical advice, learn new languages, and so much more.</p>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">02 — The AI race</div>
+    <h2>The big AI models: who's who right now</h2>
+    <p>If you've heard names like ChatGPT, Gemini, or Claude thrown around, you might be wondering — what are these exactly? They are <span class="highlight">large AI models</span>, essentially very powerful AI "brains" trained on huge amounts of data. Each company is racing to make theirs the best.</p>
+    <p>Here's a quick look at who the major players are in mid-2026:</p>
+
+    <div class="model-cards">
+      <div class="model-card">
+        <span class="badge badge-anthropic">Anthropic</span>
+        <h3>Claude Opus 4.8</h3>
+        <p>Currently ranked #1 overall on major benchmarks. Great for writing, coding, and complex reasoning tasks.</p>
+      </div>
+      <div class="model-card">
+        <span class="badge badge-openai">OpenAI</span>
+        <h3>GPT-5.5</h3>
+        <p>A close second overall, and considered the best AI for creative writing. Powers ChatGPT, used by hundreds of millions of people.</p>
+      </div>
+      <div class="model-card">
+        <span class="badge badge-google">Google</span>
+        <h3>Gemini 3.5</h3>
+        <p>Google's latest AI — launched at Google I/O 2026. Strong at reasoning, data analysis, and is deeply integrated into Google's products.</p>
+      </div>
+      <div class="model-card">
+        <span class="badge badge-meta">xAI / Meta</span>
+        <h3>Grok &amp; Llama</h3>
+        <p>Grok is Elon Musk's AI (with great tool-use), while Meta's Llama models are open-source, meaning anyone can download and use them.</p>
+      </div>
+    </div>
+
+    <p>The competition between these companies is intense, and new models are launching almost every month. In fact, June 2026 is expected to see some major new releases that could shake up the rankings all over again.</p>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">03 — The hottest trend</div>
+    <h2>AI Agents: AI that actually does things for you</h2>
+    <p>Up until recently, AI was mostly a <em>question-and-answer</em> tool. You ask it something, it replies. But the biggest shift happening right now is the rise of <span class="highlight">AI agents</span> — AI that can take real actions on your behalf.</p>
+
+    <div class="callout">
+      <p><strong>Think of it like this:</strong> Old AI was like a very smart encyclopedia. New "agentic" AI is like a smart assistant that can actually open your computer, book your flight, send your emails, and file your taxes — all on its own.</p>
+    </div>
+
+    <p>Here's what's making headlines:</p>
+
+    <ul class="list-clean">
+      <li><span class="dot"></span><strong style="color:#e2dcff;">OpenAI launched Workspace Agents</strong> — AI agents that your whole team can share. They can run in the background, work across different apps, and remember what they've done before.</li>
+      <li><span class="dot"></span><strong style="color:#e2dcff;">Google's Gemini Enterprise Agent Platform</strong> — Released at their big annual developer event, this lets businesses build AI agents that run inside their existing workflows.</li>
+      <li><span class="dot"></span><strong style="color:#e2dcff;">AI agents can now talk to each other</strong> — Different AI agents from different companies are starting to be able to communicate and collaborate, like a team of robot workers handing tasks between themselves.</li>
+    </ul>
+
+    <p>This "agentic era" is being called the next big leap for AI — bigger than the original ChatGPT moment in late 2022.</p>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">04 — In the workplace</div>
+    <h2>AI is changing how we work — fast</h2>
+    <p>One of the most concrete impacts of AI right now is in the workplace. Companies of all sizes are adopting AI to get more done, faster.</p>
+
+    <ul class="list-clean">
+      <li><span class="dot"></span><strong style="color:#e2dcff;">Coding is being transformed.</strong> AI tools can now help write, test, and review software code. Tasks that used to take developers weeks can sometimes be done in hours. AI-assisted coding tools are now the norm, not the exception.</li>
+      <li><span class="dot"></span><strong style="color:#e2dcff;">Banks are going all-in.</strong> JPMorgan Chase has officially moved AI from "experimental" to "core infrastructure" — with a budget of nearly $20 billion and 2,000 employees dedicated purely to AI development.</li>
+      <li><span class="dot"></span><strong style="color:#e2dcff;">New jobs are being created.</strong> Roles like "AI prompt engineer," "model trainer," and "AI governance specialist" are growing rapidly, even as some traditional roles change.</li>
+    </ul>
+
+    <p>The bottom line: ignoring AI in your career right now is a bit like ignoring the internet in 1999. It's not going away — it's accelerating.</p>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">05 — Science &amp; health</div>
+    <h2>AI as a scientist and doctor's helper</h2>
+    <p>Beyond chatbots and productivity tools, AI is starting to make a real impact in science and medicine — and this is arguably where the most exciting things are happening.</p>
+
+    <ul class="list-clean">
+      <li><span class="dot"></span><strong style="color:#e2dcff;">AI in scientific research.</strong> AI is no longer just summarising research papers — it's generating new hypotheses, suggesting experiments, and even running parts of them. Microsoft researchers describe AI as becoming a true "lab assistant" for scientists.</li>
+      <li><span class="dot"></span><strong style="color:#e2dcff;">Healthcare.</strong> AI is being used to help close gaps in medical care, especially in areas where there aren't enough doctors. It can analyse scans, suggest diagnoses, and help doctors make faster decisions.</li>
+      <li><span class="dot"></span><strong style="color:#e2dcff;">Climate and materials science.</strong> AI is accelerating breakthroughs in climate modelling and designing new materials — work that could take human researchers years is being done in days.</li>
+    </ul>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">06 — Open source</div>
+    <h2>AI is becoming more open and accessible</h2>
+    <p>For a long time, the most powerful AI was locked behind expensive subscriptions and big company servers. That's starting to change.</p>
+    <p>Open-source AI models — ones that anyone can download and use for free — are rapidly catching up to the paid models in quality. Companies like Meta (with their "Llama" models) and others are releasing powerful AI that individuals, small startups, and researchers can customise and build on.</p>
+
+    <div class="callout">
+      <p><strong>What this means for you:</strong> AI tools that were only available to big corporations a year ago are now being packaged into apps and services that regular people can use for free or very cheaply. This democratisation of AI is accelerating fast.</p>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">07 — The concerns</div>
+    <h2>It's not all good news — here are the worries</h2>
+    <p>With all this excitement, there are also very real concerns being discussed. It's important to be honest about these.</p>
+
+    <div class="worry-grid">
+      <div class="worry-card">
+        <div class="icon">💼</div>
+        <h4>Jobs and displacement</h4>
+        <p>Some jobs are being automated. While new jobs are created, the transition can be tough for people whose roles are affected.</p>
+      </div>
+      <div class="worry-card">
+        <div class="icon">🧪</div>
+        <h4>Accuracy and "hallucinations"</h4>
+        <p>AI can confidently say wrong things. Studies show major AI models still fail on accuracy in surprising ways, especially for complex questions.</p>
+      </div>
+      <div class="worry-card">
+        <div class="icon">🔒</div>
+        <h4>Privacy and data</h4>
+        <p>Governments and regulators around the world are debating how to keep AI companies from misusing personal data.</p>
+      </div>
+      <div class="worry-card">
+        <div class="icon">⚖️</div>
+        <h4>Regulation is lagging</h4>
+        <p>AI is moving faster than the laws designed to govern it. The UK and EU are among the first to push through serious AI regulations.</p>
+      </div>
+    </div>
+
+    <p>The good news is that awareness of these issues is growing. More AI companies are hiring ethicists, publishing safety research, and working with governments — even if progress is slow.</p>
+  </div>
+
+  <hr class="divider" />
+
+
+  <div class="section">
+    <div class="section-label">08 — What's next</div>
+    <h2>What should we expect in the next few months?</h2>
+    <p>The pace of AI development shows no sign of slowing down. Here's what's coming:</p>
+
+    <ul class="list-clean">
+      <li><span class="dot"></span>Several major new AI models are expected to launch in June and July 2026 — including upgrades from OpenAI, Google, and Anthropic that could be significantly more capable.</li>
+      <li><span class="dot"></span>AI on your personal devices (your phone and laptop) is getting smarter, meaning powerful AI that works offline without sending your data to a server.</li>
+      <li><span class="dot"></span>AI in personal health is expanding — Google launched a dedicated Google Health app in May 2026, and AI-powered wearables are becoming more sophisticated.</li>
+      <li><span class="dot"></span>More governments will introduce AI laws and regulations — expect this to be a big political topic for the rest of 2026.</li>
+    </ul>
+  </div>
+
+
+  <div class="conclusion-box">
+    <h2>The Bottom Line 🤖</h2>
+    <p>AI in 2026 is no longer a futuristic concept — it's a real, everyday force reshaping work, science, healthcare, and creativity. Whether you're excited, nervous, or just curious, one thing is clear: understanding what AI is and how it works is now a life skill, just like knowing how to use a smartphone. Stay curious, stay informed, and keep watching this space — because things are moving fast.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
