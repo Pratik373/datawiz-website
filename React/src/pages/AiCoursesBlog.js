@@ -162,12 +162,12 @@ export default function AiCoursesBlog() {
         <div className="blog">
           {/* Hero Banner */}
           <header className="hero-banner">
-            <div className="hero-badge">📚 2025 AI Learning Guide</div>
-            <h1>The Only <em>Free AI Course</em> List You'll Need in 2025</h1>
+            <div className="hero-badge">📚 2026 AI Learning Guide</div>
+            <h1>The Only <em>Free AI Course</em> List You'll Need in 2026</h1>
             <p className="hero-intro">8 world-class AI courses from Google, IBM, Harvard, MIT & Anthropic — curated so you don't waste a single hour.</p>
             <div className="hero-meta">
               <span>✍️ DataWiz Team</span>
-              <span>📅 June 2025</span>
+              <span>📅 June 2026</span>
               <span>⏱ 8 min read</span>
               <span>🎓 8 courses reviewed</span>
             </div>
@@ -230,19 +230,19 @@ export default function AiCoursesBlog() {
               <text x="450" y="36"  textAnchor="middle" fill="rgba(169,96,57,0.9)"   fontSize="9" fontFamily="Inter,sans-serif">Simplilearn</text>
 
               {/* Subtitle */}
-              <text x="380" y="208" text-anchor="middle" fill="rgba(255,255,255,0.5)" fontSize="11" fontFamily="Inter,sans-serif">Top Free AI Courses of 2025 — curated by DataWiz</text>
+              <text x="380" y="208" text-anchor="middle" fill="rgba(255,255,255,0.5)" fontSize="11" fontFamily="Inter,sans-serif">Top Free AI Courses of 2026 — curated by DataWiz</text>
             </svg>
           </div>
 
           {/* Intro Hook */}
           <p className="intro-hook">
-            Here's the uncomfortable truth: AI is not the future anymore — it's the present. And while everyone is talking about it, very few people are actually <em>learning</em> it. In 2025, you don't need a degree or ₹50,000 to get started. You just need the right course. We've done the research — here are the 8 best free AI courses, and what makes each one worth your time.
+            Here's the uncomfortable truth: AI is not the future anymore — it's the present. And while everyone is talking about it, very few people are actually <em>learning</em> it. In 2026, you don't need a degree or ₹50,000 to get started. You just need the right course. We've done the research — here are the 8 best free AI courses, and what makes each one worth your time.
           </p>
 
           <p>Whether you're a CDAC aspirant, a working professional, or a curious student — AI literacy is becoming as important as knowing how to use a spreadsheet. The world's best universities and tech giants have made their courses completely free. Let's break them down one by one.</p>
 
           {/* Section 1: Courses */}
-          <h2>🎓 The 8 Best Free AI Courses in 2025</h2>
+          <h2>🎓 The 8 Best Free AI Courses in 2026</h2>
 
           <div className="course-list">
             {/* 1 */}
@@ -273,7 +273,7 @@ export default function AiCoursesBlog() {
                   <h3>Free Generative AI Course – SkillUp</h3>
                 </div>
               </div>
-              <p className="course-desc">A Google-backed course delivered via Simplilearn's SkillUp platform. Covers generative AI concepts, prompt engineering, and practical applications of tools like Bard and Gemini. You get a certificate from Google upon completion — excellent for your LinkedIn and resume. Highly recommended before any tech interview in 2025.</p>
+              <p className="course-desc">A Google-backed course delivered via Simplilearn's SkillUp platform. Covers generative AI concepts, prompt engineering, and practical applications of tools like Bard and Gemini. You get a certificate from Google upon completion — excellent for your LinkedIn and resume. Highly recommended before any tech interview in 2026.</p>
               <div className="tags">
                 <span className="tag tag-green">✅ Free</span>
                 <span className="tag tag-amber">Beginner</span>
@@ -446,8 +446,8 @@ export default function AiCoursesBlog() {
           </div>
 
           {/* Section 3: Why Learn AI */}
-          <h2>🤔 Why Learn AI in 2025?</h2>
-          <p>The question in 2025 isn't <em>"should I learn AI?"</em> — it's <em>"how quickly can I start?"</em> Here's what's happening in the real world:</p>
+          <h2>🤔 Why Learn AI in 2026?</h2>
+          <p>The question in 2026 isn't <em>"should I learn AI?"</em> — it's <em>"how quickly can I start?"</em> Here's what's happening in the real world:</p>
 
           <div className="stat-block">
             <div className="stat-num">35%<span>↑</span></div>
