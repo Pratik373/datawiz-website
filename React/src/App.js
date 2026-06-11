@@ -11,6 +11,8 @@ import MockTestPortal from './pages/MockTestPortal'
 import Blogs from './pages/Blogs'
 import AiCoursesBlog from './pages/AiCoursesBlog'
 import WhatsHappeningBlog from './pages/WhatsHappeningBlog'
+import CdacCcatGuideBlog from './pages/CdacCcatGuideBlog'
+import CdacCoursesComparisonBlog from './pages/CdacCoursesComparisonBlog'
 
 function MaintenanceGate({ children }) {
   const MAINTENANCE = process.env.REACT_APP_MAINTENANCE_MODE === 'true'
@@ -95,6 +97,8 @@ function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogs/ai-courses" element={<AiCoursesBlog />} />
           <Route path="/blogs/whats-happening-in-ai" element={<WhatsHappeningBlog />} />
+          <Route path="/blogs/cdac-ccat-guide-august-2026" element={<CdacCcatGuideBlog />} />
+          <Route path="/blogs/cdac-courses-comparison-august-2026" element={<CdacCoursesComparisonBlog />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
         </Routes>

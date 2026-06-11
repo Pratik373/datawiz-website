@@ -1,0 +1,907 @@
+.ccat-guide-container {
+  --primary: #008080;
+  --primary-dark: #005f5f;
+  --primary-light: #e0f4f4;
+  --secondary: #FFBF00;
+  --secondary-dark: #cc9900;
+  --secondary-light: #fff8e0;
+  --tertiary: #A96039;
+  --tertiary-light: #f5ede8;
+  --neutral: #737877;
+  --neutral-light: #f2f4f3;
+  --neutral-dark: #2c3130;
+  --white: #ffffff;
+  --text: #1a2120;
+  --text-muted: #5a6665;
+
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: #f8fafa;
+  line-height: 1.7;
+}
+
+.ccat-guide-container * {
+  box-sizing: border-box;
+}
+
+.ccat-guide-container h1,
+.ccat-guide-container h2,
+.ccat-guide-container h3,
+.ccat-guide-container h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ─── HERO ─── */
+.ccat-guide-container .hero {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #00a8a8 100%);
+  color: var(--white);
+  padding: 72px 24px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ccat-guide-container .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.ccat-guide-container .hero-badge {
+  display: inline-block;
+  background: rgba(255,191,0,0.2);
+  border: 1px solid rgba(255,191,0,0.5);
+  color: var(--secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.ccat-guide-container .hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.ccat-guide-container .hero h1 span {
+  color: var(--secondary);
+}
+
+.ccat-guide-container .hero p {
+  font-size: 1.1rem;
+  max-width: 640px;
+  margin: 0 auto 32px;
+  opacity: 0.88;
+  position: relative;
+  z-index: 1;
+}
+
+.ccat-guide-container .hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.ccat-guide-container .hero-stat {
+  text-align: center;
+}
+
+.ccat-guide-container .hero-stat .num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--secondary);
+  display: block;
+}
+
+.ccat-guide-container .hero-stat .lbl {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── ALERT BANNER ─── */
+.ccat-guide-container .alert-banner {
+  background: var(--secondary-light);
+  border-left: 5px solid var(--secondary);
+  padding: 14px 24px;
+  max-width: 1100px;
+  margin: 28px auto 0;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+.ccat-guide-container .alert-banner .icon {
+  font-size: 1.4rem;
+}
+
+.ccat-guide-container .alert-banner strong {
+  color: var(--tertiary);
+}
+
+/* ─── LAYOUT ─── */
+.ccat-guide-container .container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.ccat-guide-container .content-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 40px;
+  margin: 40px auto;
+  max-width: 1100px;
+  padding: 0 24px;
+  align-items: start;
+}
+
+/* ─── SIDEBAR ─── */
+.ccat-guide-container .sidebar {
+  position: sticky;
+  top: 92px; /* Adjusted to sit nicely below the fixed main header */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ccat-guide-container .sidebar-card {
+  background: var(--white);
+  border-radius: 12px;
+  border: 1px solid #e4eded;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,128,128,0.06);
+}
+
+.ccat-guide-container .sidebar-card-header {
+  background: var(--primary);
+  color: var(--white);
+  padding: 12px 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ccat-guide-container .sidebar-card-body {
+  padding: 16px;
+}
+
+.ccat-guide-container .toc-list {
+  list-style: none;
+}
+
+.ccat-guide-container .toc-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--neutral-light);
+}
+
+.ccat-guide-container .toc-list li:last-child {
+  border-bottom: none;
+}
+
+.ccat-guide-container .toc-list a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ccat-guide-container .toc-list a:hover {
+  color: var(--primary);
+}
+
+.ccat-guide-container .toc-list a::before {
+  content: '→';
+  color: var(--primary);
+  font-size: 0.75rem;
+}
+
+.ccat-guide-container .cta-box {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--white);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.ccat-guide-container .cta-box h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.ccat-guide-container .cta-box p {
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.ccat-guide-container .cta-btn {
+  display: block;
+  background: var(--secondary);
+  color: var(--neutral-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.15s;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.ccat-guide-container .cta-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ─── SECTIONS ─── */
+.ccat-guide-container .section {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 36px;
+  margin-bottom: 28px;
+  border: 1px solid #e4eded;
+  box-shadow: 0 2px 16px rgba(0,128,128,0.05);
+  text-align: left;
+}
+
+.ccat-guide-container .section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.ccat-guide-container .section h2 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: var(--neutral-dark);
+  line-height: 1.2;
+}
+
+.ccat-guide-container .section h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 24px 0 12px;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ccat-guide-container .section h3::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  background: var(--secondary);
+  border-radius: 2px;
+}
+
+.ccat-guide-container .section p {
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* ─── TABLES ─── */
+.ccat-guide-container .table-wrap {
+  overflow-x: auto;
+  margin: 20px 0;
+  border-radius: 10px;
+  border: 1px solid #e0eded;
+}
+
+.ccat-guide-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.ccat-guide-container thead tr {
+  background: var(--primary);
+}
+
+.ccat-guide-container thead th {
+  color: var(--white);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.ccat-guide-container tbody tr:nth-child(even) {
+  background: var(--primary-light);
+}
+
+.ccat-guide-container tbody tr:hover {
+  background: #d0ecec;
+}
+
+.ccat-guide-container tbody td {
+  padding: 11px 16px;
+  color: var(--text);
+  border-bottom: 1px solid #e8f0f0;
+}
+
+.ccat-guide-container tbody td:first-child {
+  font-weight: 600;
+}
+
+.ccat-guide-container .highlight-row td {
+  color: var(--tertiary);
+  font-weight: 700;
+  background: var(--tertiary-light) !important;
+}
+
+/* ─── DATE CARDS ─── */
+.ccat-guide-container .date-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.ccat-guide-container .date-card {
+  border-radius: 12px;
+  padding: 18px;
+  border-left: 4px solid var(--primary);
+  background: var(--neutral-light);
+  transition: transform 0.15s;
+}
+
+.ccat-guide-container .date-card:hover {
+  transform: translateY(-2px);
+}
+
+.ccat-guide-container .date-card.urgent {
+  border-left-color: var(--tertiary);
+  background: var(--tertiary-light);
+}
+
+.ccat-guide-container .date-card.done {
+  border-left-color: var(--neutral);
+  opacity: 0.7;
+}
+
+.ccat-guide-container .date-card .event-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.ccat-guide-container .date-card.urgent .event-label {
+  color: var(--tertiary);
+}
+
+.ccat-guide-container .date-card .event-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  color: var(--neutral-dark);
+}
+
+.ccat-guide-container .date-card .event-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ccat-guide-container .date-card .event-icon {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+/* ─── EXAM PATTERN ─── */
+.ccat-guide-container .section-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.ccat-guide-container .section-card {
+  border-radius: 12px;
+  padding: 22px 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ccat-guide-container .section-card.a {
+  background: linear-gradient(135deg, var(--primary-light), #c5e8e8);
+  border: 2px solid var(--primary);
+}
+
+.ccat-guide-container .section-card.b {
+  background: linear-gradient(135deg, var(--secondary-light), #ffedb0);
+  border: 2px solid var(--secondary);
+}
+
+.ccat-guide-container .section-card.c {
+  background: linear-gradient(135deg, var(--tertiary-light), #f0d8cc);
+  border: 2px solid var(--tertiary);
+}
+
+.ccat-guide-container .section-card .sec-letter {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.ccat-guide-container .section-card.a .sec-letter {
+  color: var(--primary);
+}
+
+.ccat-guide-container .section-card.b .sec-letter {
+  color: var(--secondary-dark);
+}
+
+.ccat-guide-container .section-card.c .sec-letter {
+  color: var(--tertiary);
+}
+
+.ccat-guide-container .section-card .sec-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  color: var(--neutral-dark);
+}
+
+.ccat-guide-container .section-card .sec-detail {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.ccat-guide-container .section-card .sec-detail strong {
+  color: var(--neutral-dark);
+}
+
+.ccat-guide-container .section-card .badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+  background: var(--tertiary);
+  color: var(--white);
+}
+
+/* ─── SYLLABUS ─── */
+.ccat-guide-container .syllabus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.ccat-guide-container .syllabus-block {
+  border-radius: 10px;
+  border: 1px solid #e4eded;
+  overflow: hidden;
+}
+
+.ccat-guide-container .syllabus-block-header {
+  padding: 12px 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--white);
+}
+
+.ccat-guide-container .syllabus-block-header.a {
+  background: var(--primary);
+}
+
+.ccat-guide-container .syllabus-block-header.b {
+  background: var(--secondary-dark);
+}
+
+.ccat-guide-container .syllabus-block-header.c {
+  background: var(--tertiary);
+}
+
+.ccat-guide-container .syllabus-block-body {
+  padding: 12px 16px;
+  background: var(--white);
+}
+
+.ccat-guide-container .topic-tag {
+  display: inline-block;
+  background: var(--neutral-light);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin: 3px 3px 3px 0;
+  border: 1px solid #e0e8e8;
+  transition: all 0.15s;
+}
+
+.ccat-guide-container .topic-tag:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.ccat-guide-container .topic-tag.new {
+  background: var(--secondary-light);
+  border-color: var(--secondary);
+  color: var(--secondary-dark);
+}
+
+/* ─── ELIGIBILITY ─── */
+.ccat-guide-container .eligibility-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.ccat-guide-container .elig-card {
+  background: var(--neutral-light);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e0eded;
+}
+
+.ccat-guide-container .elig-card .icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.ccat-guide-container .elig-card h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  color: var(--neutral-dark);
+}
+
+.ccat-guide-container .elig-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ─── CITIES ─── */
+.ccat-guide-container .cities-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.ccat-guide-container .city-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--white);
+  border: 1.5px solid #d0e8e8;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.15s;
+}
+
+.ccat-guide-container .city-tag:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.ccat-guide-container .city-tag.highlight {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* ─── PROCESS STEPS ─── */
+.ccat-guide-container .process-steps {
+  margin: 20px 0;
+}
+
+.ccat-guide-container .process-step {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--neutral-light);
+  align-items: flex-start;
+}
+
+.ccat-guide-container .process-step:last-child {
+  border-bottom: none;
+}
+
+.ccat-guide-container .step-num {
+  width: 36px;
+  height: 36px;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.ccat-guide-container .step-content h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: var(--neutral-dark);
+}
+
+.ccat-guide-container .step-content p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ─── INFO BOXES ─── */
+.ccat-guide-container .info-box {
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.ccat-guide-container .info-box.tip {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+}
+
+.ccat-guide-container .info-box.warn {
+  background: var(--secondary-light);
+  border-left: 4px solid var(--secondary);
+}
+
+.ccat-guide-container .info-box.note {
+  background: var(--tertiary-light);
+  border-left: 4px solid var(--tertiary);
+}
+
+.ccat-guide-container .info-box .box-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.ccat-guide-container .info-box p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.ccat-guide-container .info-box strong {
+  color: var(--neutral-dark);
+}
+
+/* ─── PREP TIPS ─── */
+.ccat-guide-container .prep-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.ccat-guide-container .prep-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e0eded;
+  border-top: 4px solid var(--primary);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.ccat-guide-container .prep-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,128,128,0.1);
+}
+
+.ccat-guide-container .prep-card .prep-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.ccat-guide-container .prep-card h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: var(--neutral-dark);
+}
+
+.ccat-guide-container .prep-card p {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ─── FAQ ─── */
+.ccat-guide-container .faq {
+  margin: 1.25rem 0 2rem;
+}
+
+.ccat-guide-container .faq-item {
+  border-bottom: 1px solid var(--neutral-light);
+  padding: 18px 0;
+}
+
+.ccat-guide-container .faq-item:last-child {
+  border-bottom: none;
+}
+
+.ccat-guide-container .faq-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--neutral-dark);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.ccat-guide-container .faq-btn::after {
+  content: '▼';
+  color: var(--primary);
+  font-size: 0.85rem;
+  transition: transform 0.25s;
+}
+
+.ccat-guide-container .faq-item.open .faq-btn::after {
+  transform: rotate(180deg);
+}
+
+.ccat-guide-container .faq-answer {
+  display: none;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.7;
+}
+
+.ccat-guide-container .faq-item.open .faq-answer {
+  display: block;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .ccat-guide-container .content-layout {
+    grid-template-columns: 1fr;
+  }
+  .ccat-guide-container .sidebar {
+    position: static;
+  }
+  .ccat-guide-container .hero-stats {
+    gap: 24px;
+  }
+  .ccat-guide-container .hero h1 {
+    font-size: 1.9rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .ccat-guide-container .section {
+    padding: 22px 18px;
+  }
+  .ccat-guide-container .date-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ccat-guide-container .hero {
+    padding: 48px 20px 40px;
+  }
+  .ccat-guide-container .section-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── MISC ─── */
+.ccat-guide-container .new-badge {
+  display: inline-block;
+  background: var(--tertiary);
+  color: var(--white);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.ccat-guide-container .divider {
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--tertiary));
+  border-radius: 2px;
+  margin: 8px 0 20px;
+}
+
+.ccat-guide-container .fee-highlight {
+  background: var(--primary-light);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin: 12px 0;
+}
+
+.ccat-guide-container .fee-highlight .amount {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.ccat-guide-container .fee-highlight .type {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.ccat-guide-container .fee-row {
+  display: flex;
+  gap: 16px;
+}
+
+.ccat-guide-container .fee-row .fee-highlight {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .ccat-guide-container .fee-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

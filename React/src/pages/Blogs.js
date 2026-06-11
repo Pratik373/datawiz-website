@@ -113,6 +113,28 @@ export default function Blogs() {
 
   const blogPosts = [
     {
+      id: 'cdac-ccat-guide-august-2026',
+      title: "The Only CDAC CCAT Guide You'll Ever Need — August 2026",
+      excerpt: "Everything from exam dates and syllabus to eligibility and counselling — explained simply, so you can focus on what matters: cracking the exam.",
+      author: 'DataWiz Team',
+      date: 'June 2026',
+      readTime: '12 min read',
+      tag: 'C-CAT Exam Guide',
+      icon: 'school',
+      link: '/blogs/cdac-ccat-guide-august-2026'
+    },
+    {
+      id: 'cdac-courses-comparison-august-2026',
+      title: "CDAC August 2026 — Which Course & Institute is Best for Your Career?",
+      excerpt: "12 courses. Dozens of institutes. One correct answer for your career. Here's everything you need to pick the right path — without the confusion.",
+      author: 'DataWiz Team',
+      date: 'June 2026',
+      readTime: '10 min read',
+      tag: 'CDAC Course Comparison',
+      icon: 'compare_arrows',
+      link: '/blogs/cdac-courses-comparison-august-2026'
+    },
+    {
       id: 'ai-courses',
       title: "The Only Free AI Course List You'll Need in 2026",
       excerpt: "8 world-class AI courses from Google, IBM, Harvard, MIT & Anthropic — curated so you don't waste a single hour. Perfect for CDAC aspirants, professionals, and students alike.",

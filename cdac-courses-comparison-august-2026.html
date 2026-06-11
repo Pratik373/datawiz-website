@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDAC August 2026 — Which Course & Institute is Best for Your Career?</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #008080;
+    --primary-dark: #005f5f;
+    --primary-light: #e0f4f4;
+    --secondary: #FFBF00;
+    --secondary-dark: #cc9900;
+    --secondary-light: #fff8e0;
+    --tertiary: #A96039;
+    --tertiary-light: #f5ede8;
+    --neutral: #737877;
+    --neutral-light: #f2f4f3;
+    --neutral-dark: #2c3130;
+    --white: #ffffff;
+    --text: #1a2120;
+    --text-muted: #5a6665;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; color: var(--text); background: #f8fafa; line-height: 1.7; }
+  h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+  /* NAV */
+  nav { background: var(--primary-dark); padding: 14px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,128,128,0.18); }
+  .nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+  .logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.25rem; color: var(--secondary); text-decoration: none; }
+  .logo span { color: var(--white); }
+  .nav-cta { background: var(--secondary); color: var(--neutral-dark); font-weight: 700; font-size: 0.85rem; padding: 8px 18px; border-radius: 6px; text-decoration: none; transition: background 0.2s; }
+  .nav-cta:hover { background: var(--secondary-dark); color: var(--white); }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #1a2120 0%, var(--primary-dark) 50%, var(--primary) 100%); color: var(--white); padding: 72px 24px 60px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 50%, rgba(255,191,0,0.08), transparent 60%); }
+  .hero-badge { display: inline-block; background: rgba(255,191,0,0.15); border: 1px solid rgba(255,191,0,0.4); color: var(--secondary); font-size: 0.8rem; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .hero h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+  .hero h1 .accent { color: var(--secondary); }
+  .hero p { font-size: 1.05rem; max-width: 620px; margin: 0 auto 32px; opacity: 0.88; }
+  .hero-chips { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
+  .hero-chip { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.9); font-size: 0.82rem; font-weight: 500; padding: 6px 14px; border-radius: 20px; }
+
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .content-layout { display: grid; grid-template-columns: 1fr 280px; gap: 40px; margin: 40px auto; max-width: 1100px; padding: 0 24px; align-items: start; }
+
+  /* SIDEBAR */
+  .sidebar { position: sticky; top: 72px; display: flex; flex-direction: column; gap: 20px; }
+  .sidebar-card { background: var(--white); border-radius: 12px; border: 1px solid #e4eded; overflow: hidden; box-shadow: 0 2px 12px rgba(0,128,128,0.06); }
+  .sidebar-card-header { background: var(--primary); color: var(--white); padding: 12px 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.9rem; }
+  .sidebar-card-body { padding: 16px; }
+  .toc-list { list-style: none; }
+  .toc-list li { padding: 5px 0; border-bottom: 1px solid var(--neutral-light); }
+  .toc-list li:last-child { border-bottom: none; }
+  .toc-list a { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+  .toc-list a:hover { color: var(--primary); }
+  .toc-list a::before { content: '→'; color: var(--primary); font-size: 0.75rem; }
+  .cta-box { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--white); border-radius: 12px; padding: 20px; text-align: center; }
+  .cta-box h4 { font-size: 1rem; margin-bottom: 8px; }
+  .cta-box p { font-size: 0.82rem; opacity: 0.85; margin-bottom: 16px; }
+  .cta-btn { display: block; background: var(--secondary); color: var(--neutral-dark); font-weight: 700; font-size: 0.9rem; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: transform 0.15s; }
+  .cta-btn:hover { transform: translateY(-1px); }
+
+  /* SECTIONS */
+  .section { background: var(--white); border-radius: 16px; padding: 36px; margin-bottom: 28px; border: 1px solid #e4eded; box-shadow: 0 2px 16px rgba(0,128,128,0.05); }
+  .section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 8px; }
+  .section h2 { font-size: 1.7rem; font-weight: 800; margin-bottom: 20px; color: var(--neutral-dark); line-height: 1.2; }
+  .section h3 { font-size: 1.15rem; font-weight: 700; margin: 28px 0 14px; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; }
+  .section h3::before { content: ''; width: 4px; height: 18px; background: var(--secondary); border-radius: 2px; }
+  .section p { color: var(--text-muted); margin-bottom: 14px; }
+  .divider { height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary), var(--tertiary)); border-radius: 2px; margin: 8px 0 20px; }
+
+  /* INFO BOX */
+  .info-box { border-radius: 10px; padding: 16px 20px; margin: 16px 0; display: flex; gap: 12px; align-items: flex-start; }
+  .info-box.tip { background: var(--primary-light); border-left: 4px solid var(--primary); }
+  .info-box.warn { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .info-box.note { background: var(--tertiary-light); border-left: 4px solid var(--tertiary); }
+  .info-box .box-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .info-box p { margin: 0; font-size: 0.88rem; color: var(--text-muted); }
+  .info-box strong { color: var(--neutral-dark); }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 10px; border: 1px solid #e0eded; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead tr { background: var(--primary); }
+  thead th { color: var(--white); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.83rem; padding: 12px 14px; text-align: left; }
+  tbody tr:nth-child(even) { background: var(--primary-light); }
+  tbody tr:hover { background: #d0ecec; }
+  tbody td { padding: 10px 14px; color: var(--text); border-bottom: 1px solid #e8f0f0; font-size: 0.86rem; }
+  tbody td:first-child { font-weight: 600; }
+  .best-badge { display: inline-block; background: var(--secondary-light); border: 1px solid var(--secondary); color: var(--secondary-dark); font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+
+  /* COURSE CARDS */
+  .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+  .course-card { border-radius: 12px; border: 1px solid #e0eded; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; background: var(--white); }
+  .course-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,128,128,0.12); }
+  .course-card-header { padding: 16px; }
+  .course-card-header.cat2 { background: linear-gradient(135deg, var(--primary), #00a8a8); }
+  .course-card-header.cat3 { background: linear-gradient(135deg, var(--tertiary), #c87040); }
+  .course-card-code { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.75); margin-bottom: 4px; }
+  .course-card-name { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1rem; color: var(--white); line-height: 1.2; }
+  .course-card-body { padding: 14px 16px; }
+  .course-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .meta-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 600; padding: 3px 9px; border-radius: 12px; }
+  .meta-tag.duration { background: var(--neutral-light); color: var(--text-muted); }
+  .meta-tag.mode-online { background: #e0f4e0; color: #2a7a2a; }
+  .meta-tag.mode-physical { background: var(--tertiary-light); color: var(--tertiary); }
+  .meta-tag.mode-both { background: var(--secondary-light); color: var(--secondary-dark); }
+  .meta-tag.marks { background: var(--primary-light); color: var(--primary-dark); }
+  .course-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* CAREER GUIDE */
+  .career-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+  .career-card { border-radius: 12px; padding: 20px; border: 1px solid #e0eded; background: var(--neutral-light); transition: transform 0.15s; }
+  .career-card:hover { transform: translateY(-2px); }
+  .career-card .career-icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .career-card h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; color: var(--neutral-dark); }
+  .career-card .course-rec { display: inline-block; background: var(--primary); color: var(--white); font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 6px; }
+  .career-card .centre-rec { font-size: 0.8rem; color: var(--text-muted); }
+
+  /* PUNE SECTION */
+  .pune-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+  .pune-card { background: var(--white); border-radius: 12px; border: 2px solid var(--primary-light); padding: 18px; transition: border-color 0.15s; }
+  .pune-card:hover { border-color: var(--primary); }
+  .pune-card.main { border-color: var(--secondary); background: var(--secondary-light); }
+  .pune-card .centre-type { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); margin-bottom: 4px; }
+  .pune-card.main .centre-type { color: var(--secondary-dark); }
+  .pune-card h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 0.95rem; margin-bottom: 8px; color: var(--neutral-dark); }
+  .pune-card .courses-list { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
+  .pune-card .highlight-note { font-size: 0.78rem; color: var(--tertiary); font-weight: 600; }
+
+  /* SEAT CAPACITY VIZ */
+  .seat-chart { margin: 20px 0; }
+  .seat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .seat-label { font-size: 0.82rem; font-weight: 600; color: var(--neutral-dark); width: 200px; flex-shrink: 0; }
+  .seat-bar-wrap { flex: 1; background: var(--neutral-light); border-radius: 6px; height: 28px; overflow: hidden; }
+  .seat-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; font-size: 0.78rem; font-weight: 700; color: var(--white); transition: width 0.6s ease; }
+  .seat-bar.primary { background: var(--primary); }
+  .seat-bar.secondary { background: var(--secondary-dark); }
+  .seat-bar.tertiary { background: var(--tertiary); }
+
+  /* ONLINE vs PHYSICAL */
+  .mode-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .mode-card { border-radius: 12px; padding: 20px; }
+  .mode-card.online { background: #e8f5e8; border: 2px solid #4caf50; }
+  .mode-card.physical { background: var(--tertiary-light); border: 2px solid var(--tertiary); }
+  .mode-card h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 12px; }
+  .mode-card.online h4 { color: #2a7a2a; }
+  .mode-card.physical h4 { color: var(--tertiary); }
+  .mode-list { list-style: none; }
+  .mode-list li { font-size: 0.85rem; color: var(--text-muted); padding: 5px 0; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 6px; }
+  .mode-list li::before { content: '•'; font-size: 1rem; }
+  .mode-card.online .mode-list li::before { color: #4caf50; }
+  .mode-card.physical .mode-list li::before { color: var(--tertiary); }
+
+  /* SELECTOR TOOL */
+  .selector { background: var(--neutral-light); border-radius: 16px; padding: 28px; margin: 20px 0; border: 2px dashed var(--primary-light); }
+  .selector h3 { font-size: 1.15rem; margin-bottom: 6px; }
+  .selector h3::before { display: none; }
+  .selector-q { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px; }
+  .selector-options { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .sel-btn { background: var(--white); border: 1.5px solid #cde4e4; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; padding: 8px 16px; border-radius: 24px; cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+  .sel-btn:hover, .sel-btn.active { background: var(--primary); border-color: var(--primary); color: var(--white); }
+  .selector-result { display: none; background: var(--white); border-radius: 10px; padding: 18px; border-left: 4px solid var(--primary); }
+  .selector-result.visible { display: block; }
+  .selector-result h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1rem; color: var(--primary-dark); margin-bottom: 6px; }
+  .selector-result p { font-size: 0.87rem; color: var(--text-muted); margin: 0; }
+
+  /* FAQ */
+  .faq-item { border-bottom: 1px solid var(--neutral-light); padding: 18px 0; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1rem; color: var(--neutral-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .faq-q::after { content: '↓'; color: var(--primary); font-size: 1.1rem; }
+  .faq-a { font-size: 0.9rem; color: var(--text-muted); margin-top: 10px; line-height: 1.7; }
+
+  /* FOOTER */
+  footer { background: var(--neutral-dark); color: rgba(255,255,255,0.7); padding: 40px 24px 24px; margin-top: 60px; text-align: center; }
+  footer .foot-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--secondary); margin-bottom: 8px; }
+  footer p { font-size: 0.85rem; margin-bottom: 16px; }
+  footer a { color: var(--primary-light); text-decoration: none; }
+  footer .foot-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .sidebar { position: static; } .mode-comparison { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .section { padding: 22px 18px; } .hero { padding: 48px 20px 40px; } .seat-label { width: 120px; font-size: 0.76rem; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">Datawiz<span>6</span></a>
+    <a href="#selector" class="nav-cta">🔍 Find Your Course</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🎓 August 2026 Batch</div>
+  <h1>CDAC Courses Compared:<br><span class="accent">Which One is Right for You?</span></h1>
+  <p>12 courses. Dozens of institutes. One correct answer for your career. Here's everything you need to pick the right path — without the confusion.</p>
+  <div class="hero-chips">
+    <span class="hero-chip">12 Courses</span>
+    <span class="hero-chip">Category II & III</span>
+    <span class="hero-chip">Pune · Hyderabad · Bengaluru · Mumbai</span>
+    <span class="hero-chip">Online & Physical Modes</span>
+    <span class="hero-chip">Seat Capacity Breakdown</span>
+  </div>
+</div>
+
+<div class="content-layout">
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- INTRO -->
+    <div class="section">
+      <div class="section-label">Why This Guide Exists</div>
+      <h2>The Problem with Choosing a CDAC Course</h2>
+      <div class="divider"></div>
+      <p>Every year, thousands of engineering graduates clear the C-CAT but then freeze up during counselling. 12 courses, 40+ centres, limited seats, and a short window to decide — it's genuinely confusing.</p>
+      <p>The wrong choice can mean spending 6 months in a course that doesn't align with what you want to do. The right choice? It can shortcut your career by years.</p>
+      <p>This guide is designed to cut through the noise. We'll map each course to real career outcomes, compare institutes honestly, and help you figure out — before exam day — what you should be aiming for during counselling.</p>
+
+      <div class="info-box tip">
+        <span class="box-icon">🎯</span>
+        <p><strong>Best way to use this guide:</strong> Start with the Career Goal section to identify which course fits your ambitions. Then use the Institute Comparison tables to know which centres to prioritise during counselling.</p>
+      </div>
+    </div>
+
+    <!-- ALL COURSES -->
+    <div class="section" id="courses">
+      <div class="section-label">All Courses</div>
+      <h2>The Complete CDAC Course Lineup — August 2026</h2>
+      <div class="divider"></div>
+      <p>All courses run for <strong>24 weeks (1,200 hours)</strong> and lead to a Post Graduate Certificate. Here's the full picture:</p>
+
+      <div class="courses-grid">
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-AC · Category II</div>
+            <div class="course-card-name">Advanced Computing</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-both">🌐 Online / Physical</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">The most popular CDAC course. Covers full-stack development, OS, databases, and modern software engineering. Ideal for software developer roles.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-AI · Category II</div>
+            <div class="course-card-name">Artificial Intelligence</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-both">🌐 Online / Physical</span>
+              <span class="meta-tag marks" style="background:#fce4e4; color:#c0392b;">60% min ⭐</span>
+            </div>
+            <div class="course-card-desc">The hottest course of the moment. Focused on ML, deep learning, and AI applications. Higher eligibility bar reflects higher demand.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-BDA · Category II</div>
+            <div class="course-card-name">Big Data Analytics</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-both">🌐 Online / Physical</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">Focuses on data pipelines, Hadoop, Spark, and analytics tools. Strong path into data engineering and data science roles.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-CSF · Category II</div>
+            <div class="course-card-name">Cyber Security & Forensics</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-both">🌐 Online / Physical</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">Covers ethical hacking, digital forensics, network security, and compliance. Growing demand with the surge in cyberattacks across industries.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-MC · Category II</div>
+            <div class="course-card-name">Mobile Computing</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">Android and iOS development, mobile UX, and backend integration. Leads directly into mobile app development careers.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-FBD · Category II</div>
+            <div class="course-card-name">FinTech & Blockchain Dev</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-online">💻 Online Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">The only fully online CDAC course. Covers blockchain, smart contracts, DeFi, and financial tech. Perfect for those interested in Web3 and fintech.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-ITISS · Category II</div>
+            <div class="course-card-name">IT Infrastructure, Systems & Security</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">For those heading into network infrastructure, cloud administration, and IT security management roles.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-ASSD · Category II</div>
+            <div class="course-card-name">Advanced Secure Software Dev</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">Focuses on building secure applications from the ground up — static analysis, threat modelling, and secure SDLC practices.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-HPCSA · Category II</div>
+            <div class="course-card-name">HPC System Administration</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">High-Performance Computing systems management. A niche but in-demand track for scientific and government computing roles.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat2">
+            <div class="course-card-code">PGCP-RAT · Category II</div>
+            <div class="course-card-name">Robotics & Allied Technologies</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">⚠️ Exclusive to Mechanical/Mechatronics graduates. Covers industrial robotics, automation, and control systems.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat3">
+            <div class="course-card-code">PGCP-ESD · Category III</div>
+            <div class="course-card-name">Embedded Systems Design</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">Hands-on hardware + software integration. Microcontrollers, RTOS, IoT devices, and firmware development. Strong hiring from automotive and industrial sectors.</div>
+          </div>
+        </div>
+        <div class="course-card">
+          <div class="course-card-header cat3">
+            <div class="course-card-code">PGCP-VLSI · Category III</div>
+            <div class="course-card-name">VLSI Design</div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="meta-tag mode-physical">🏛️ Physical Only</span>
+              <span class="meta-tag marks">55% min</span>
+            </div>
+            <div class="course-card-desc">Chip and circuit design using Verilog/VHDL. High demand with India's semiconductor push. One of the best-paying tracks post-CDAC.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAREER GUIDE -->
+    <div class="section" id="career">
+      <div class="section-label">Pick Your Path</div>
+      <h2>Best Course by Career Goal</h2>
+      <div class="divider"></div>
+      <p>The most important question isn't "which course is best?" — it's "which course is best <em>for what I want to do?</em>" Here's the mapping:</p>
+
+      <div class="career-grid">
+        <div class="career-card">
+          <div class="career-icon">💻</div>
+          <h4>Software Developer</h4>
+          <div class="course-rec">PGCP-AC</div>
+          <div class="centre-rec">Best at: C-DAC Pune, C-DAC Mumbai (Kharghar)</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">🤖</div>
+          <h4>AI / ML Engineer</h4>
+          <div class="course-rec">PGCP-AI</div>
+          <div class="centre-rec">Best at: C-DAC Pune, C-DAC Hyderabad<br><small style="color:var(--tertiary);">⚠️ 60% min marks required</small></div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">📊</div>
+          <h4>Data Scientist / Engineer</h4>
+          <div class="course-rec">PGCP-BDA</div>
+          <div class="centre-rec">Best at: C-DAC Bengaluru, C-DAC Pune</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">📱</div>
+          <h4>Mobile App Developer</h4>
+          <div class="course-rec">PGCP-MC</div>
+          <div class="centre-rec">Best at: C-DAC Hyderabad (80 seats)</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">🛡️</div>
+          <h4>Cybersecurity Professional</h4>
+          <div class="course-rec">PGCP-CSF</div>
+          <div class="centre-rec">Best at: C-DAC Trivandrum, C-DAC Pune</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">⛓️</div>
+          <h4>Blockchain / FinTech Dev</h4>
+          <div class="course-rec">PGCP-FBD</div>
+          <div class="centre-rec">C-DAC Patna (Online Only)</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">🔌</div>
+          <h4>Embedded Systems Engineer</h4>
+          <div class="course-rec">PGCP-ESD</div>
+          <div class="centre-rec">Best at: C-DAC Hyderabad, Sunbeam Hinjawadi</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">🔧</div>
+          <h4>VLSI / Chip Designer</h4>
+          <div class="course-rec">PGCP-VLSI</div>
+          <div class="centre-rec">Best at: C-DAC Hyderabad, C-DAC Noida</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">🌐</div>
+          <h4>IT Infrastructure Manager</h4>
+          <div class="course-rec">PGCP-ITISS</div>
+          <div class="centre-rec">Best at: C-DAC Pune, C-DAC Bengaluru</div>
+        </div>
+        <div class="career-card">
+          <div class="career-icon">🦾</div>
+          <h4>Robotics Engineer</h4>
+          <div class="course-rec">PGCP-RAT</div>
+          <div class="centre-rec">C-DAC Pune · Mech/Mechatronics only</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE SELECTOR -->
+    <div class="section" id="selector">
+      <div class="section-label">Quick Tool</div>
+      <h2>Not Sure? Find Your Course in 30 Seconds</h2>
+      <div class="divider"></div>
+      <div class="selector">
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:1rem; font-weight:700; color:var(--neutral-dark); margin-bottom:8px;">What kind of work excites you most?</h3>
+        <div class="selector-q">Click the closest match to your interest:</div>
+        <div class="selector-options">
+          <button class="sel-btn" onclick="showResult('software')">Building apps & software</button>
+          <button class="sel-btn" onclick="showResult('ai')">AI, machine learning, data</button>
+          <button class="sel-btn" onclick="showResult('security')">Hacking, security, forensics</button>
+          <button class="sel-btn" onclick="showResult('hardware')">Hardware, chips, embedded</button>
+          <button class="sel-btn" onclick="showResult('mobile')">Mobile apps (Android/iOS)</button>
+          <button class="sel-btn" onclick="showResult('blockchain')">Blockchain, crypto, fintech</button>
+          <button class="sel-btn" onclick="showResult('infra')">Networks, servers, cloud infra</button>
+        </div>
+        <div class="selector-result" id="result-software">
+          <h4>→ PGCP-AC (Advanced Computing) is your best bet</h4>
+          <p>The most versatile CDAC course. Covers full-stack development, databases, OS, and modern software engineering. The highest seat count means you have a better chance of getting your preferred centre. Top picks: <strong>C-DAC Pune</strong> or <strong>C-DAC Mumbai (Kharghar)</strong>.</p>
+        </div>
+        <div class="selector-result" id="result-ai">
+          <h4>→ PGCP-AI or PGCP-BDA — choose based on focus</h4>
+          <p>If you want to <strong>build AI/ML models</strong>: go for <strong>PGCP-AI</strong> (remember: 60% eligibility). If you're more interested in <strong>data pipelines, analytics, Spark/Hadoop</strong>: choose <strong>PGCP-BDA</strong>. Both are excellent. Top pick for AI: C-DAC Pune. For BDA: C-DAC Bengaluru.</p>
+        </div>
+        <div class="selector-result" id="result-security">
+          <h4>→ PGCP-CSF (Cyber Security & Forensics)</h4>
+          <p>One of the fastest-growing domains. Covers ethical hacking, digital forensics, network security, and compliance frameworks. Available online too. Best centres: <strong>C-DAC Thiruvananthapuram</strong> (60 seats) or <strong>C-DAC Pune</strong>.</p>
+        </div>
+        <div class="selector-result" id="result-hardware">
+          <h4>→ PGCP-ESD or PGCP-VLSI — depends on your background</h4>
+          <p>Both are <strong>Category III</strong> — you'll need to appear for Section C (hardware). <strong>ESD</strong> is broader: microcontrollers, RTOS, IoT devices. <strong>VLSI</strong> is chip-specific — Verilog, VHDL, circuit design. VLSI has fewer seats and is more niche, but placements are exceptional. Best: <strong>C-DAC Hyderabad</strong> for both.</p>
+        </div>
+        <div class="selector-result" id="result-mobile">
+          <h4>→ PGCP-MC (Mobile Computing)</h4>
+          <p>Focused entirely on Android/iOS development and mobile app architecture. Physical mode only. The largest seat capacity is at <strong>C-DAC Hyderabad (80 seats)</strong>. Only available at select centres, so rank matters here.</p>
+        </div>
+        <div class="selector-result" id="result-blockchain">
+          <h4>→ PGCP-FBD (FinTech & Blockchain Development)</h4>
+          <p>The only <strong>fully online</strong> CDAC course — ideal if you prefer remote learning. Covers blockchain protocols, smart contracts, DeFi, and financial technology. Offered exclusively at <strong>C-DAC Patna</strong>. Great for those interested in Web3 careers.</p>
+        </div>
+        <div class="selector-result" id="result-infra">
+          <h4>→ PGCP-ITISS (IT Infrastructure, Systems & Security)</h4>
+          <p>Covers enterprise networking, cloud administration, virtualization, and IT security management. Physical only. Best options: <strong>C-DAC Pune</strong> (60 seats), <strong>C-DAC Bengaluru</strong> (60 seats), or <strong>IACSD Akurdi, Pune</strong> (60 seats).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTITUTES BY COURSE -->
+    <div class="section" id="institutes">
+      <div class="section-label">Where to Study</div>
+      <h2>Top Institutes by Course</h2>
+      <div class="divider"></div>
+      <p>Your CDAC centre matters — it affects lab quality, placement connections, and your daily experience. Here's a detailed breakdown by course:</p>
+
+      <h3>Advanced Computing (PGCP-AC) — Most Seats</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Centre</th><th>City</th><th>Mode</th><th>AC Seats</th><th>Why Go Here</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-DAC Mumbai (Kharghar)</td><td>Mumbai</td><td>Online/Physical</td><td>260</td><td>Largest AC capacity in India</td></tr>
+            <tr><td>C-DAC Pune</td><td>Pune</td><td>Online/Physical</td><td>240</td><td>Mother centre, best infrastructure <span class="best-badge">⭐ Top Pick</span></td></tr>
+            <tr><td>Sunbeam Hinjawadi</td><td>Pune</td><td>Physical</td><td>240</td><td>Strong placement record among ATCs</td></tr>
+            <tr><td>C-DAC Bengaluru</td><td>Bengaluru</td><td>Physical</td><td>240</td><td>Tech hub access for internships</td></tr>
+            <tr><td>IACSD Akurdi</td><td>Pune</td><td>Physical</td><td>240</td><td>Good ATC in Pune with AC + BDA combo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Artificial Intelligence (PGCP-AI) — 60% Min Required</h3>
+      <div class="info-box note">
+        <span class="box-icon">⭐</span>
+        <p><strong>Higher bar, higher reward.</strong> PGCP-AI requires 60% minimum — not the usual 55%. Fewer seats, intense competition, but excellent career outcomes. Secure a high C-CAT rank if this is your goal.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Centre</th><th>City</th><th>Mode</th><th>Seats</th><th>Why Go Here</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-DAC Pune</td><td>Pune</td><td>Online/Physical</td><td>60</td><td>Main AI centre, best faculty <span class="best-badge">⭐ Top Pick</span></td></tr>
+            <tr><td>C-DAC Mumbai (Kharghar)</td><td>Mumbai</td><td>Physical</td><td>60</td><td>Large capacity, Mumbai tech access</td></tr>
+            <tr><td>C-DAC Patna</td><td>Patna</td><td>Online/Physical</td><td>60</td><td>Online option, East India</td></tr>
+            <tr><td>C-DAC Hyderabad</td><td>Hyderabad</td><td>Physical</td><td>40</td><td>Strong tech hub, good industry links</td></tr>
+            <tr><td>C-DAC New Delhi</td><td>Delhi</td><td>Online/Physical</td><td>40</td><td>Best option for North India candidates</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Big Data Analytics (PGCP-BDA)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Centre</th><th>City</th><th>Mode</th><th>Seats</th><th>Why Go Here</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-DAC Bengaluru</td><td>Bengaluru</td><td>Physical</td><td>120</td><td>Largest BDA seats, strong data industry access <span class="best-badge">⭐ Top Pick</span></td></tr>
+            <tr><td>C-DAC Mumbai (Kharghar)</td><td>Mumbai</td><td>Physical</td><td>90</td><td>Second largest, good options</td></tr>
+            <tr><td>C-DAC Pune</td><td>Pune</td><td>Online/Physical</td><td>60</td><td>Main centre, online option available</td></tr>
+            <tr><td>Sunbeam Hinjawadi</td><td>Pune</td><td>Physical</td><td>60</td><td>Good Pune ATC option</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Cyber Security & Forensics (PGCP-CSF)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Centre</th><th>City</th><th>Mode</th><th>Seats</th><th>Why Go Here</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-DAC Thiruvananthapuram</td><td>Trivandrum</td><td>Online/Physical</td><td>60</td><td>Most CSF seats, security-focused environment <span class="best-badge">⭐ Top Pick</span></td></tr>
+            <tr><td>C-DAC Patna</td><td>Patna</td><td>Online</td><td>60</td><td>Online option, flexible mode</td></tr>
+            <tr><td>C-DAC Pune</td><td>Pune</td><td>Online/Physical</td><td>40</td><td>Main centre, Pune advantage</td></tr>
+            <tr><td>C-DAC Hyderabad</td><td>Hyderabad</td><td>Physical</td><td>40</td><td>Good security industry connections</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Embedded Systems (PGCP-ESD) & VLSI — Category III</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Centre</th><th>City</th><th>ESD Seats</th><th>VLSI Seats</th><th>Why Go Here</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C-DAC Hyderabad</td><td>Hyderabad</td><td>120</td><td>40</td><td>Best for both — largest ESD + VLSI combo <span class="best-badge">⭐ Top Pick</span></td></tr>
+            <tr><td>Sunbeam Hinjawadi</td><td>Pune</td><td>120</td><td>—</td><td>Largest ESD among ATCs, strong labs</td></tr>
+            <tr><td>C-DAC Pune</td><td>Pune</td><td>60</td><td>40</td><td>Main centre, both ESD and VLSI available</td></tr>
+            <tr><td>C-DAC Bengaluru</td><td>Bengaluru</td><td>60</td><td>—</td><td>Tech hub access for embedded careers</td></tr>
+            <tr><td>C-DAC Noida</td><td>Noida</td><td>—</td><td>40</td><td>Good VLSI option for North India</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Mobile Computing (PGCP-MC) & Other Courses</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Course</th><th>Best Centre</th><th>City</th><th>Seats</th><th>Note</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>PGCP-MC (Mobile)</td><td>C-DAC Hyderabad</td><td>Hyderabad</td><td>80</td><td>Largest MC capacity</td></tr>
+            <tr><td>PGCP-FBD (FinTech/Blockchain)</td><td>C-DAC Patna</td><td>Patna</td><td>60</td><td>Online only course</td></tr>
+            <tr><td>PGCP-ITISS</td><td>C-DAC Pune / Bengaluru</td><td>Pune / BLR</td><td>60 each</td><td>Physical only</td></tr>
+            <tr><td>PGCP-RAT (Robotics)</td><td>C-DAC Pune</td><td>Pune</td><td>30</td><td>Mech/Mechatronics only</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PUNE SECTION -->
+    <div class="section" id="pune">
+      <div class="section-label">📍 Pune Guide</div>
+      <h2>Pune Has More CDAC Options Than Any Other City</h2>
+      <div class="divider"></div>
+      <p>If you're in Pune — or targeting Pune as your centre — you're in luck. Pune has the <strong>C-DAC ACTS main centre</strong> plus 5 Authorised Training Centres (ATCs), giving you more choice than anywhere else in the country.</p>
+
+      <div class="pune-grid">
+        <div class="pune-card main">
+          <div class="centre-type">⭐ Main Centre</div>
+          <h4>C-DAC Pune (ACTS)</h4>
+          <div class="courses-list">AC · BDA · AI · ESD · VLSI · ITISS · CSF · RAT</div>
+          <div class="highlight-note">Mother centre — best infrastructure, most course options, largest overall seat capacity</div>
+        </div>
+        <div class="pune-card">
+          <div class="centre-type">Authorised Training Centre</div>
+          <h4>Sunbeam Hinjawadi</h4>
+          <div class="courses-list">AC · BDA · ESD · ITISS · MC</div>
+          <div class="highlight-note">Largest AC seats (240) and ESD seats (120) among Pune ATCs. Strong placement record.</div>
+        </div>
+        <div class="pune-card">
+          <div class="centre-type">Authorised Training Centre</div>
+          <h4>IACSD Akurdi</h4>
+          <div class="courses-list">AC · BDA · ITISS</div>
+          <div class="highlight-note">240 AC seats + BDA + ITISS combo. Good choice for AC or BDA in Pune.</div>
+        </div>
+        <div class="pune-card">
+          <div class="centre-type">Authorised Training Centre</div>
+          <h4>IET Shivajinagar</h4>
+          <div class="courses-list">AC only</div>
+          <div class="highlight-note">120 AC seats. Good option if you prefer a central Pune location.</div>
+        </div>
+        <div class="pune-card">
+          <div class="centre-type">Authorised Training Centre</div>
+          <h4>Infoway Kothrud</h4>
+          <div class="courses-list">AC only</div>
+          <div class="highlight-note">120 AC seats. Alternative Pune ATC for Advanced Computing.</div>
+        </div>
+        <div class="pune-card">
+          <div class="centre-type">Authorised Training Centre</div>
+          <h4>Know-IT Deccan</h4>
+          <div class="courses-list">AC · BDA</div>
+          <div class="highlight-note">AC + BDA combination in the heart of Pune. Smaller batch size.</div>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <span class="box-icon">💡</span>
+        <p><strong>Pune counselling tip:</strong> During seat selection, list your Pune preferences carefully. ACTS (main centre) is highly competitive. If your rank is mid-range, shortlist Sunbeam Hinjawadi or IACSD Akurdi as backup — both have excellent outcomes and larger seat counts.</p>
+      </div>
+    </div>
+
+    <!-- ONLINE vs PHYSICAL -->
+    <div class="section" id="mode">
+      <div class="section-label">Study Mode</div>
+      <h2>Online vs Physical — What to Choose?</h2>
+      <div class="divider"></div>
+      <p>Several CDAC courses now offer online modes, giving you flexibility to study from home. But it's not always the right call. Here's an honest breakdown:</p>
+
+      <div class="mode-comparison">
+        <div class="mode-card online">
+          <h4>🌐 Online Mode</h4>
+          <ul class="mode-list">
+            <li>Study from your home city — save on rent</li>
+            <li>Available for: AC, BDA, AI, CSF (select centres)</li>
+            <li>PGCP-FBD is entirely online</li>
+            <li>Good for self-disciplined learners</li>
+            <li>Works well if you have a good study setup at home</li>
+          </ul>
+        </div>
+        <div class="mode-card physical">
+          <h4>🏛️ Physical Mode</h4>
+          <ul class="mode-list">
+            <li>Mandatory for: ESD, VLSI, MC, ITISS, ASSD, RAT</li>
+            <li>Better for lab-heavy courses (hardware, embedded)</li>
+            <li>Peer network and placement drives on campus</li>
+            <li>ACTS-style immersive learning environment</li>
+            <li>Recommended for first-time job seekers</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box warn">
+        <span class="box-icon">🔍</span>
+        <p><strong>Our honest take:</strong> For software courses (AC, BDA, AI), online works well if you're self-motivated. For anything with hardware components (ESD, VLSI) or hands-on labs — <strong>physical mode is significantly better</strong>. The lab access alone makes a big difference.</p>
+      </div>
+    </div>
+
+    <!-- SEAT CAPACITY -->
+    <div class="section" id="seats">
+      <div class="section-label">Seat Availability</div>
+      <h2>Seat Capacity Overview — Know What You're Competing For</h2>
+      <div class="divider"></div>
+      <p>Understanding seat numbers helps you set realistic counselling targets. High-seat courses give you more room to negotiate. Low-seat courses require a strong rank.</p>
+
+      <div class="seat-chart">
+        <div class="seat-row">
+          <span class="seat-label">PGCP-AC (Advanced Computing)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar primary" style="width:95%;">Very High (1000+ total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-ESD (Embedded Systems)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar secondary" style="width:72%;">High (400+ total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-BDA (Big Data)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar primary" style="width:68%;">High (400+ total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-AI (Artificial Intelligence)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar secondary" style="width:45%;">Medium (260+ total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-CSF (Cyber Security)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar primary" style="width:38%;">Medium (200+ total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-ITISS</span>
+          <div class="seat-bar-wrap"><div class="seat-bar secondary" style="width:33%;">Medium (~220 total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-MC (Mobile Computing)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar tertiary" style="width:22%;">Moderate (~120 total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-VLSI (VLSI Design)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar tertiary" style="width:18%;">Limited (~120 total)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-FBD (FinTech/Blockchain)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar tertiary" style="width:12%;">Limited (60 seats)</div></div>
+        </div>
+        <div class="seat-row">
+          <span class="seat-label">PGCP-RAT (Robotics)</span>
+          <div class="seat-bar-wrap"><div class="seat-bar tertiary" style="width:8%;">Very Limited (30 seats)</div></div>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <span class="box-icon">📌</span>
+        <p><strong>Strategy:</strong> If you're aiming for AI or VLSI, prioritise rank. These have limited seats and high demand. For AC or ESD, a mid-range rank still gives you good options at multiple quality centres.</p>
+      </div>
+    </div>
+
+    <!-- HOW TO CHOOSE CENTRE -->
+    <div class="section" id="choose">
+      <div class="section-label">Decision Framework</div>
+      <h2>How to Choose the Right Centre During Counselling</h2>
+      <div class="divider"></div>
+      <p>Once you have your rank, you need to make smart choices in the 7-day counselling window. Here's a simple framework:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Factor</th><th>What to Look For</th><th>Why It Matters</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Course fit</td><td>Pick course first, centre second</td><td>The course defines your career direction</td></tr>
+            <tr><td>Placement record</td><td>Tech hubs (BLR, HYD, PUN, MUM)</td><td>On-campus drives + industry connections</td></tr>
+            <tr><td>Seat availability</td><td>Check your rank vs seat count</td><td>Don't over-reach; have backup preferences ready</td></tr>
+            <tr><td>Mode preference</td><td>Online vs Physical based on your learning style</td><td>Affects daily experience and lab access</td></tr>
+            <tr><td>City familiarity</td><td>Prefer cities where you have network</td><td>Housing, commute, and local support matter</td></tr>
+            <tr><td>Centre type</td><td>Main CDAC centre vs ATC</td><td>Main centres typically have better labs and broader courses</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="info-box warn">
+        <span class="box-icon">⚡</span>
+        <p><strong>The most common counselling mistake:</strong> Choosing a course you're not sure about just because it has more available seats. Always list your genuine first choice first — even if seats are tight. Round 2 and Round 3 exist for a reason.</p>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section" id="faq">
+      <div class="section-label">Common Questions</div>
+      <h2>Frequently Asked Questions</h2>
+      <div class="divider"></div>
+
+      <div class="faq-item">
+        <div class="faq-q">Can I switch from one course to another after counselling?</div>
+        <div class="faq-a">Not easily. Once you freeze a seat, switching is typically not possible. Make sure your preference list is thoughtful — place your actual first choice at the top, not a "safe" backup.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is there a difference between C-DAC main centres and ATCs?</div>
+        <div class="faq-a">Yes. C-DAC main centres (like C-DAC Pune/ACTS, C-DAC Hyderabad) are run directly by C-DAC and tend to have better lab infrastructure, more course offerings, and a larger alumni network. ATCs are authorised partners — many are excellent (like Sunbeam Hinjawadi), but the experience can vary. Research individual ATC reputations before your counselling.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Which course has the best placement outcomes?</div>
+        <div class="faq-a">PGCP-AC has the highest raw number of placements due to sheer seat volume. PGCP-AI and PGCP-VLSI typically see the highest salary packages. PGCP-CSF and PGCP-BDA have strong consistent demand. Ultimately, placement outcomes depend heavily on the centre, your own preparation, and market timing.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I apply for both Category II and III courses?</div>
+        <div class="faq-a">Yes — pay the Category III fee (₹1,750), appear for all three sections, and list both Category II and III courses in your counselling preferences. Your rank for each category is computed separately.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is PGCP-FBD (FinTech & Blockchain) a good course for employment?</div>
+        <div class="faq-a">It's niche but growing. Blockchain developer roles are in demand, especially in FinTech startups, crypto platforms, and enterprise blockchain projects. The downside: it's the only truly online course and only offered at one centre (C-DAC Patna). If you're genuinely interested in blockchain, it's a very targeted course. If you're unsure, PGCP-AC is safer.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">I'm from Pune — should I always prefer Pune centres?</div>
+        <div class="faq-a">Not necessarily. Staying local saves on accommodation costs, which is a real financial benefit. However, if a better-suited centre for your course (like C-DAC Hyderabad for ESD/VLSI, or C-DAC Bengaluru for BDA) is within your rank range, it might be worth the move. The extra exposure to a tech hub city can meaningfully impact your job search.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">📑 Quick Navigation</div>
+      <div class="sidebar-card-body">
+        <ul class="toc-list">
+          <li><a href="#courses">All 12 Courses</a></li>
+          <li><a href="#career">Best Course by Goal</a></li>
+          <li><a href="#selector">Find Your Course</a></li>
+          <li><a href="#institutes">Top Institutes</a></li>
+          <li><a href="#pune">Pune Centres</a></li>
+          <li><a href="#mode">Online vs Physical</a></li>
+          <li><a href="#seats">Seat Capacity</a></li>
+          <li><a href="#choose">How to Choose</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cta-box">
+      <h4>📝 Prep for C-CAT</h4>
+      <p>Take free mock tests aligned with the August 2026 syllabus. All three sections covered.</p>
+      <a href="https://cdac.in" target="_blank" class="cta-btn">Start Free Mock Test →</a>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">📊 Quick Comparisons</div>
+      <div class="sidebar-card-body" style="font-size:0.82rem; color:var(--text-muted);">
+        <p style="margin-bottom:10px;"><strong style="color:var(--neutral-dark);">Most Seats:</strong><br>PGCP-AC (Advanced Computing)</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--neutral-dark);">Most Demand:</strong><br>PGCP-AI (60% required)</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--neutral-dark);">Only Online:</strong><br>PGCP-FBD (FinTech/Blockchain)</p>
+        <p style="margin-bottom:10px;"><strong style="color:var(--neutral-dark);">Best for Hardware:</strong><br>PGCP-ESD & PGCP-VLSI</p>
+        <p><strong style="color:var(--neutral-dark);">Best Pune Centre:</strong><br>C-DAC ACTS (Main Centre)</p>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">🔗 Official Links</div>
+      <div class="sidebar-card-body">
+        <ul class="toc-list">
+          <li><a href="https://cdac.in" target="_blank">cdac.in — Official Site</a></li>
+          <li><a href="https://cdac.in/index.aspx?id=pg_ccat" target="_blank">C-CAT Official Page</a></li>
+          <li><a href="https://acts.cdac.in" target="_blank">ACTS Pune</a></li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<footer>
+  <div class="foot-logo">Datawiz6</div>
+  <p>Your trusted resource for CDAC preparation, mock tests, and career guidance.</p>
+  <div class="foot-links">
+    <a href="#">CDAC Exam Guide</a>
+    <a href="#">Mock Tests</a>
+    <a href="#">Study Material</a>
+    <a href="https://cdac.in" target="_blank">Official CDAC Website</a>
+  </div>
+  <p style="font-size:0.78rem; opacity:0.5;">All information sourced from official CDAC announcements for the August 2026 batch. Always verify directly at cdac.in before making decisions.</p>
+</footer>
+
+<script>
+function showResult(type) {
+  // Hide all results
+  document.querySelectorAll('.selector-result').forEach(el => el.classList.remove('visible'));
+  // Remove active from all buttons
+  document.querySelectorAll('.sel-btn').forEach(el => el.classList.remove('active'));
+  // Show selected
+  const result = document.getElementById('result-' + type);
+  if (result) result.classList.add('visible');
+  // Mark active button
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
