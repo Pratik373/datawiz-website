@@ -147,12 +147,16 @@
 
 .ccat-guide-container .content-layout {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: minmax(0, 1fr) 280px;
   gap: 40px;
   margin: 40px auto;
   max-width: 1100px;
   padding: 0 24px;
   align-items: start;
+}
+
+.ccat-guide-container .main-column {
+  min-width: 0;
 }
 
 /* ─── SIDEBAR ─── */
@@ -818,7 +822,7 @@
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
   .ccat-guide-container .content-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .ccat-guide-container .sidebar {
     position: static;
@@ -832,6 +836,14 @@
 }
 
 @media (max-width: 600px) {
+  .ccat-guide-container .container,
+  .ccat-guide-container .content-layout {
+    padding: 0 16px;
+  }
+  .ccat-guide-container .alert-banner {
+    padding: 12px 16px;
+    align-items: flex-start;
+  }
   .ccat-guide-container .section {
     padding: 22px 18px;
   }
@@ -841,8 +853,27 @@
   .ccat-guide-container .hero {
     padding: 48px 20px 40px;
   }
-  .ccat-guide-container .section-cards {
+  .ccat-guide-container .section-cards,
+  .ccat-guide-container .syllabus-grid,
+  .ccat-guide-container .eligibility-cards,
+  .ccat-guide-container .prep-grid {
     grid-template-columns: 1fr;
+  }
+  .ccat-guide-container tbody td,
+  .ccat-guide-container thead th {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ccat-guide-container .date-grid {
+    grid-template-columns: 1fr;
+  }
+  .ccat-guide-container .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 }
 
