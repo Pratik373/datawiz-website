@@ -46,7 +46,8 @@
 
   /* LAYOUT */
   .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-  .content-layout { display: grid; grid-template-columns: 1fr 280px; gap: 40px; margin: 40px auto; max-width: 1100px; padding: 0 24px; align-items: start; }
+  .content-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 40px; margin: 40px auto; max-width: 1100px; padding: 0 24px; align-items: start; }
+  .main-column { min-width: 0; }
 
   /* SIDEBAR */
   .sidebar { position: sticky; top: 72px; display: flex; flex-direction: column; gap: 20px; }
@@ -185,8 +186,45 @@
   footer .foot-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
 
   /* RESPONSIVE */
-  @media (max-width: 900px) { .content-layout { grid-template-columns: 1fr; } .sidebar { position: static; } .mode-comparison { grid-template-columns: 1fr; } }
-  @media (max-width: 600px) { .section { padding: 22px 18px; } .hero { padding: 48px 20px 40px; } .seat-label { width: 120px; font-size: 0.76rem; } }
+  @media (max-width: 900px) {
+    .content-layout { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { position: static; }
+    .mode-comparison { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .container,
+    .content-layout {
+      padding: 0 16px;
+    }
+    .section { padding: 22px 18px; }
+    .hero { padding: 48px 20px 40px; }
+    .hero-chip { font-size: 0.75rem; padding: 4px 10px; }
+    .courses-grid,
+    .career-grid,
+    .pune-grid {
+      grid-template-columns: 1fr;
+    }
+    tbody td,
+    thead th {
+      padding: 8px 10px;
+      font-size: 0.8rem;
+    }
+    .selector {
+      padding: 18px 16px;
+    }
+    .seat-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .seat-label {
+      width: 100%;
+      font-size: 0.82rem;
+    }
+    .seat-bar-wrap {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>

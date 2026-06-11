@@ -151,7 +151,7 @@ export default function CdacCcatGuideBlog() {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F8F7F4' }}>
       {/* Header */}
       <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant">
-        <div className="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
+        <div className="flex justify-between items-center px-4 sm:px-gutter py-4 max-w-container-max mx-auto">
           <div className="flex items-center gap-md">
             <button
               onClick={() => navigate('/blogs')}
