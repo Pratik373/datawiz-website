@@ -143,3 +143,16 @@ export function getLeaderboard() {
 export function listAdminTestResults() {
   return requestJson({ action: 'list-test-results' });
 }
+
+export function listAdminNotifications() {
+  return requestJson({ action: 'list-notifications' });
+}
+
+export function createAdminNotification(message, type) {
+  return requestJson({ action: 'create-notification', message, type });
+}
+
+export function deleteAdminNotification(id) {
+  return requestJson({ action: 'delete-notification', id });
+}
+

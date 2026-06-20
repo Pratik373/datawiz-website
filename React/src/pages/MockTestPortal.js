@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { STARTER_PRICE_INR, formatINR } from '../pricingConfig'
+import ProfileDropdown from '../components/ProfileDropdown'
+
 
 const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62mcDroIz0U'
 const API_BASE = process.env.REACT_APP_API_URL || ''
@@ -29,98 +31,6 @@ const FREE_TEST_TOPICS = [
   },
 ]
 
-function ProfileDropdown({ user, navigate }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef(null)
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  if (!user) {
-    return (
-      <button
-        onClick={() => navigate('/login')}
-        className="px-4 py-2 border border-primary text-primary font-label-md text-sm md:text-label-md rounded-full hover:bg-primary/5 active:scale-95 transition-all justify-self-end whitespace-nowrap"
-      >
-        Login
-      </button>
-    )
-  }
-
-  const initials = (user.user_metadata?.full_name || user.email || 'U')
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
-  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
-
-  return (
-    <div className="relative justify-self-end" ref={ref}>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 group"
-        aria-label="Profile menu"
-      >
-        <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/50 overflow-hidden transition-all">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-          ) : (
-            initials
-          )}
-        </div>
-        <span
-          className="material-symbols-outlined text-on-surface-variant text-[18px] transition-transform"
-          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        >
-          expand_more
-        </span>
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-outline-variant overflow-hidden z-50 animate-fade-in">
-          <div className="px-4 py-3 border-b border-outline-variant bg-surface-container-low">
-            <p className="font-label-md text-label-md text-on-surface truncate text-left">{displayName}</p>
-            <p className="text-xs text-on-surface-variant truncate mt-0.5 text-left">{user.email}</p>
-          </div>
-          <div className="p-1">
-            <button
-              onClick={() => {
-                navigate('/')
-                setOpen(false)
-              }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-on-surface hover:bg-surface-container transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px] text-primary">home</span>
-              Home
-            </button>
-            <button
-              onClick={() => {
-                supabase.auth.signOut().then(() => {
-                  setOpen(false)
-                  navigate('/')
-                })
-              }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">logout</span>
-              Logout
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function MockTestPortal() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
@@ -141,6 +51,7 @@ export default function MockTestPortal() {
   const [reviewText, setReviewText] = useState('')
   const [submittingReview, setSubmittingReview] = useState(false)
   const [reviewError, setReviewError] = useState('')
+  const [notifications, setNotifications] = useState([])
 
   const loadUserAccess = useCallback(async (nextUser) => {
     if (!nextUser?.id) {
@@ -204,7 +115,7 @@ export default function MockTestPortal() {
                 user_id: activeUser.id,
                 tests_to_add: order.tests,
                 plan: planKey,
-                amount: order.amount,
+                amount: order.amount / 100,
               }),
             })
             const verifyData = await verifyRes.json().catch(() => ({}))
@@ -270,6 +181,40 @@ export default function MockTestPortal() {
     return () => subscription.unsubscribe()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadUserAccess])
+
+  useEffect(() => {
+    if (!user) {
+      setNotifications([])
+      return
+    }
+    let active = true
+    async function fetchNotifs() {
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(3)
+        if (error) throw error
+        if (active) setNotifications(data || [])
+      } catch (err) {
+        console.error('Error fetching notifications:', err)
+      }
+    }
+    fetchNotifs()
+
+    const channel = supabase
+      .channel('portal_notifications')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => {
+        fetchNotifs()
+      })
+      .subscribe()
+
+    return () => {
+      active = false
+      supabase.removeChannel(channel)
+    }
+  }, [user])
 
   useEffect(() => {
     loadTests()
@@ -490,6 +435,45 @@ export default function MockTestPortal() {
             Start the free mock test or unlock the 5-test premium series for {formatINR(STARTER_PRICE_INR)}.
           </p>
         </div>
+
+        {/* Announcements Section */}
+        {user && notifications.length > 0 && (
+          <div className="mb-md space-y-sm">
+            {notifications.map((notif) => (
+              <div
+                key={notif.id}
+                className={`p-md rounded-2xl border flex items-start gap-md shadow-sm transition-all hover:shadow-md ${
+                  notif.type === 'premium'
+                    ? 'bg-amber-50/70 border-amber-200/80 text-amber-900'
+                    : 'bg-white border-outline-variant text-on-surface'
+                }`}
+              >
+                <div className={`p-sm rounded-full shrink-0 flex items-center justify-center ${
+                  notif.type === 'premium' ? 'bg-amber-100 text-amber-600' : 'bg-primary/10 text-primary'
+                }`}>
+                  <span className="material-symbols-outlined text-[24px]">
+                    {notif.type === 'premium' ? 'workspace_premium' : 'campaign'}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <div className="flex items-center gap-xs mb-1">
+                    <span className={`text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                      notif.type === 'premium' ? 'bg-amber-200/60 text-amber-800' : 'bg-primary/10 text-primary'
+                    }`}>
+                      {notif.type === 'premium' ? 'Premium Announcement' : 'Announcement'}
+                    </span>
+                    <span className="text-xs text-on-surface-variant/70">
+                      • {new Date(notif.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="font-body-md text-[16px] leading-relaxed font-medium text-left">
+                    {notif.message}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-md mb-sm p-xs bg-surface-container rounded-xl">
           <InfoPill icon="verified" label={freeTest ? '1 Free Test' : 'No Free Test'} />

@@ -139,7 +139,7 @@ async function listAllUsers() {
 
   while (true) {
     const response = await fetch(
-      `${supabaseUrl}/auth/v1/admin/users?page=${page}&perPage=${perPage}`,
+      `${supabaseUrl}/auth/v1/admin/users?page=${page}&per_page=${perPage}`,
       {
         headers: {
           apikey: serviceRoleKey,
@@ -697,6 +697,47 @@ async function listTestResults() {
   }));
 }
 
+async function listNotifications() {
+  const { data, error } = await supabaseAdmin
+    .from('notifications')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+async function createNotification(payload: Record<string, unknown>) {
+  const message = text(payload.message);
+  const type = text(payload.type);
+
+  if (!message || (type !== 'general' && type !== 'premium')) {
+    return json({ error: 'Message and valid type (general/premium) are required.' }, 400);
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('notifications')
+    .insert({ message, type })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { ok: true, notification: data };
+}
+
+async function deleteNotification(payload: Record<string, unknown>) {
+  const id = text(payload.id);
+  if (!id) return json({ error: 'Notification ID is required.' }, 400);
+
+  const { error } = await supabaseAdmin
+    .from('notifications')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+  return { ok: true };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -746,6 +787,12 @@ Deno.serve(async (req) => {
         return json(await getLeaderboard());
       case 'list-test-results':
         return json({ results: await listTestResults() });
+      case 'list-notifications':
+        return json({ notifications: await listNotifications() });
+      case 'create-notification':
+        return json(await createNotification(payload));
+      case 'delete-notification':
+        return json(await deleteNotification(payload));
       default:
         return json({ error: 'Unknown admin action.' }, 400);
     }
@@ -755,3 +802,4 @@ Deno.serve(async (req) => {
     return json({ error: error instanceof Error ? error.message : 'Unexpected server error.' }, 500);
   }
 });
+

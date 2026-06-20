@@ -15,6 +15,9 @@ import {
   listAdminUsers,
   recordAdminPayment,
   uploadAdminTestFile,
+  listAdminNotifications,
+  createAdminNotification,
+  deleteAdminNotification,
 } from '../adminApi';
 import { supabase } from '../supabaseClient';
 import './AdminDashboard.css';
@@ -96,6 +99,7 @@ export default function AdminDashboard() {
           ['upload', 'Create Test'],
           ['whitelist', '🛡 Beta Access'],
           ['reviews', 'Reviews'],
+          ['notifications', '📢 Notifications'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -118,6 +122,7 @@ export default function AdminDashboard() {
         {activeTab === 'upload' && <CreateTestPanel showNotice={showNotice} />}
         {activeTab === 'whitelist' && <WhitelistPanel showNotice={showNotice} />}
         {activeTab === 'reviews' && <ReviewsPanel showNotice={showNotice} />}
+        {activeTab === 'notifications' && <NotificationsPanel showNotice={showNotice} />}
       </main>
     </div>
   );
@@ -224,6 +229,8 @@ function UsersPanel({ showNotice }) {
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [bulkPlan, setBulkPlan] = useState('');
   const [deletingId, setDeletingId] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const USERS_PER_PAGE = 20;
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -250,6 +257,19 @@ function UsersPanel({ showNotice }) {
         .some((value) => value.toLowerCase().includes(query))
     );
   }, [search, users]);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * USERS_PER_PAGE;
+    return filteredUsers.slice(start, start + USERS_PER_PAGE);
+  }, [filteredUsers, currentPage]);
+
+  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
   const handlePlanChange = async (userId, plan) => {
     setUpdatingId(userId);
@@ -331,8 +351,15 @@ function UsersPanel({ showNotice }) {
   };
 
   const toggleSelectAll = () => {
-    if (selectedUsers.size === filteredUsers.length) setSelectedUsers(new Set());
-    else setSelectedUsers(new Set(filteredUsers.map(u => u.id)));
+    const paginatedIds = paginatedUsers.map(u => u.id);
+    const allSelectedOnPage = paginatedIds.every(id => selectedUsers.has(id));
+    const newSelected = new Set(selectedUsers);
+    if (allSelectedOnPage) {
+      paginatedIds.forEach(id => newSelected.delete(id));
+    } else {
+      paginatedIds.forEach(id => newSelected.add(id));
+    }
+    setSelectedUsers(newSelected);
   };
 
   return (
@@ -343,7 +370,10 @@ function UsersPanel({ showNotice }) {
         <input
           type="search"
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setCurrentPage(1);
+          }}
           placeholder="Search users"
         />
         <button className="admin-secondary-btn" onClick={fetchUsers}>Refresh</button>
@@ -371,7 +401,13 @@ function UsersPanel({ showNotice }) {
           <table className="admin-table">
             <thead>
               <tr>
-                <th><input type="checkbox" checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0} onChange={toggleSelectAll} /></th>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={paginatedUsers.length > 0 && paginatedUsers.every(u => selectedUsers.has(u.id))}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
                 <th>User</th>
                 <th>Email</th>
                 <th>Joined</th>
@@ -382,7 +418,7 @@ function UsersPanel({ showNotice }) {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => {
+              {paginatedUsers.map((user) => {
                 const expired = user.expires_at && new Date(user.expires_at) < new Date();
                 return (
                   <tr key={user.id}>
@@ -414,6 +450,53 @@ function UsersPanel({ showNotice }) {
             </tbody>
           </table>
           {filteredUsers.length === 0 && <div className="admin-empty">No users found.</div>}
+
+          {filteredUsers.length > 0 && (
+            <div className="admin-pagination">
+              <div className="admin-pagination-info">
+                Showing {Math.min(filteredUsers.length, (currentPage - 1) * USERS_PER_PAGE + 1)}-
+                {Math.min(filteredUsers.length, currentPage * USERS_PER_PAGE)} of {filteredUsers.length} users
+              </div>
+              <div className="admin-pagination-nav">
+                <button
+                  type="button"
+                  className="admin-pagination-btn"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  &larr; Prev
+                </button>
+                <div className="admin-pagination-pages">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                    .map((page, idx, arr) => {
+                      const prevPage = arr[idx - 1];
+                      const showEllipsis = prevPage && page - prevPage > 1;
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && <span style={{ padding: '0 4px', color: '#888' }}>...</span>}
+                          <button
+                            type="button"
+                            className={`admin-pagination-page-num ${currentPage === page ? 'active' : ''}`}
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
+                </div>
+                <button
+                  type="button"
+                  className="admin-pagination-btn"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next &rarr;
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>
@@ -529,7 +612,7 @@ function PaymentsPanel({ showNotice }) {
                 <tr key={payment.id}>
                   <td>{payment.user_full_name || payment.user_email || 'Unknown user'}</td>
                   <td><PlanBadge plan={payment.plan} /></td>
-                  <td>{payment.currency} {Number(payment.amount).toFixed(2)}</td>
+                  <td>{payment.currency || '₹'} {Number(Number(payment.amount) >= 1000 ? Number(payment.amount) / 100 : payment.amount).toFixed(2)}</td>
                   <td><span className={`payment-status ${payment.status}`}>{payment.status}</span></td>
                   <td>{formatDate(payment.payment_date)}</td>
                 </tr>
@@ -1585,3 +1668,139 @@ function ReviewsPanel({ showNotice }) {
     </section>
   );
 }
+
+function NotificationsPanel({ showNotice }) {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+  const [type, setType] = useState('general');
+  const [sending, setSending] = useState(false);
+  const [deletingId, setDeletingId] = useState('');
+
+  const fetchNotifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { notifications: data } = await listAdminNotifications();
+      setNotifications(data || []);
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotice]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!message.trim()) {
+      showNotice('Please enter a message.', 'error');
+      return;
+    }
+    setSending(true);
+    try {
+      await createAdminNotification(message.trim(), type);
+      showNotice('Notification sent successfully!');
+      setMessage('');
+      fetchNotifications();
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this notification? This cannot be undone.')) return;
+    setDeletingId(id);
+    try {
+      await deleteAdminNotification(id);
+      showNotice('Notification deleted.');
+      fetchNotifications();
+    } catch (error) {
+      showNotice(error.message, 'error');
+    } finally {
+      setDeletingId('');
+    }
+  };
+
+  return (
+    <section className="admin-panel animate-fade-in">
+      <PanelHeader title="Manage Notifications" subtitle="Send and manage notifications displayed to students on their profiles." />
+
+      <form className="admin-form-grid" onSubmit={handleSubmit} style={{ marginBottom: '2rem' }}>
+        <h3>Send New Notification</h3>
+        <label className="admin-form-full">
+          <span>Notification Message</span>
+          <textarea
+            rows="3"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your announcement here... e.g. New Mock Test Set 5 is now live!"
+            required
+            style={{ width: '100%', resize: 'none' }}
+          />
+        </label>
+        
+        <label>
+          <span>Target Audience</span>
+          <select value={type} onChange={(e) => setType(e.target.value)}>
+            <option value="general">General (All Users)</option>
+            <option value="premium">Premium (Paid Users Only)</option>
+          </select>
+        </label>
+
+        <button className="admin-primary-btn" disabled={sending} style={{ alignSelf: 'end', height: '42px' }}>
+          {sending ? 'Sending...' : 'Send Notification'}
+        </button>
+      </form>
+
+      <h3>Sent Notifications</h3>
+      {loading ? (
+        <div className="admin-empty">Loading notifications...</div>
+      ) : notifications.length === 0 ? (
+        <div className="admin-empty">No notifications sent yet.</div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Date Sent</th>
+                <th>Audience</th>
+                <th>Message</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {notifications.map((notif) => (
+                <tr key={notif.id}>
+                  <td>{formatDate(notif.created_at)}</td>
+                  <td>
+                    <span className={`plan-badge ${notif.type === 'premium' ? 'premium' : 'free'}`}>
+                      {notif.type === 'premium' ? 'Premium Only' : 'General'}
+                    </span>
+                  </td>
+                  <td style={{ whiteSpace: 'normal', maxWidth: '400px' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.4' }}>{notif.message}</p>
+                  </td>
+                  <td>
+                    <button
+                      className="admin-danger-btn-small"
+                      onClick={() => handleDelete(notif.id)}
+                      disabled={deletingId === notif.id}
+                    >
+                      {deletingId === notif.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
