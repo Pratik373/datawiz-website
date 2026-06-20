@@ -361,6 +361,21 @@
   box-shadow: 0 0 0 1px #006565;
 }
 
+.admin-form-grid select,
+.admin-table select,
+.bulk-actions select,
+.admin-toolbar select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233e4949'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 18px !important;
+  padding-right: 32px !important;
+}
+
+
 .admin-form-full {
   grid-column: 1 / -1;
 }
@@ -891,3 +906,88 @@
     padding: 8px 12px;
   }
 }
+
+/* Pagination Styling */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #ffffff;
+  border-top: 1px solid #e1dfd5;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-pagination-info {
+  font-size: 14px;
+  color: #555e5e;
+}
+
+.admin-pagination-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid #d3d1c7;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #181c1c;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+  background: #f0f4f3;
+  border-color: #006565;
+  color: #006565;
+}
+
+.admin-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f7f4;
+}
+
+.admin-pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-pagination-page-num {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555e5e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-pagination-page-num:hover:not(.active) {
+  background: #f0f4f3;
+  color: #006565;
+}
+
+.admin-pagination-page-num.active {
+  background: #006565;
+  color: #ffffff;
+  border-color: #006565;
+}
+
