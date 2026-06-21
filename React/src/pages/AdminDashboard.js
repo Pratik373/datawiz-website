@@ -1749,6 +1749,7 @@ function NotificationsPanel({ showNotice }) {
           <select value={type} onChange={(e) => setType(e.target.value)}>
             <option value="general">General (All Users)</option>
             <option value="premium">Premium (Paid Users Only)</option>
+            <option value="non_paid">Non-Paid Users (Free Only)</option>
           </select>
         </label>
 
@@ -1778,8 +1779,8 @@ function NotificationsPanel({ showNotice }) {
                 <tr key={notif.id}>
                   <td>{formatDate(notif.created_at)}</td>
                   <td>
-                    <span className={`plan-badge ${notif.type === 'premium' ? 'premium' : 'free'}`}>
-                      {notif.type === 'premium' ? 'Premium Only' : 'General'}
+                    <span className={`plan-badge ${notif.type === 'premium' ? 'premium' : notif.type === 'non_paid' ? 'free' : 'general'}`}>
+                      {notif.type === 'premium' ? 'Premium Only' : notif.type === 'non_paid' ? 'Non-Paid Only' : 'General'}
                     </span>
                   </td>
                   <td style={{ whiteSpace: 'normal', maxWidth: '400px' }}>
