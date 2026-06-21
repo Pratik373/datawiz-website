@@ -711,8 +711,8 @@ async function createNotification(payload: Record<string, unknown>) {
   const message = text(payload.message);
   const type = text(payload.type);
 
-  if (!message || (type !== 'general' && type !== 'premium')) {
-    return json({ error: 'Message and valid type (general/premium) are required.' }, 400);
+  if (!message || (type !== 'general' && type !== 'premium' && type !== 'non_paid')) {
+    return json({ error: 'Message and valid type (general/premium/non_paid) are required.' }, 400);
   }
 
   const { data, error } = await supabaseAdmin
