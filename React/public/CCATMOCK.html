@@ -327,6 +327,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
 </main>
 
 <script>
+const testId = 'free-ccat-mock-test';
 const questions = [
 
 // ── SECTION A: ENGLISH (Q1–10) ──
@@ -512,12 +513,12 @@ function renderNav(){
 }
 
 function saveAnswer(id, value){
-    localStorage.setItem("ccat_q"+id, value);
+    localStorage.setItem("ccat_" + testId + "_q" + id, value);
     renderNav();
 }
 
 function getSelected(id){
-    const v = localStorage.getItem("ccat_q"+id);
+    const v = localStorage.getItem("ccat_" + testId + "_q" + id);
     return v === null ? null : Number(v);
 }
 
@@ -618,7 +619,9 @@ function renderReview(){
 }
 
 function reattemptExam(){
-    questions.forEach(q => localStorage.removeItem("ccat_q"+q.id));
+    questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
+    localStorage.removeItem('ccat_test_completed');
+    localStorage.removeItem('ccat_test_completed_id');
     clearInterval(timerInterval);
     currentSection="A"; examStarted=false; examSubmitted=false;
     sectionALocked=false; timeLeft={A:60*60,B:60*60}; timerInterval=null;
@@ -635,6 +638,7 @@ function reattemptExam(){
 
 updateTimers();
 </script>
+
 
 
 <!-- Supabase CDN and Review Interceptor -->
@@ -808,12 +812,54 @@ updateTimers();
   `;
   document.head.appendChild(style);
 
-  window.submitExam = function() {
+  window.submitExam = async function() {
     // Call the original exam submit logic to compute result
     originalSubmitExam();
 
-    // Hide result screen immediately
     const resultScreen = document.getElementById("resultScreen");
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    let user = null;
+    let alreadyReviewed = false;
+
+    if (supabaseClient) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        user = session?.user;
+        if (user) {
+          const { data } = await supabaseClient
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('test_id', testId)
+            .maybeSingle();
+          if (data) {
+            alreadyReviewed = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error checking review:', err);
+      }
+    }
+
+    if (alreadyReviewed || !user) {
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+      localStorage.removeItem('ccat_test_completed');
+      localStorage.removeItem('ccat_test_completed_id');
+      return;
+    }
+
+    // Hide result screen immediately
     if (resultScreen) {
       resultScreen.style.display = "none";
     }
@@ -871,15 +917,6 @@ updateTimers();
     const errDiv = overlay.querySelector('.review-error');
     const submitBtn = overlay.querySelector('.review-submit-btn');
     const skipBtn = overlay.querySelector('.review-skip-btn');
-
-    // Initialize Supabase Client
-    let supabaseClient = null;
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(
-        'https://uoqfnvrdbicbepjxapcf.supabase.co',
-        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
-      );
-    }
 
     const showResults = () => {
       overlay.remove();

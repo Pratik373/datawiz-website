@@ -193,12 +193,54 @@ files.forEach(({ name, id }) => {
   \`;
   document.head.appendChild(style);
 
-  window.submitExam = function() {
+  window.submitExam = async function() {
     // Call the original exam submit logic to compute result
     originalSubmitExam();
 
-    // Hide result screen immediately
     const resultScreen = document.getElementById("resultScreen");
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    let user = null;
+    let alreadyReviewed = false;
+
+    if (supabaseClient) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        user = session?.user;
+        if (user) {
+          const { data } = await supabaseClient
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('test_id', testId)
+            .maybeSingle();
+          if (data) {
+            alreadyReviewed = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error checking review:', err);
+      }
+    }
+
+    if (alreadyReviewed || !user) {
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+      localStorage.removeItem('ccat_test_completed');
+      localStorage.removeItem('ccat_test_completed_id');
+      return;
+    }
+
+    // Hide result screen immediately
     if (resultScreen) {
       resultScreen.style.display = "none";
     }
@@ -256,15 +298,6 @@ files.forEach(({ name, id }) => {
     const errDiv = overlay.querySelector('.review-error');
     const submitBtn = overlay.querySelector('.review-submit-btn');
     const skipBtn = overlay.querySelector('.review-skip-btn');
-
-    // Initialize Supabase Client
-    let supabaseClient = null;
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(
-        'https://uoqfnvrdbicbepjxapcf.supabase.co',
-        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
-      );
-    }
 
     const showResults = () => {
       overlay.remove();
@@ -531,9 +564,54 @@ if (fs.existsSync(rootMock)) {
   \`;
   document.head.appendChild(style);
 
-  window.submitExam = function() {
+  window.submitExam = async function() {
+    // Call the original exam submit logic to compute result
     originalSubmitExam();
+
     const resultScreen = document.getElementById("resultScreen");
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    let user = null;
+    let alreadyReviewed = false;
+
+    if (supabaseClient) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        user = session?.user;
+        if (user) {
+          const { data } = await supabaseClient
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('test_id', testId)
+            .maybeSingle();
+          if (data) {
+            alreadyReviewed = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error checking review:', err);
+      }
+    }
+
+    if (alreadyReviewed || !user) {
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+      localStorage.removeItem('ccat_test_completed');
+      localStorage.removeItem('ccat_test_completed_id');
+      return;
+    }
+
+    // Hide result screen immediately
     if (resultScreen) {
       resultScreen.style.display = "none";
     }
@@ -591,14 +669,6 @@ if (fs.existsSync(rootMock)) {
     const submitBtn = overlay.querySelector('.review-submit-btn');
     const skipBtn = overlay.querySelector('.review-skip-btn');
 
-    let supabaseClient = null;
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(
-        'https://uoqfnvrdbicbepjxapcf.supabase.co',
-        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
-      );
-    }
-
     const showResults = () => {
       overlay.remove();
       if (resultScreen) {
@@ -648,6 +718,7 @@ if (fs.existsSync(rootMock)) {
 
         if (error) throw error;
 
+        // Success - remove local storage flags since review is submitted
         localStorage.removeItem('ccat_test_completed');
         localStorage.removeItem('ccat_test_completed_id');
         alert('Thank you! Your review has been submitted for admin approval.');
