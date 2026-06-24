@@ -349,6 +349,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
 </main>
 
 <script>
+const testId = 'free-ccat-mock-test';
 const questions = [
 {id:1,section:"A",topic:"English",q:"Choose the synonym of OBSCURE:",o:["Bright","Vague","Clear","Famous"],a:1},
 {id:2,section:"A",topic:"English",q:"Choose the antonym of FRAGILE:",o:["Weak","Delicate","Strong","Tiny"],a:2},
@@ -524,12 +525,12 @@ function renderNav(){
 }
 
 function saveAnswer(id,value){
-    localStorage.setItem("ccat_q"+id,value);
+    localStorage.setItem("ccat_" + testId + "_q" + id, value);
     renderNav();
 }
 
 function getSelected(id){
-    const value = localStorage.getItem("ccat_q"+id);
+    const value = localStorage.getItem("ccat_" + testId + "_q" + id);
     return value === null ? null : Number(value);
 }
 
@@ -670,8 +671,10 @@ function renderReview(){
 
 function reattemptExam(){
     questions.forEach(q => {
-        localStorage.removeItem("ccat_q"+q.id);
+        localStorage.removeItem("ccat_" + testId + "_q" + q.id);
     });
+    localStorage.removeItem('ccat_test_completed');
+    localStorage.removeItem('ccat_test_completed_id');
 
     clearInterval(timerInterval);
     currentSection = "A";
@@ -696,6 +699,7 @@ function reattemptExam(){
 
 updateTimers();
 </script>
+
 
 
 <!-- Supabase CDN and Review Interceptor -->
@@ -868,9 +872,54 @@ updateTimers();
   `;
   document.head.appendChild(style);
 
-  window.submitExam = function() {
+  window.submitExam = async function() {
+    // Call the original exam submit logic to compute result
     originalSubmitExam();
+
     const resultScreen = document.getElementById("resultScreen");
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    let user = null;
+    let alreadyReviewed = false;
+
+    if (supabaseClient) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        user = session?.user;
+        if (user) {
+          const { data } = await supabaseClient
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('test_id', testId)
+            .maybeSingle();
+          if (data) {
+            alreadyReviewed = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error checking review:', err);
+      }
+    }
+
+    if (alreadyReviewed || !user) {
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+      localStorage.removeItem('ccat_test_completed');
+      localStorage.removeItem('ccat_test_completed_id');
+      return;
+    }
+
+    // Hide result screen immediately
     if (resultScreen) {
       resultScreen.style.display = "none";
     }
@@ -928,14 +977,6 @@ updateTimers();
     const submitBtn = overlay.querySelector('.review-submit-btn');
     const skipBtn = overlay.querySelector('.review-skip-btn');
 
-    let supabaseClient = null;
-    if (window.supabase) {
-      supabaseClient = window.supabase.createClient(
-        'https://uoqfnvrdbicbepjxapcf.supabase.co',
-        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
-      );
-    }
-
     const showResults = () => {
       overlay.remove();
       if (resultScreen) {
@@ -985,6 +1026,7 @@ updateTimers();
 
         if (error) throw error;
 
+        // Success - remove local storage flags since review is submitted
         localStorage.removeItem('ccat_test_completed');
         localStorage.removeItem('ccat_test_completed_id');
         alert('Thank you! Your review has been submitted for admin approval.');
