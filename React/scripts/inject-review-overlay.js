@@ -21,6 +21,35 @@ files.forEach(({ name, id }) => {
 
   let content = fs.readFileSync(filePath, 'utf8');
 
+  // Insert Clear All Answers button in the header beside the timers if not present
+  const timerBRegex = /<div\s+id="timerB"[^>]*>[^<]*<\/div>/i;
+  const clearBtnTag = '<button id="clearAllBtn" onclick="clearAllAnswers()" style="display:none;background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Clear Section Answers</button>';
+  
+  if (content.includes('id="clearAllBtn"')) {
+    content = content.replace(/<button\s+id="clearAllBtn"[^>]*>[^<]*<\/button>/gi, clearBtnTag);
+  } else if (content.match(timerBRegex)) {
+    content = content.replace(timerBRegex, '$&\n        ' + clearBtnTag);
+  }
+
+  // Inject clear button visibility toggles
+  if (!content.includes('clearAllBtn.style.display = "inline-block"')) {
+    content = content.replace(
+      /function\s+startExam\(\)\s*\{([\s\S]*?)examStarted\s*=\s*true;/gi,
+      'function startExam(){\n    examStarted = true;\n    const clearBtn = document.getElementById("clearAllBtn");\n    if (clearBtn) clearBtn.style.display = "inline-block";'
+    );
+  }
+
+  if (!content.includes('clearAllBtn.style.display = "none"')) {
+    content = content.replace(
+      /function\s+reattemptExam\(\)\s*\{/gi,
+      'function reattemptExam(){\n    const clearBtn = document.getElementById("clearAllBtn");\n    if (clearBtn) clearBtn.style.display = "none";'
+    );
+    content = content.replace(
+      /function\s+submitExam\(\)\s*\{([\s\S]*?)if\s*\(\s*examSubmitted\s*\)\s*return;\s*examSubmitted\s*=\s*true;/gi,
+      'function submitExam(){\n    if(examSubmitted) return;\n    examSubmitted = true;\n    const clearBtn = document.getElementById("clearAllBtn");\n    if (clearBtn) clearBtn.style.display = "none";'
+    );
+  }
+
   const scriptToInject = `
 <!-- Supabase CDN and Review Interceptor -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -30,6 +59,19 @@ files.forEach(({ name, id }) => {
   if (!originalSubmitExam) return;
 
   const testId = '${id}';
+
+  window.clearAllAnswers = function() {
+    const activeSec = (typeof currentSection !== 'undefined') ? currentSection : 'A';
+    if (confirm("Are you sure you want to clear all Section " + activeSec + " answers?")) {
+      questions.forEach(q => {
+        if (q.section === activeSec) {
+          localStorage.removeItem("ccat_" + testId + "_q" + q.id);
+        }
+      });
+      if (typeof renderQuestions === 'function') renderQuestions();
+      if (typeof renderNav === 'function') renderNav();
+    }
+  };
 
   // Create style element for overlay
   const style = document.createElement('style');
@@ -393,6 +435,36 @@ files.forEach(({ name, id }) => {
 const rootMock = path.join(__dirname, '..', '..', 'CCATMOCK.html');
 if (fs.existsSync(rootMock)) {
   let content = fs.readFileSync(rootMock, 'utf8');
+
+  // Insert Clear All Answers button in the header beside the timers if not present
+  const timerBRegex = /<div\s+id="timerB"[^>]*>[^<]*<\/div>/i;
+  const clearBtnTag = '<button id="clearAllBtn" onclick="clearAllAnswers()" style="display:none;background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Clear Section Answers</button>';
+  
+  if (content.includes('id="clearAllBtn"')) {
+    content = content.replace(/<button\s+id="clearAllBtn"[^>]*>[^<]*<\/button>/gi, clearBtnTag);
+  } else if (content.match(timerBRegex)) {
+    content = content.replace(timerBRegex, '$&\n        ' + clearBtnTag);
+  }
+
+  // Inject clear button visibility toggles
+  if (!content.includes('clearAllBtn.style.display = "inline-block"')) {
+    content = content.replace(
+      /function\s+startExam\(\)\s*\{([\s\S]*?)examStarted\s*=\s*true;/gi,
+      'function startExam(){\n    examStarted = true;\n    const clearBtn = document.getElementById("clearAllBtn");\n    if (clearBtn) clearBtn.style.display = "inline-block";'
+    );
+  }
+
+  if (!content.includes('clearAllBtn.style.display = "none"')) {
+    content = content.replace(
+      /function\s+reattemptExam\(\)\s*\{/gi,
+      'function reattemptExam(){\n    const clearBtn = document.getElementById("clearAllBtn");\n    if (clearBtn) clearBtn.style.display = "none";'
+    );
+    content = content.replace(
+      /function\s+submitExam\(\)\s*\{([\s\S]*?)if\s*\(\s*examSubmitted\s*\)\s*return;\s*examSubmitted\s*=\s*true;/gi,
+      'function submitExam(){\n    if(examSubmitted) return;\n    examSubmitted = true;\n    const clearBtn = document.getElementById("clearAllBtn");\n    if (clearBtn) clearBtn.style.display = "none";'
+    );
+  }
+
   const scriptToInject = `
 <!-- Supabase CDN and Review Interceptor -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -402,6 +474,19 @@ if (fs.existsSync(rootMock)) {
   if (!originalSubmitExam) return;
 
   const testId = 'free-ccat-mock-test';
+
+  window.clearAllAnswers = function() {
+    const activeSec = (typeof currentSection !== 'undefined') ? currentSection : 'A';
+    if (confirm("Are you sure you want to clear all Section " + activeSec + " answers?")) {
+      questions.forEach(q => {
+        if (q.section === activeSec) {
+          localStorage.removeItem("ccat_" + testId + "_q" + q.id);
+        }
+      });
+      if (typeof renderQuestions === 'function') renderQuestions();
+      if (typeof renderNav === 'function') renderNav();
+    }
+  };
 
   const style = document.createElement('style');
   style.textContent = \`

@@ -410,7 +410,7 @@ export default function Home() {
               <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
               <div className="flex items-center justify-center gap-sm">
                 <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
-                <span className="text-on-surface-variant line-through font-body-lg text-body-lg">{formatINR(STARTER_ORIGINAL_PRICE_INR)}</span>
+                <span className="text-red-600 line-through text-3xl font-bold">{formatINR(STARTER_ORIGINAL_PRICE_INR)}</span>
               </div>
               <ul className="text-left space-y-sm py-md">
                 {[
