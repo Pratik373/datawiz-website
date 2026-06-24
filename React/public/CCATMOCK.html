@@ -254,6 +254,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
+        <button id="clearAllBtn" onclick="clearAllAnswers()" style="display:none;background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Clear Section Answers</button>
         <button id="yourTestsBtn" onclick="window.location.href='/tests'" style="background:var(--green);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Your Tests</button>
         <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;color:white;border:none;border-radius:7px;cursor:pointer;">Logout</button>
     </div>
@@ -329,125 +330,106 @@ button:disabled{opacity:0.6;cursor:not-allowed}
 <script>
 const testId = 'free-ccat-mock-test';
 const questions = [
-
-// ── SECTION A: ENGLISH (Q1–10) ──
-{id:1,section:"A",topic:"English",q:"Choose the synonym of ABUNDANT:",o:["Scarce","Plentiful","Empty","Tiny"],a:1},
-{id:2,section:"A",topic:"English",q:"Choose the antonym of ANCIENT:",o:["Old","Historic","Modern","Classic"],a:2},
-{id:3,section:"A",topic:"English",q:"Fill in the blank: She _____ to the market every Sunday.",o:["go","goes","going","gone"],a:1},
-{id:4,section:"A",topic:"English",q:"Identify the error: 'He don't know the answer.'",o:["He","don't","know","the answer"],a:1},
-{id:5,section:"A",topic:"English",q:"Choose the correctly spelled word:",o:["Recieve","Receive","Receve","Receeve"],a:1},
-{id:6,section:"A",topic:"English",q:"One word for 'a doctor who treats children':",o:["Cardiologist","Dermatologist","Pediatrician","Neurologist"],a:2},
-{id:7,section:"A",topic:"English",q:"Meaning of idiom 'Break the ice':",o:["Break something","Start a conversation","End a fight","Win a game"],a:1},
-{id:8,section:"A",topic:"English",q:"Choose passive voice of: 'Ram wrote a letter.'",o:["A letter was written by Ram","A letter is written by Ram","Ram was written a letter","A letter wrote Ram"],a:0},
-{id:9,section:"A",topic:"English",q:"Fill in the blank: He is good _____ playing cricket.",o:["in","on","at","of"],a:2},
-{id:10,section:"A",topic:"English",q:"Choose the correct sentence:",o:["I have went there","I have gone there","I have go there","I went there yesterday but I have go again"],a:1},
-
-// ── SECTION A: QUANTITATIVE APTITUDE (Q11–25) ──
-{id:11,section:"A",topic:"Quantitative Aptitude",q:"A sum of Rs.5000 earns simple interest of Rs.1000 in 4 years. What is the rate of interest per annum?",o:["4%","5%","6%","8%"],a:1},
-{id:12,section:"A",topic:"Quantitative Aptitude",q:"A can do a work in 10 days, B in 15 days. How many days will they take together?",o:["5","6","8","12"],a:1},
-{id:13,section:"A",topic:"Quantitative Aptitude",q:"A train 150 m long runs at 54 km/h. Time to cross a pole is:",o:["8 sec","10 sec","12 sec","15 sec"],a:1},
-{id:14,section:"A",topic:"Quantitative Aptitude",q:"What is 30% of 250?",o:["65","70","75","80"],a:2},
-{id:15,section:"A",topic:"Quantitative Aptitude",q:"A shopkeeper buys at Rs.200 and sells at Rs.250. Profit % is:",o:["20%","25%","30%","50%"],a:1},
-{id:16,section:"A",topic:"Quantitative Aptitude",q:"LCM of 8, 12 and 16 is:",o:["24","36","48","96"],a:2},
-{id:17,section:"A",topic:"Quantitative Aptitude",q:"Series: 2, 5, 10, 17, 26, ?",o:["35","36","37","38"],a:2},
-{id:18,section:"A",topic:"Quantitative Aptitude",q:"Average of 5 numbers is 20. If one number is removed and average becomes 18, the removed number is:",o:["25","28","30","32"],a:1},
-{id:19,section:"A",topic:"Quantitative Aptitude",q:"Compound interest on Rs.1000 at 10% per annum for 2 years:",o:["Rs.200","Rs.210","Rs.220","Rs.100"],a:1},
-{id:20,section:"A",topic:"Quantitative Aptitude",q:"If 3x = 21, find x:",o:["5","6","7","8"],a:2},
-{id:21,section:"A",topic:"Quantitative Aptitude",q:"Probability of getting an even number on a dice roll:",o:["1/6","1/3","1/2","2/3"],a:2},
-{id:22,section:"A",topic:"Quantitative Aptitude",q:"Area of a rectangle with length 12 cm and breadth 8 cm:",o:["80 cm²","96 cm²","100 cm²","40 cm²"],a:1},
-{id:23,section:"A",topic:"Quantitative Aptitude",q:"Speed = 60 km/h, Time = 2.5 hours. Distance =",o:["120 km","150 km","180 km","200 km"],a:1},
-{id:24,section:"A",topic:"Quantitative Aptitude",q:"HCF of 36 and 48 is:",o:["6","9","12","18"],a:2},
-{id:25,section:"A",topic:"Quantitative Aptitude",q:"A number is increased by 20% and then decreased by 20%. Net change is:",o:["No change","4% decrease","4% increase","2% decrease"],a:1},
-
-// ── SECTION A: LOGICAL REASONING (Q26–40) ──
-{id:26,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: 3, 5, 7, 9, 11",o:["3","5","9","11"],a:2},
-{id:27,section:"A",topic:"Logical Reasoning",q:"A is the mother of B. B is the sister of C. What is A's relation to C?",o:["Aunt","Mother","Sister","Grandmother"],a:1},
-{id:28,section:"A",topic:"Logical Reasoning",q:"Series: 1, 4, 9, 16, 25, ?",o:["30","34","36","49"],a:2},
-{id:29,section:"A",topic:"Logical Reasoning",q:"If MANGO = 13+1+14+7+15 = 50, then APPLE = ?",o:["50","51","52","53"],a:1},
-{id:30,section:"A",topic:"Logical Reasoning",q:"Clock shows 6:00. Angle between hour and minute hands:",o:["90°","120°","150°","180°"],a:3},
-{id:31,section:"A",topic:"Logical Reasoning",q:"Series: A, C, F, J, ?",o:["M","N","O","P"],a:2},
-{id:32,section:"A",topic:"Logical Reasoning",q:"Series: 3, 6, 12, 24, 48, ?",o:["60","72","96","120"],a:2},
-{id:33,section:"A",topic:"Logical Reasoning",q:"If RAIN is coded as SBJO, what is SNOW?",o:["TOPX","TNPX","UPOX","TNOX"],a:0},
-{id:34,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: Dog, Cat, Cow, Eagle, Horse",o:["Dog","Cat","Eagle","Cow"],a:2},
-{id:35,section:"A",topic:"Logical Reasoning",q:"All birds can fly. Penguin is a bird. Conclusion:",o:["Penguin can fly (logically valid)","Penguin cannot fly","Penguin is not a bird","None follows"],a:0},
-{id:36,section:"A",topic:"Logical Reasoning",q:"Ravi walks 10 km North, then turns right and walks 5 km. He then turns right and walks 10 km. How far is he from start?",o:["5 km","10 km","15 km","0 km"],a:0},
-{id:37,section:"A",topic:"Logical Reasoning",q:"Series: 5, 11, 23, 47, ?",o:["90","94","95","97"],a:2},
-{id:38,section:"A",topic:"Logical Reasoning",q:"If 5 + 3 = 28, 9 + 1 = 810, then 7 + 2 = ?",o:["59","95","514","45"],a:0},
-{id:39,section:"A",topic:"Logical Reasoning",q:"Find next: 2, 3, 5, 8, 13, 21, ?",o:["30","32","34","36"],a:2},
-{id:40,section:"A",topic:"Logical Reasoning",q:"If today is Wednesday, what day will it be after 100 days?",o:["Monday","Tuesday","Friday","Saturday"],a:3},
-
-// ── SECTION A: COMPUTER FUNDAMENTALS (Q41–50) ──
-{id:41,section:"A",topic:"Computer Fundamentals",q:"Which of the following is an example of secondary storage?",o:["RAM","Cache","Hard Disk","Registers"],a:2},
-{id:42,section:"A",topic:"Computer Fundamentals",q:"Convert binary 1010 to decimal:",o:["8","9","10","12"],a:2},
-{id:43,section:"A",topic:"Computer Fundamentals",q:"Which of these is NOT an output device?",o:["Monitor","Printer","Scanner","Speaker"],a:2},
-{id:44,section:"A",topic:"Computer Fundamentals",q:"Full form of ALU:",o:["Arithmetic Logic Unit","Automatic Logic Unit","Arithmetic Load Unit","Array Logic Unit"],a:0},
-{id:45,section:"A",topic:"Computer Fundamentals",q:"Which generation of computers used transistors?",o:["First","Second","Third","Fourth"],a:1},
-{id:46,section:"A",topic:"Computer Fundamentals",q:"The brain of the computer is:",o:["Hard Disk","RAM","CPU","Monitor"],a:2},
-{id:47,section:"A",topic:"Computer Fundamentals",q:"Which of these is a high-level programming language?",o:["Machine language","Assembly language","Python","Binary code"],a:2},
-{id:48,section:"A",topic:"Computer Fundamentals",q:"1 KB is equal to:",o:["100 bytes","512 bytes","1000 bytes","1024 bytes"],a:3},
-{id:49,section:"A",topic:"Computer Fundamentals",q:"What does GUI stand for?",o:["Graphical User Interface","General Utility Interface","Graphical Unified Interface","General User Input"],a:0},
-{id:50,section:"A",topic:"Computer Fundamentals",q:"Which protocol is used to send emails?",o:["HTTP","FTP","SMTP","TCP"],a:2},
-
-// ── SECTION B: C PROGRAMMING (Q51–70) ──
-{id:51,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nint main(){\n    int a = 5;\n    printf(\"%d\", a++);\n    return 0;\n}",o:["5","6","4","Error"],a:0},
-{id:52,section:"B",topic:"C Programming",q:"What is the output?",code:"#include<stdio.h>\nint main(){\n    int a = 5;\n    printf(\"%d\", ++a);\n    return 0;\n}",o:["5","6","4","Error"],a:1},
-{id:53,section:"B",topic:"C Programming",q:"Which loop is guaranteed to execute at least once?",o:["for loop","while loop","do-while loop","None of these"],a:2},
-{id:54,section:"B",topic:"C Programming",q:"What does the '&' operator do in C?",o:["Multiply","Give address of variable","Dereference a pointer","Logical AND"],a:1},
-{id:55,section:"B",topic:"C Programming",q:"What is the output?",code:"int arr[] = {10, 20, 30, 40, 50};\nprintf(\"%d\", arr[2]);",o:["10","20","30","40"],a:2},
-{id:56,section:"B",topic:"C Programming",q:"Which header file is needed for printf() and scanf()?",o:["stdlib.h","string.h","stdio.h","math.h"],a:2},
-{id:57,section:"B",topic:"C Programming",q:"What is the output?",code:"int i;\nfor(i = 1; i <= 5; i++){\n    if(i == 3) break;\n    printf(\"%d \", i);\n}",o:["1 2","1 2 3","1 2 3 4 5","1 2 4 5"],a:0},
-{id:58,section:"B",topic:"C Programming",q:"Which function is used to find the length of a string?",o:["strcpy()","strcat()","strlen()","strcmp()"],a:2},
-{id:59,section:"B",topic:"C Programming",q:"What will sizeof(int) return on a 32-bit system?",o:["1","2","4","8"],a:2},
-{id:60,section:"B",topic:"C Programming",q:"Which of the following correctly declares a pointer to an integer?",o:["int p;","int &p;","int *p;","*int p;"],a:2},
-{id:61,section:"B",topic:"C Programming",q:"What is the output?",code:"int x = 10, y = 3;\nprintf(\"%d %d\", x/y, x%y);",o:["3 1","3 2","3 3","4 1"],a:0},
-{id:62,section:"B",topic:"C Programming",q:"Which keyword is used to exit a switch case without falling through?",o:["exit","stop","break","return"],a:2},
-{id:63,section:"B",topic:"C Programming",q:"What is the correct way to dynamically allocate memory in C?",o:["new int","alloc(sizeof(int))","malloc(sizeof(int))","create(int)"],a:2},
-{id:64,section:"B",topic:"C Programming",q:"What is the output?",code:"int a = 2;\nwhile(a < 20){\n    a = a * 2;\n}\nprintf(\"%d\", a);",o:["16","20","32","8"],a:2},
-{id:65,section:"B",topic:"C Programming",q:"In C, array index starts from:",o:["1","0","-1","Depends on compiler"],a:1},
-{id:66,section:"B",topic:"C Programming",q:"Which of the following is used to free dynamically allocated memory?",o:["delete()","remove()","free()","clear()"],a:2},
-{id:67,section:"B",topic:"C Programming",q:"What does 'void' as a function return type mean?",o:["Returns 0","Returns nothing","Returns NULL","Returns a pointer"],a:1},
-{id:68,section:"B",topic:"C Programming",q:"What is the output?",code:"printf(\"%d\", 5 > 3 && 2 < 4);",o:["0","1","Error","Undefined"],a:1},
-{id:69,section:"B",topic:"C Programming",q:"Which of the following is the correct format specifier for a float?",o:["%d","%c","%f","%s"],a:2},
-{id:70,section:"B",topic:"C Programming",q:"A recursive function must have:",o:["A loop","A return type of int","A base case to stop recursion","Global variables"],a:2},
-
-// ── SECTION B: DATA STRUCTURES (Q71–80) ──
-{id:71,section:"B",topic:"Data Structures",q:"Which data structure follows LIFO (Last In First Out)?",o:["Queue","Stack","Array","Linked List"],a:1},
-{id:72,section:"B",topic:"Data Structures",q:"Which data structure follows FIFO (First In First Out)?",o:["Stack","Tree","Queue","Graph"],a:2},
-{id:73,section:"B",topic:"Data Structures",q:"Binary search can only be applied on:",o:["Linked list","Unsorted array","Sorted array","Stack"],a:2},
-{id:74,section:"B",topic:"Data Structures",q:"Time complexity of linear search in worst case:",o:["O(1)","O(log n)","O(n)","O(n²)"],a:2},
-{id:75,section:"B",topic:"Data Structures",q:"Which traversal of a BST gives elements in sorted order?",o:["Preorder","Postorder","Inorder","Level order"],a:2},
-{id:76,section:"B",topic:"Data Structures",q:"DFS (Depth First Search) uses which data structure?",o:["Queue","Stack","Heap","Array"],a:1},
-{id:77,section:"B",topic:"Data Structures",q:"Time complexity of Bubble Sort in worst case:",o:["O(n)","O(n log n)","O(n²)","O(log n)"],a:2},
-{id:78,section:"B",topic:"Data Structures",q:"Which of the following is NOT a linear data structure?",o:["Array","Queue","Stack","Tree"],a:3},
-{id:79,section:"B",topic:"Data Structures",q:"A binary tree node has at most how many children?",o:["1","2","3","4"],a:1},
-{id:80,section:"B",topic:"Data Structures",q:"In a stack, the element deleted first is the one which was:",o:["Inserted first","Inserted last","In the middle","Smallest"],a:1},
-
-// ── SECTION B: OOP USING C++ (Q81–88) ──
-{id:81,section:"B",topic:"OOP using C++",q:"Which OOP concept bundles data and functions inside a class?",o:["Inheritance","Polymorphism","Encapsulation","Abstraction"],a:2},
-{id:82,section:"B",topic:"OOP using C++",q:"Which concept allows a child class to use methods of a parent class?",o:["Encapsulation","Inheritance","Polymorphism","Abstraction"],a:1},
-{id:83,section:"B",topic:"OOP using C++",q:"What is the output?",code:"class A{\npublic:\n    A(){ cout<<\"Constructor\"; }\n};\nint main(){\n    A obj;\n    return 0;\n}",o:["Nothing","Constructor","Destructor","Error"],a:1},
-{id:84,section:"B",topic:"OOP using C++",q:"Which access specifier makes class members accessible everywhere?",o:["private","protected","public","default"],a:2},
-{id:85,section:"B",topic:"OOP using C++",q:"Which of the following means 'same function name, different parameters'?",o:["Overriding","Overloading","Inheritance","Encapsulation"],a:1},
-{id:86,section:"B",topic:"OOP using C++",q:"Which is called automatically when an object is destroyed?",o:["Constructor","Destructor","Main function","Inline function"],a:1},
-{id:87,section:"B",topic:"OOP using C++",q:"An object is:",o:["A blueprint","An instance of a class","A function","A variable type"],a:1},
-{id:88,section:"B",topic:"OOP using C++",q:"Which keyword is used to create a class in C++?",o:["struct","object","class","define"],a:2},
-
-// ── SECTION B: OPERATING SYSTEMS (Q89–94) ──
-{id:89,section:"B",topic:"Operating Systems",q:"Which scheduling algorithm gives CPU to the process with smallest burst time?",o:["FCFS","SJF","Round Robin","Priority"],a:1},
-{id:90,section:"B",topic:"Operating Systems",q:"What is a deadlock?",o:["When CPU is idle","When two or more processes wait for each other indefinitely","When memory is full","When a process finishes"],a:1},
-{id:91,section:"B",topic:"Operating Systems",q:"Which page replacement algorithm replaces the page not used for the longest time?",o:["FIFO","Optimal","LRU","MRU"],a:2},
-{id:92,section:"B",topic:"Operating Systems",q:"Round Robin scheduling uses:",o:["Priority levels","Time quantum","Shortest job first","Arrival time only"],a:1},
-{id:93,section:"B",topic:"Operating Systems",q:"Which of the following is NOT a state of a process?",o:["Running","Waiting","Ready","Compiling"],a:3},
-{id:94,section:"B",topic:"Operating Systems",q:"Virtual memory allows:",o:["Faster CPU","Running programs larger than physical RAM","Multiple CPUs","Permanent storage"],a:1},
-
-// ── SECTION B: COMPUTER NETWORKS (Q95–100) ──
-{id:95,section:"B",topic:"Networking",q:"How many layers are in the OSI model?",o:["5","6","7","8"],a:2},
-{id:96,section:"B",topic:"Networking",q:"HTTP uses which port by default?",o:["21","23","80","443"],a:2},
-{id:97,section:"B",topic:"Networking",q:"Which device connects two different networks?",o:["Hub","Switch","Router","Repeater"],a:2},
-{id:98,section:"B",topic:"Networking",q:"TCP is a _____ protocol.",o:["Connectionless","Connection-oriented","Wireless-only","Broadcast"],a:1},
-{id:99,section:"B",topic:"Networking",q:"DNS is used to:",o:["Assign IP addresses dynamically","Translate domain names to IP addresses","Connect to WiFi","Send emails"],a:1},
-{id:100,section:"B",topic:"Networking",q:"Which layer of OSI model handles MAC addresses?",o:["Physical","Data Link","Network","Transport"],a:1}
-
+  {id:1,section:"A",topic:"English",q:"Choose the correctly punctuated sentence:",o:["Its a lovely day.","It's a lovely day.","Its' a lovely day.","It's a lovely, day."],a:1},
+  {id:2,section:"A",topic:"English",q:"Select the correct preposition: She is good ___ mathematics.",o:["in","at","on","for"],a:1},
+  {id:3,section:"A",topic:"English",q:"Choose the correct tense: By the time she arrived, we ___ dinner.",o:["finished","finish","had finished","have finished"],a:2},
+  {id:4,section:"A",topic:"English",q:"Identify the error in the sentence: 'The committee have decided to postpone the meeting.'",o:["committee","have","decided to","No error"],a:1},
+  {id:5,section:"A",topic:"English",q:"Choose the correct Active Voice of: 'The letter was written by him.'",o:["He has written the letter.","He wrote the letter.","He writes the letter.","He had written the letter."],a:1},
+  {id:6,section:"A",topic:"English",q:"Select the synonym of 'Eloquent':",o:["Silent","Articulate","Ignorant","Hesitant"],a:1},
+  {id:7,section:"A",topic:"English",q:"Select the antonym of 'Exorbitant':",o:["Excessive","Costly","Reasonable","Rare"],a:2},
+  {id:8,section:"A",topic:"English",q:"Choose the correct one-word substitution: 'One who studies the stars and celestial bodies':",o:["Astrologer","Astronomer","Geologist","Meteorologist"],a:1},
+  {id:9,section:"A",topic:"English",q:"Find the correctly improved sentence: 'He is too clever not to solve this problem.'",o:["He is too clever to solve this problem.","He is clever enough to solve this problem.","He is very clever to solve this problem.","No improvement needed"],a:1},
+  {id:10,section:"A",topic:"English",q:"Fill in the blank: Neither the teacher nor the students ___ present.",o:["was","is","were","are"],a:2},
+  {id:11,section:"A",topic:"English",q:"Rearrange the jumbled sentence: [The / carefully / scientist / experiment / conducted / the]",o:["The experiment scientist conducted carefully the.","Carefully the scientist the experiment conducted.","The scientist carefully conducted the experiment.","The scientist the experiment carefully conducted."],a:2},
+  {id:12,section:"A",topic:"English",q:"What does the idiom 'Bite the bullet' mean?",o:["To eat quickly","To endure a painful situation bravely","To argue aggressively","To make a hasty decision"],a:1},
+  {id:13,section:"A",topic:"English",q:"In the passage: 'Despite the heavy rain, the marathon runners continued their race showing remarkable resilience.' What quality do the runners demonstrate?",o:["Speed","Endurance and determination","Recklessness","Overconfidence"],a:1},
+  {id:14,section:"A",topic:"Quantitative Aptitude",q:"What is the HCF of 36 and 84?",o:["12","18","9","6"],a:0},
+  {id:15,section:"A",topic:"Quantitative Aptitude",q:"Simplify: (15 × 4 – 12) ÷ 4 + 3",o:["15","18","16","12"],a:0},
+  {id:16,section:"A",topic:"Quantitative Aptitude",q:"A trader marks his goods 25% above cost price and gives a 10% discount. His profit percentage is:",o:["12.5%","15%","10%","17.5%"],a:0},
+  {id:17,section:"A",topic:"Quantitative Aptitude",q:"What is 35% of 480?",o:["168","156","160","172"],a:0},
+  {id:18,section:"A",topic:"Quantitative Aptitude",q:"A sum of ₹5,000 is invested at 8% per annum simple interest for 3 years. What is the total interest?",o:["₹1,200","₹1,600","₹800","₹2,000"],a:0},
+  {id:19,section:"A",topic:"Quantitative Aptitude",q:"Find the compound interest on ₹10,000 at 10% per annum for 2 years.",o:["₹2,000","₹2,100","₹1,900","₹2,200"],a:1},
+  {id:20,section:"A",topic:"Quantitative Aptitude",q:"If the ratio of A:B = 3:4 and B:C = 5:6, what is A:B:C?",o:["15:20:24","3:4:6","15:24:20","9:12:16"],a:0},
+  {id:21,section:"A",topic:"Quantitative Aptitude",q:"A boat travels 12 km upstream in 3 hours and 12 km downstream in 2 hours. What is the speed of the stream?",o:["1 km/h","2 km/h","1.5 km/h","3 km/h"],a:0},
+  {id:22,section:"A",topic:"Quantitative Aptitude",q:"A pipe can fill a tank in 6 hours. Another pipe can empty it in 10 hours. If both are opened simultaneously, in how many hours will the tank be filled?",o:["15 hours","12 hours","18 hours","20 hours"],a:0},
+  {id:23,section:"A",topic:"Quantitative Aptitude",q:"A and B can do a piece of work in 12 and 18 days respectively. In how many days can they complete it together?",o:["7.2 days","8 days","6 days","9 days"],a:0},
+  {id:24,section:"A",topic:"Quantitative Aptitude",q:"A train 150 m long passes a pole in 15 seconds. What is the speed of the train?",o:["10 m/s","12 m/s","8 m/s","15 m/s"],a:0},
+  {id:25,section:"A",topic:"Quantitative Aptitude",q:"How many ways can 5 books be arranged on a shelf?",o:["120","60","24","100"],a:0},
+  {id:26,section:"A",topic:"Quantitative Aptitude",q:"The probability of getting a head when a fair coin is tossed twice is:",o:["1/4","3/4","1/2","1"],a:1},
+  {id:27,section:"A",topic:"Quantitative Aptitude",q:"log₂ 64 = ?",o:["6","8","4","32"],a:0},
+  {id:28,section:"A",topic:"Quantitative Aptitude",q:"The sum of an AP is 30 and it has 5 terms. The middle term is:",o:["6","5","8","10"],a:0},
+  {id:29,section:"A",topic:"Quantitative Aptitude",q:"The average of 8 numbers is 25. If one number is excluded the average becomes 24. What is the excluded number?",o:["32","30","28","34"],a:0},
+  {id:30,section:"A",topic:"Logical Reasoning",q:"Number Series: 2, 6, 12, 20, 30, ?",o:["40","42","44","46"],a:1},
+  {id:31,section:"A",topic:"Logical Reasoning",q:"Alphabet Series: B, E, H, K, ?",o:["M","N","O","L"],a:1},
+  {id:32,section:"A",topic:"Logical Reasoning",q:"'Doctor : Patient' is analogous to 'Lawyer : ___ '",o:["Judge","Client","Police","Accused"],a:1},
+  {id:33,section:"A",topic:"Logical Reasoning",q:"Find the odd one out: 17, 19, 23, 25, 29",o:["17","19","25","29"],a:2},
+  {id:34,section:"A",topic:"Logical Reasoning",q:"In a class, A is 5th from left and 7th from right. How many students are in the class?",o:["11","12","13","10"],a:0},
+  {id:35,section:"A",topic:"Logical Reasoning",q:"Pointing to a man, a woman says, 'His mother is the only daughter of my mother.' How is the woman related to the man?",o:["Grandmother","Mother","Sister","Aunt"],a:1},
+  {id:36,section:"A",topic:"Logical Reasoning",q:"A person walks 5 km North, turns right and walks 3 km, then turns right and walks 5 km. How far is he from the starting point?",o:["3 km","5 km","8 km","0 km"],a:0},
+  {id:37,section:"A",topic:"Logical Reasoning",q:"If MANGO is coded as NBOHI, how is GRAPE coded?",o:["HSBQF","GSBQF","HRBQF","ISBQF"],a:0},
+  {id:38,section:"A",topic:"Logical Reasoning",q:"Statements: All roses are flowers. Some flowers are red. Conclusions: I. Some roses are red. II. All flowers are roses. Which conclusion(s) follow?",o:["Only I","Only II","Both I and II","Neither I nor II"],a:3},
+  {id:39,section:"A",topic:"Logical Reasoning",q:"Statement: Should social media platforms be held responsible for fake news? Arguments: I. Yes, they profit from engagement. II. No, they are just platforms. Choose:",o:["Only I is strong","Only II is strong","Both are strong","Neither is strong"],a:0},
+  {id:40,section:"A",topic:"Logical Reasoning",q:"Four persons A, B, C, D sit in a row. A is not adjacent to B. C sits next to B. D is at one end. Who sits at the other end?",o:["A","B","C","Cannot be determined"],a:0},
+  {id:41,section:"A",topic:"Computer Fundamentals",q:"Which of the following is NOT a type of primary memory?",o:["RAM","ROM","Cache","Hard Disk"],a:3},
+  {id:42,section:"A",topic:"Computer Fundamentals",q:"Which device is both an input and output device?",o:["Keyboard","Printer","Touch Screen","Scanner"],a:2},
+  {id:43,section:"A",topic:"Computer Fundamentals",q:"The decimal equivalent of binary number 1101 is:",o:["11","13","15","12"],a:1},
+  {id:44,section:"A",topic:"Computer Fundamentals",q:"Which IP address class is used for multicasting?",o:["Class A","Class B","Class C","Class D"],a:3},
+  {id:45,section:"A",topic:"Computer Fundamentals",q:"Which of the following correctly defines a flowchart symbol for a decision?",o:["Rectangle","Parallelogram","Diamond","Oval"],a:2},
+  {id:46,section:"A",topic:"Computer Fundamentals",q:"What is the main function of an operating system?",o:["Compiling programs","Managing hardware and software resources","Browsing the internet","Writing code"],a:1},
+  {id:47,section:"A",topic:"Computer Fundamentals",q:"Which loop in programming is guaranteed to execute at least once?",o:["for loop","while loop","do-while loop","foreach loop"],a:2},
+  {id:48,section:"A",topic:"Computer Fundamentals",q:"A variable in programming is best described as:",o:["A fixed constant value","A named storage location in memory","A type of loop","A function name"],a:1},
+  {id:49,section:"A",topic:"Computer Fundamentals",q:"Which of the following is an example of system software?",o:["MS Word","VLC Player","Windows OS","Google Chrome"],a:2},
+  {id:50,section:"A",topic:"Computer Fundamentals",q:"An algorithm is:",o:["A programming language","A step-by-step procedure to solve a problem","A type of data structure","A compiler"],a:1},
+  {id:51,section:"B",topic:"C Programming",q:"What is the output of: printf(\"%d\", sizeof(int)); on a 32-bit system?",o:["2","4","8","Depends on compiler"],a:1},
+  {id:52,section:"B",topic:"C Programming",q:"Which of the following is a valid declaration in C?",o:["int 2var;","int _var2;","int var-2;","int var 2;"],a:1},
+  {id:53,section:"B",topic:"C Programming",q:"What does the following code print?",o:["5","6","4","Undefined"],a:0,code:"int x = 5;\nprintf(\"%d\", x++);\n"},
+  {id:54,section:"B",topic:"C Programming",q:"Which header file is required for printf() and scanf()?",o:["stdlib.h","string.h","stdio.h","math.h"],a:2},
+  {id:55,section:"B",topic:"C Programming",q:"What is the output?",o:["0","2","3","Infinite loop"],a:2,code:"int i;\nfor(i=0;\n i<3;\n i++);\nprintf(\"%d\", i);\n"},
+  {id:56,section:"B",topic:"C Programming",q:"Which storage class in C gives a variable lifetime throughout the program?",o:["auto","register","extern","static"],a:3},
+  {id:57,section:"B",topic:"C Programming",q:"A pointer stores:",o:["A data value","A memory address","A function name","A constant"],a:1},
+  {id:58,section:"B",topic:"C Programming",q:"What will *ptr print if int x = 10; int *ptr = &x;?",o:["Address of x","10","0","Garbage value"],a:1},
+  {id:59,section:"B",topic:"C Programming",q:"Which function is used to dynamically allocate memory in C?",o:["new()","alloc()","malloc()","create()"],a:2},
+  {id:60,section:"B",topic:"C Programming",q:"What is a 'structure' in C?",o:["A loop construct","A user-defined data type grouping different data types","A pointer type","A preprocessor directive"],a:1},
+  {id:61,section:"B",topic:"C Programming",q:"The #define directive in C is used for:",o:["Declaring variables","Including header files","Defining macros/constants","Creating functions"],a:2},
+  {id:62,section:"B",topic:"C Programming",q:"Which function is used to open a file in C?",o:["openfile()","fopen()","open()","file_open()"],a:1},
+  {id:63,section:"B",topic:"C Programming",q:"A recursive function must have:",o:["Multiple return statements","A base case to stop recursion","A global variable","A static variable"],a:1},
+  {id:64,section:"B",topic:"C Programming",q:"What is the correct way to pass an array to a function in C?",o:["By value only","By reference (pointer) only","Arrays cannot be passed to functions","Either by value or reference"],a:1},
+  {id:65,section:"B",topic:"Data Structures",q:"Which data structure operates on the LIFO principle?",o:["Queue","Stack","Linked List","Tree"],a:1},
+  {id:66,section:"B",topic:"Data Structures",q:"In a singly linked list, each node contains:",o:["Only data","Only a pointer to next node","Data and a pointer to next node","Data, pointer to next and previous node"],a:2},
+  {id:67,section:"B",topic:"Data Structures",q:"What is the time complexity of searching an element in a Binary Search Tree (BST) in the average case?",o:["O(n)","O(log n)","O(1)","O(n²)"],a:1},
+  {id:68,section:"B",topic:"Data Structures",q:"Which traversal of a BST gives elements in sorted (ascending) order?",o:["Pre-order","Post-order","In-order","Level-order"],a:2},
+  {id:69,section:"B",topic:"Data Structures",q:"A circular queue overcomes which limitation of a linear queue?",o:["Cannot store integers","Wastage of memory space at front after dequeuing","Cannot delete elements","Slow insertion"],a:1},
+  {id:70,section:"B",topic:"Data Structures",q:"Hashing is primarily used for:",o:["Sorting data","Fast searching and retrieval","Tree traversal","Stack operations"],a:1},
+  {id:71,section:"B",topic:"Data Structures",q:"What is the worst-case time complexity of Bubble Sort?",o:["O(n log n)","O(n)","O(n²)","O(log n)"],a:2},
+  {id:72,section:"B",topic:"Data Structures",q:"Which of the following is NOT a graph traversal technique?",o:["BFS","DFS","In-order","Both BFS and DFS are graph traversals"],a:2},
+  {id:73,section:"B",topic:"Operating Systems",q:"A deadlock occurs when:",o:["A process finishes execution","Two or more processes wait indefinitely for resources held by each other","Memory is full","CPU usage is 100%"],a:1},
+  {id:74,section:"B",topic:"Operating Systems",q:"Which CPU scheduling algorithm can cause starvation?",o:["Round Robin","FCFS","Priority Scheduling","SRTF (Shortest Remaining Time First)"],a:2},
+  {id:75,section:"B",topic:"Operating Systems",q:"Virtual memory allows:",o:["Programs to use more memory than physically available","Faster CPU processing","Multiple CPUs to work together","Faster disk access"],a:0},
+  {id:76,section:"B",topic:"Networking",q:"The OSI model has how many layers?",o:["4","5","6","7"],a:3},
+  {id:77,section:"B",topic:"Networking",q:"Which protocol is used to assign IP addresses automatically?",o:["FTP","DHCP","HTTP","SMTP"],a:1},
+  {id:78,section:"B",topic:"Networking",q:"TCP differs from UDP mainly because TCP:",o:["Is faster than UDP","Is connectionless","Provides reliable, ordered delivery","Is used only for streaming"],a:2},
+  {id:79,section:"B",topic:"Networking",q:"HTTP operates at which OSI layer?",o:["Transport Layer","Network Layer","Application Layer","Data Link Layer"],a:2},
+  {id:80,section:"B",topic:"Networking",q:"Which of the following is an example of a network topology where all devices connect to a central hub?",o:["Bus","Ring","Star","Mesh"],a:2},
+  {id:81,section:"B",topic:"OOP using C++",q:"Which OOP concept allows a class to inherit properties from another class?",o:["Encapsulation","Polymorphism","Inheritance","Abstraction"],a:2},
+  {id:82,section:"B",topic:"OOP using C++",q:"Encapsulation in OOP means:",o:["Hiding implementation details and exposing only the interface","Having multiple forms","Inheriting from a base class","Creating objects"],a:0},
+  {id:83,section:"B",topic:"OOP using C++",q:"Which access specifier makes a class member accessible only within the same class?",o:["public","protected","private","default"],a:2},
+  {id:84,section:"B",topic:"OOP using C++",q:"Function overloading means:",o:["A function calling itself","Multiple functions with the same name but different parameters","A function with no return type","A virtual function"],a:1},
+  {id:85,section:"B",topic:"OOP using C++",q:"Which keyword is used to declare a virtual function in C++?",o:["abstract","override","virtual","interface"],a:2},
+  {id:86,section:"B",topic:"OOP using C++",q:"A constructor in C++ is:",o:["A function that destroys an object","A special function called automatically when an object is created","A static function","A function with a return type"],a:1},
+  {id:87,section:"B",topic:"OOP using C++",q:"Which OOP concept allows the same operation to behave differently on different classes?",o:["Encapsulation","Inheritance","Abstraction","Polymorphism"],a:3},
+  {id:88,section:"B",topic:"OOP using C++",q:"An abstract class in C++ is a class that:",o:["Cannot have any functions","Has at least one pure virtual function","Cannot be inherited","Has only static members"],a:1},
+  {id:89,section:"B",topic:"OOP using C++",q:"What does the 'this' pointer refer to in C++?",o:["The base class object","The current object of the class","A static class member","The derived class object"],a:1},
+  {id:90,section:"B",topic:"OOP using C++",q:"Exception handling in C++ uses which set of keywords?",o:["try, catch, throw","error, handle, raise","try, except, finally","begin, error, end"],a:0},
+  {id:91,section:"B",topic:"Basics of Big Data & AI",q:"The '5Vs' of Big Data do NOT include:",o:["Volume","Velocity","Variety","Vitality"],a:3},
+  {id:92,section:"B",topic:"Basics of Big Data & AI",q:"Hadoop is primarily used for:",o:["Real-time stream processing","Distributed storage and processing of large datasets","Machine learning only","Database management"],a:1},
+  {id:93,section:"B",topic:"Basics of Big Data & AI",q:"HDFS stands for:",o:["High Definition File System","Hadoop Distributed File System","Hybrid Data File Service","Host Data File System"],a:1},
+  {id:94,section:"B",topic:"Basics of Big Data & AI",q:"MapReduce is a programming model used for:",o:["Web development","Processing large datasets in parallel across a cluster","Creating user interfaces","SQL queries only"],a:1},
+  {id:95,section:"B",topic:"Basics of Big Data & AI",q:"Structured data is:",o:["Data without any format","Data organized in rows and columns (like a database)","Only images and videos","Data from social media"],a:1},
+  {id:96,section:"B",topic:"Basics of Big Data & AI",q:"Which type of machine learning uses labeled training data?",o:["Unsupervised Learning","Reinforcement Learning","Supervised Learning","Deep Learning"],a:2},
+  {id:97,section:"B",topic:"Basics of Big Data & AI",q:"Clustering is an example of:",o:["Supervised Learning","Unsupervised Learning","Reinforcement Learning","Transfer Learning"],a:1},
+  {id:98,section:"B",topic:"Basics of Big Data & AI",q:"A neural network is inspired by:",o:["Computer architecture","The biological brain and nervous system","Database design","Graph theory"],a:1},
+  {id:99,section:"B",topic:"Basics of Big Data & AI",q:"NLP stands for:",o:["Network Layer Protocol","Natural Language Processing","Numerical Learning Program","Node Layer Processing"],a:1},
+  {id:100,section:"B",topic:"Basics of Big Data & AI",q:"Apache Spark compared to Hadoop MapReduce is known for:",o:["Slower processing","In-memory processing making it significantly faster","Higher storage cost","Being less scalable"],a:1}
 ];
 
 let currentSection = "A";
@@ -459,6 +441,8 @@ let timerInterval = null;
 
 function startExam(){
     examStarted = true;
+    const clearBtn = document.getElementById("clearAllBtn");
+    if (clearBtn) clearBtn.style.display = "inline-block";
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("examScreen").style.display = "block";
     showSection("A");
@@ -566,6 +550,8 @@ function submitCurrentSection(){
 function submitExam(){
     if(examSubmitted) return;
     examSubmitted = true;
+    const clearBtn = document.getElementById("clearAllBtn");
+    if (clearBtn) clearBtn.style.display = "none";
     localStorage.setItem('ccat_test_completed', 'true');
     localStorage.setItem('ccat_test_completed_id', 'free-ccat-mock-test');
     clearInterval(timerInterval);
@@ -619,6 +605,8 @@ function renderReview(){
 }
 
 function reattemptExam(){
+    const clearBtn = document.getElementById("clearAllBtn");
+    if (clearBtn) clearBtn.style.display = "none";
     questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
     localStorage.removeItem('ccat_test_completed');
     localStorage.removeItem('ccat_test_completed_id');
@@ -641,6 +629,9 @@ updateTimers();
 
 
 
+
+
+
 <!-- Supabase CDN and Review Interceptor -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -649,6 +640,19 @@ updateTimers();
   if (!originalSubmitExam) return;
 
   const testId = 'free-ccat-mock-test';
+
+  window.clearAllAnswers = function() {
+    const activeSec = (typeof currentSection !== 'undefined') ? currentSection : 'A';
+    if (confirm("Are you sure you want to clear all Section " + activeSec + " answers?")) {
+      questions.forEach(q => {
+        if (q.section === activeSec) {
+          localStorage.removeItem("ccat_" + testId + "_q" + q.id);
+        }
+      });
+      if (typeof renderQuestions === 'function') renderQuestions();
+      if (typeof renderNav === 'function') renderNav();
+    }
+  };
 
   // Create style element for overlay
   const style = document.createElement('style');

@@ -528,7 +528,7 @@ export default function MockTestPortal() {
                 <div className="flex items-center justify-between">
                   <span className="font-label-md text-label-md">5 Premium Tests</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-on-surface-variant line-through text-sm">₹499</span>
+                    <span className="text-red-600 line-through text-2xl font-bold">₹499</span>
                     <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
                   </div>
                 </div>

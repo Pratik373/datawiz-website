@@ -278,6 +278,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
+        <button id="clearAllBtn" onclick="clearAllAnswers()" style="display:none;background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Clear Section Answers</button>
         <div id="creditsDisplay" 
              style="border:1px solid rgba(255,255,255,0.32);padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;background:rgba(255,255,255,0.08);">
              Access: Loading…
@@ -300,7 +301,7 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <div style="background:rgba(111,87,255,0.1);border:1px solid rgba(111,87,255,0.3);border-radius:16px;padding:1.5rem;width:200px;">
         <h3 style="color:#d6dcff;margin:0 0 0.5rem;">Starter Pack</h3>
-        <div style="color:#7a8ab8;font-weight:700;text-decoration:line-through;margin-bottom:0.2rem;">₹<span id="starterOriginalPrice">499</span></div>
+        <div style="color:#ba1a1a;font-weight:800;font-size:1.75rem;text-decoration:line-through;margin-bottom:0.2rem;">₹<span id="starterOriginalPrice">499</span></div>
         <div style="font-size:2rem;font-weight:900;color:#f0f4ff;">₹<span id="starterPrice">99</span></div>
         <div style="color:#6f57ff;font-weight:700;margin-bottom:1rem;">Unlimited Access</div>
         <button onclick="buyPlan('starter')" style="width:100%;background:linear-gradient(135deg,#6f57ff,#4ab9ff);border:none;padding:0.8rem;border-radius:10px;color:#fff;font-weight:700;cursor:pointer;font-size:0.95rem;">Buy Now</button>
@@ -1971,6 +1972,8 @@ let timerInterval = null;
 
 function startExam(){
     examStarted = true;
+    const clearBtn = document.getElementById("clearAllBtn");
+    if (clearBtn) clearBtn.style.display = "inline-block";
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("examScreen").style.display = "block";
     showSection("A");
@@ -2181,6 +2184,8 @@ function renderReview(){
 }
 
 function reattemptExam(){
+    const clearBtn = document.getElementById("clearAllBtn");
+    if (clearBtn) clearBtn.style.display = "none";
     questions.forEach(q => {
         localStorage.removeItem("ccat_" + testId + "_q" + q.id);
     });
@@ -2213,6 +2218,9 @@ updateTimers();
 
 
 
+
+
+
 <!-- Supabase CDN and Review Interceptor -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -2221,6 +2229,19 @@ updateTimers();
   if (!originalSubmitExam) return;
 
   const testId = 'premium-ccat-set-5';
+
+  window.clearAllAnswers = function() {
+    const activeSec = (typeof currentSection !== 'undefined') ? currentSection : 'A';
+    if (confirm("Are you sure you want to clear all Section " + activeSec + " answers?")) {
+      questions.forEach(q => {
+        if (q.section === activeSec) {
+          localStorage.removeItem("ccat_" + testId + "_q" + q.id);
+        }
+      });
+      if (typeof renderQuestions === 'function') renderQuestions();
+      if (typeof renderNav === 'function') renderNav();
+    }
+  };
 
   // Create style element for overlay
   const style = document.createElement('style');
