@@ -532,6 +532,14 @@ export default function MockTestPortal() {
                     <span className="font-headline-md text-headline-md text-primary">{formatINR(STARTER_PRICE_INR)}</span>
                   </div>
                 </div>
+                <div className="flex justify-end pb-1">
+                  <div className="relative overflow-hidden inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F4F4] text-primary border border-primary/20 shadow-sm animate-glow-pulse select-none">
+                    {/* Shimmer element */}
+                    <div className="absolute inset-0 w-full h-full animate-shimmer pointer-events-none" />
+                    <span className="material-symbols-outlined text-[12px] shrink-0">local_offer</span>
+                    <span className="tracking-wide">80% OFF</span>
+                  </div>
+                </div>
                 {['5 Full-length Mock Tests (100 Qs each)', '120 mins per test', 'Instant access after payment'].map(f => (
                   <div key={f} className="flex items-start gap-2 text-left">
                     <span className="material-symbols-outlined text-primary text-[16px] shrink-0 mt-[2px]">check_circle</span>

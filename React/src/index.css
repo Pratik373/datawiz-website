@@ -71,4 +71,106 @@
   .animate-slide-in-right {
     animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 2px 4px rgba(0, 101, 101, 0.1), 0 0 0 0 rgba(0, 101, 101, 0.15);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 4px 14px rgba(0, 101, 101, 0.15), 0 0 10px 4px rgba(0, 101, 101, 0.25);
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite linear;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(8deg); }
+  }
+
+  @keyframes float-fast {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    50% { transform: translateY(-10px) rotate(-12deg) scale(1.08); }
+  }
+
+  @keyframes float-reverse {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(5px, -5px) rotate(-6deg); }
+  }
+
+  @keyframes card-rocking {
+    0%, 100% { transform: rotate(-3deg) scale(1); }
+    50% { transform: rotate(-1deg) scale(1.03); }
+  }
+
+  .animate-float-slow {
+    animation: float-slow 4s infinite ease-in-out;
+  }
+
+  .animate-float-fast {
+    animation: float-fast 3s infinite ease-in-out;
+  }
+
+  .animate-float-reverse {
+    animation: float-reverse 4.5s infinite ease-in-out;
+  }
+
+  .animate-card-rocking {
+    animation: card-rocking 3.5s infinite ease-in-out;
+  }
+
+  @keyframes badge-popup {
+    0% {
+      transform: scale(0) rotate(15deg);
+      opacity: 0;
+    }
+    12% {
+      transform: scale(1.2) rotate(-8deg);
+      opacity: 1;
+    }
+    18% {
+      transform: scale(1) rotate(0deg);
+    }
+    /* Periodic attention-grabbing pops */
+    75% {
+      transform: scale(1) rotate(0deg);
+    }
+    80% {
+      transform: scale(1.15) rotate(-5deg);
+    }
+    85% {
+      transform: scale(0.95) rotate(3deg);
+    }
+    90% {
+      transform: scale(1.05) rotate(-1deg);
+    }
+    95%, 100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  .animate-badge-popup {
+    animation: badge-popup 5s infinite ease-in-out;
+    transform-origin: center;
+  }
 }
