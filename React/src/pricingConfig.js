@@ -5,6 +5,8 @@ function priceFromEnv(name, fallback) {
 
 export const STARTER_PRICE_INR = priceFromEnv('REACT_APP_STARTER_PRICE_INR', 99);
 export const STARTER_ORIGINAL_PRICE_INR = priceFromEnv('REACT_APP_STARTER_ORIGINAL_PRICE_INR', 499);
+export const PRO_PRICE_INR = priceFromEnv('REACT_APP_PRO_PRICE_INR', 149);
+export const PRO_ORIGINAL_PRICE_INR = priceFromEnv('REACT_APP_PRO_ORIGINAL_PRICE_INR', 999);
 
 export function formatINR(amount) {
   return `₹${amount}`;

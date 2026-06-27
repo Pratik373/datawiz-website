@@ -7,7 +7,12 @@ const files = [
   { name: 'CCAT_Mock_Test_Set2.html', id: 'premium-ccat-set-2' },
   { name: 'CCAT_Mock_Test_Set3.html', id: 'premium-ccat-set-3' },
   { name: 'CCAT_Mock_Test_Set4.html', id: 'premium-ccat-set-4' },
-  { name: 'CCAT_Mock_Test_Set5.html', id: 'premium-ccat-set-5' }
+  { name: 'CCAT_Mock_Test_Set5.html', id: 'premium-ccat-set-5' },
+  { name: 'CCAT_Mock_Test_Set6.html', id: 'premium-ccat-set-6' },
+  { name: 'CCAT_Mock_Test_Set7.html', id: 'premium-ccat-set-7' },
+  { name: 'CCAT_Mock_Test_Set8.html', id: 'premium-ccat-set-8' },
+  { name: 'CCAT_Mock_Test_Set9.html', id: 'premium-ccat-set-9' },
+  { name: 'CCAT_Mock_Test_Set10.html', id: 'premium-ccat-set-10' }
 ];
 
 const publicDir = path.join(__dirname, '..', 'public');

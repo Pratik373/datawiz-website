@@ -23,11 +23,22 @@ module.exports = async function handler(req, res) {
       .from('user_credits')
       .select('tests_remaining')
       .eq('user_id', user_id)
-      .single();
+      .maybeSingle();
+
+    const { data: proPayment } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('user_id', user_id)
+      .in('plan', ['pro', 'upgrade'])
+      .eq('status', 'successful')
+      .maybeSingle();
+
+    const hasProAccess = Boolean(proPayment);
 
     const testsRemaining = credits?.tests_remaining || 0;
     return res.status(200).json({
       hasPremiumAccess: isAdmin || testsRemaining > 0,
+      hasProAccess: isAdmin || hasProAccess,
       tests_remaining: testsRemaining,
       isAdmin,
     });

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../supabaseClient'
-import { STARTER_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
+import { STARTER_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, PRO_PRICE_INR, PRO_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
 import ProfileDropdown from '../components/ProfileDropdown'
 
 const heroImg = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyOXogB7LYDkE7jxtYEi1yAzkvpqJyP5jhpeGAOs4kYoBSp_BQ7pZVodLs7aoLI-_xw6gkKDnki2-ql5CAwKO0I-Mis6aZBzRcYFsR832PVwWTmwlpU7FW5q3YzMKhEo89YFHaEp_ripjxmXwid_Iqi0qELm-O8P636KK31y5y9CJ9aYqU_6k65oAlZZ6HS6ydcPwvfkE9J47FrnKIw0U12gaFYpDslM9N0M_jd8vQ_japZTacf3GYgEBYlqAABZjjM4ZzTonLDiM'
@@ -360,100 +360,173 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="space-y-md">
-          <div className="flex justify-between items-end">
-            <div className="space-y-xs">
-              <h2 className="font-headline-md text-headline-md text-on-surface">Exam-Ready Mock Tests</h2>
-              <p className="text-on-surface-variant">Simulate the real exam experience with our curated sets.</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-md max-w-4xl mx-auto">
-            <div className="bg-white border border-outline-variant rounded-xl overflow-hidden flex flex-col hover-card transition-all">
-              <div className="p-md border-b border-outline-variant flex justify-between items-start">
-                <span className="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold rounded uppercase tracking-wider">FREE</span>
-                <span className="material-symbols-outlined text-on-surface-variant">schedule</span>
-              </div>
-              <div className="p-md flex-grow space-y-sm">
-                <h4 className="font-headline-sm text-headline-sm">Free C-CAT Mock Test</h4>
-                <div className="flex items-center gap-xs text-on-surface-variant text-body-sm">
-                  <span className="material-symbols-outlined text-[16px]">list_alt</span>
-                  <span>100 Questions</span>
-                </div>
-                <p className="text-body-sm text-on-surface-variant">A full free C-CAT mock test available to every visitor without login.</p>
-              </div>
-              <div className="p-md">
-                <button onClick={() => goTo('/tests')} className="w-full py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md shadow-sm active:scale-95 transition-all">Start Test</button>
-              </div>
-            </div>
-            <div className="bg-white border border-outline-variant rounded-xl overflow-hidden flex flex-col hover-card transition-all">
-              <div className="p-md border-b border-outline-variant flex justify-between items-start">
-                <span className="px-2 py-1 bg-primary text-on-primary text-[10px] font-bold rounded uppercase tracking-wider">PREMIUM</span>
-                <span className="material-symbols-outlined text-on-surface-variant">lock</span>
-              </div>
-              <div className="p-md flex-grow space-y-sm">
-                <h4 className="font-headline-sm text-headline-sm">Premium C-CAT Mock Test — Set 1</h4>
-                <p className="text-body-sm text-on-surface-variant">Full-length premium C-CAT mock paper. Unlock with the Starter Pack.</p>
-              </div>
-              <div className="p-md">
-                <button onClick={() => goTo('/tests')} className="w-full py-2 border border-outline text-on-surface-variant rounded-full font-label-md text-label-md active:scale-95 transition-all">Unlock Now</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section id="pricing" className="py-lg w-full">
-          <div className="max-w-md mx-auto w-full bg-white border-2 border-primary rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-primary p-md text-center">
-              <span className="text-on-primary uppercase tracking-widest font-bold text-[12px]">POPULAR CHOICE</span>
+          <div className="text-center max-w-xl mx-auto space-y-base mb-lg">
+            <h2 className="font-headline-md text-headline-md text-on-surface">Choose Your Prep Pack</h2>
+            <p className="text-on-surface-variant font-body-md text-body-md">Get instant access to full-length C-CAT mock papers with detailed explanations and score analysis.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-md max-w-6xl mx-auto w-full px-gutter">
+            
+            {/* Card 1: Free Mock Test */}
+            <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300">
+              <div className="h-[28px] bg-transparent" />
+              <div className="p-md text-center border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md">Free Mock Test</h3>
+                <p className="text-on-surface-variant text-body-sm">Evaluate your prep level</p>
+              </div>
+              <div className="px-md py-lg text-center space-y-md flex-grow">
+                <div className="flex items-center justify-center gap-sm">
+                  <span className="text-primary font-display-lg text-[40px] font-extrabold">₹0</span>
+                  <span className="text-red-500 line-through font-body-lg text-body-lg font-bold">₹199</span>
+                </div>
+                <ul className="text-left space-y-sm py-md">
+                  {[
+                    '1 Full-Length Mock Test (Sections A & B)',
+                    '100 Questions & 120 Minutes',
+                    'Available to every visitor without login',
+                    'Detailed Answers Key & Review',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-base text-body-md">
+                      <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="p-md">
+                <button onClick={() => goTo('/tests')} className="w-full py-4 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-primary/5 transition-all active:scale-95 font-bold uppercase tracking-wide">
+                  Start Free Test
+                </button>
+              </div>
             </div>
-            <div className="px-md py-lg text-center space-y-md relative">
-              {/* Corner top right discount badge */}
-              <div className="absolute top-3 right-3 z-10 animate-badge-popup">
-                <div className="relative w-[100px] h-[68px] bg-[#E91E63] rounded-xl overflow-hidden shadow-md flex items-center justify-center p-1 select-none">
-                  {/* Floating Shapes */}
-                  <div className="absolute top-1 left-2 w-3.5 h-3.5 border-[2px] border-[#FF4081]/60 rounded-full animate-float-slow" />
-                  <div className="absolute bottom-1 right-2 w-4 h-4 border-[2px] border-[#FF4081]/60 rounded-full animate-float-fast" />
-                  <div className="absolute -top-0.5 right-6 w-6 h-0.5 bg-[#FF4081]/50 rounded-full transform rotate-[35deg] animate-float-reverse" />
-                  <div className="absolute bottom-1.5 left-1 w-5 h-0.5 bg-[#FF4081]/50 rounded-full transform -rotate-[40deg] animate-float-slow" />
-                  
-                  {/* Floating Dots */}
-                  <div className="absolute top-5 right-2 w-0.5 h-0.5 bg-white/40 rounded-full animate-float-slow" />
-                  <div className="absolute bottom-3 left-3 w-0.5 h-0.5 bg-white/50 rounded-full animate-float-fast" />
 
-                  {/* Center White Card (Tilted with Rocking Animation) */}
-                  <div className="relative bg-white px-1.5 py-0.5 rounded-lg shadow-sm border border-black/5 transform -rotate-[3deg] animate-card-rocking w-[78px] text-center">
-                    <div className="flex items-baseline justify-center">
-                      <span className="text-[13px] font-black text-[#E91E63] leading-none tracking-tight">80%</span>
-                      <span className="text-[7px] font-extrabold text-[#E91E63] uppercase tracking-wider pl-0.5">OFF</span>
-                    </div>
-                    <div className="text-[7.5px] font-black text-black leading-none uppercase tracking-wide mt-0.5">
-                      DISCOUNT
+            {/* Card 2: Starter Pack */}
+            <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col justify-between relative hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300">
+              <div className="h-[28px] bg-transparent" />
+              <div className="p-md text-center border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
+                <p className="text-on-surface-variant text-body-sm">Great for starting your preparation</p>
+              </div>
+              <div className="px-md py-lg text-center space-y-md flex-grow relative">
+                {/* Corner top right discount badge */}
+                <div className="absolute top-3 right-3 z-10 animate-badge-popup">
+                  <div className="relative w-[100px] h-[68px] bg-[#E91E63] rounded-xl overflow-hidden shadow-md flex items-center justify-center p-1 select-none">
+                    {/* Floating Shapes */}
+                    <div className="absolute top-1 left-2 w-3.5 h-3.5 border-[2px] border-[#FF4081]/60 rounded-full animate-float-slow" />
+                    <div className="absolute bottom-1 right-2 w-4 h-4 border-[2px] border-[#FF4081]/60 rounded-full animate-float-fast" />
+                    <div className="absolute -top-0.5 right-6 w-6 h-0.5 bg-[#FF4081]/50 rounded-full transform rotate-[35deg] animate-float-reverse" />
+                    <div className="absolute bottom-1.5 left-1 w-5 h-0.5 bg-[#FF4081]/50 rounded-full transform -rotate-[40deg] animate-float-slow" />
+                    
+                    {/* Floating Dots */}
+                    <div className="absolute top-5 right-2 w-0.5 h-0.5 bg-white/40 rounded-full animate-float-slow" />
+                    <div className="absolute bottom-3 left-3 w-0.5 h-0.5 bg-white/50 rounded-full animate-float-fast" />
+
+                    {/* Center White Card (Tilted with Rocking Animation) */}
+                    <div className="relative bg-white px-1.5 py-0.5 rounded-lg shadow-sm border border-black/5 transform -rotate-[3deg] animate-card-rocking w-[78px] text-center">
+                      <div className="flex items-baseline justify-center">
+                        <span className="text-[13px] font-black text-[#E91E63] leading-none tracking-tight">80%</span>
+                        <span className="text-[7px] font-extrabold text-[#E91E63] uppercase tracking-wider pl-0.5">OFF</span>
+                      </div>
+                      <div className="text-[7.5px] font-black text-black leading-none uppercase tracking-wide mt-0.5">
+                        DISCOUNT
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <h3 className="font-headline-md text-headline-md">Starter Pack</h3>
-              <div className="flex items-center justify-center gap-sm !mt-1">
-                <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
-                <span className="text-red-600 line-through text-3xl font-bold">{formatINR(STARTER_ORIGINAL_PRICE_INR)}</span>
+                <div className="flex items-center justify-center gap-sm">
+                  <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(STARTER_PRICE_INR)}</span>
+                  <span className="text-red-500 line-through font-body-lg text-body-lg font-bold">{formatINR(STARTER_ORIGINAL_PRICE_INR)}</span>
+                </div>
+                <ul className="text-left space-y-sm py-md">
+                  {[
+                    '5 Full-Length Mock Tests (Sections A & B)',
+                    '100 Questions & 120 Minutes Per Test',
+                    'Easy, Medium & Hard Level Question Papers',
+                    'Detailed Explanations & Answers Key',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-base text-body-md">
+                      <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="text-left space-y-sm py-md">
-                {[
-                  '5 Full-Length Mock Tests (Sections A & B)',
-                  '100 Questions & 120 Minutes Per Test',
-                  'Easy, Medium & Hard Level Question Papers'
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-base text-body-md">
-                    <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button onClick={handleUnlockAll} className="w-full py-4 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-full shadow hover:bg-secondary-fixed transition-all active:scale-95 font-bold uppercase tracking-wide">
-                Unlock All Tests
-              </button>
+              <div className="p-md">
+                <button onClick={() => {
+                  sessionStorage.setItem('pendingPlan', 'starter');
+                  handleUnlockAll();
+                }} className="w-full py-4 border border-primary text-primary font-label-md text-label-md rounded-full hover:bg-primary/5 transition-all active:scale-95 font-bold uppercase tracking-wide">
+                  Buy Starter Pack
+                </button>
+              </div>
             </div>
+
+            {/* Card 3: Complete Pack (Pro) */}
+            <div className="bg-white border-2 border-primary rounded-xl overflow-hidden shadow-md flex flex-col justify-between relative hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300">
+              <div className="bg-primary h-[28px] flex items-center justify-center text-center">
+                <span className="text-on-primary uppercase tracking-widest font-bold text-[10px]">BEST VALUE &bull; POPULAR choice</span>
+              </div>
+              <div className="p-md text-center border-b border-outline-variant">
+                <h3 className="font-headline-md text-headline-md">Complete Pack</h3>
+                <p className="text-on-surface-variant text-body-sm">Full syllabus mock test series</p>
+              </div>
+              <div className="px-md py-lg text-center space-y-md flex-grow relative">
+                {/* Corner top right discount badge */}
+                <div className="absolute top-3 right-3 z-10 animate-badge-popup">
+                  <div className="relative w-[100px] h-[68px] bg-[#E91E63] rounded-xl overflow-hidden shadow-md flex items-center justify-center p-1 select-none">
+                    {/* Floating Shapes */}
+                    <div className="absolute top-1 left-2 w-3.5 h-3.5 border-[2px] border-[#FF4081]/60 rounded-full animate-float-slow" />
+                    <div className="absolute bottom-1 right-2 w-4 h-4 border-[2px] border-[#FF4081]/60 rounded-full animate-float-fast" />
+                    <div className="absolute -top-0.5 right-6 w-6 h-0.5 bg-[#FF4081]/50 rounded-full transform rotate-[35deg] animate-float-reverse" />
+                    <div className="absolute bottom-1.5 left-1 w-5 h-0.5 bg-[#FF4081]/50 rounded-full transform -rotate-[40deg] animate-float-slow" />
+                    
+                    {/* Floating Dots */}
+                    <div className="absolute top-5 right-2 w-0.5 h-0.5 bg-white/40 rounded-full animate-float-slow" />
+                    <div className="absolute bottom-3 left-3 w-0.5 h-0.5 bg-white/50 rounded-full animate-float-fast" />
+
+                    {/* Center White Card (Tilted with Rocking Animation) */}
+                    <div className="relative bg-white px-1.5 py-0.5 rounded-lg shadow-sm border border-black/5 transform -rotate-[3deg] animate-card-rocking w-[78px] text-center">
+                      <div className="flex items-baseline justify-center">
+                        <span className="text-[13px] font-black text-[#E91E63] leading-none tracking-tight">85%</span>
+                        <span className="text-[7px] font-extrabold text-[#E91E63] uppercase tracking-wider pl-0.5">OFF</span>
+                      </div>
+                      <div className="text-[7.5px] font-black text-black leading-none uppercase tracking-wide mt-0.5">
+                        DISCOUNT
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-sm">
+                  <span className="text-primary font-display-lg text-[40px] font-extrabold">{formatINR(PRO_PRICE_INR)}</span>
+                  <span className="text-red-500 line-through font-body-lg text-body-lg font-bold">{formatINR(PRO_ORIGINAL_PRICE_INR)}</span>
+                </div>
+                <ul className="text-left space-y-sm py-md">
+                  {[
+                    '10 Full-Length Mock Tests (Sections A & B)',
+                    'Includes all 5 Starter Tests + 5 Premium Tests',
+                    'Easy, Medium & Hard Level Question Papers',
+                    'Detailed Explanations & Answers Key',
+                    'Comprehensive Score Analysis',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-base text-body-md">
+                      <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="p-md">
+                <button onClick={() => {
+                  sessionStorage.setItem('pendingPlan', 'pro');
+                  handleUnlockAll();
+                }} className="w-full py-4 bg-primary text-on-primary font-label-md text-label-md rounded-full shadow hover:bg-primary-container transition-all active:scale-95 font-bold uppercase tracking-wide">
+                  Buy Complete Pack
+                </button>
+              </div>
+            </div>
+
           </div>
         </section>
 

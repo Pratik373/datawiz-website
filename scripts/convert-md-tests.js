@@ -30,6 +30,31 @@ const sets = [
     out: path.join('React', 'public', 'CCAT_Mock_Test_Set5.html'),
     title: 'CDAC C-CAT Mock Test - Set 5',
   },
+  {
+    md: 'CCAT_Mock_Test_Set6.md',
+    out: path.join('React', 'public', 'CCAT_Mock_Test_Set6.html'),
+    title: 'CDAC C-CAT Mock Test - Set 6',
+  },
+  {
+    md: 'CCAT_Mock_Test_Set7.md',
+    out: path.join('React', 'public', 'CCAT_Mock_Test_Set7.html'),
+    title: 'CDAC C-CAT Mock Test - Set 7',
+  },
+  {
+    md: 'CCAT_Mock_Test_Set8.md',
+    out: path.join('React', 'public', 'CCAT_Mock_Test_Set8.html'),
+    title: 'CDAC C-CAT Mock Test - Set 8',
+  },
+  {
+    md: 'CCAT_Mock_Test_Set9.md',
+    out: path.join('React', 'public', 'CCAT_Mock_Test_Set9.html'),
+    title: 'CDAC C-CAT Mock Test - Set 9',
+  },
+  {
+    md: 'CCAT_Mock_Test_Set10.md',
+    out: path.join('React', 'public', 'CCAT_Mock_Test_Set10.html'),
+    title: 'CDAC C-CAT Mock Test - Set 10',
+  },
 ];
 
 function stripMarkdown(value) {
@@ -118,7 +143,7 @@ function parseQuestions(markdown) {
       continue;
     }
 
-    const optionMatch = line.match(/^- ([A-D])\.\s*(.*)$/);
+    const optionMatch = line.match(/^- ([A-D])[.)]\s*(.*)$/);
     if (optionMatch) {
       current.options[optionMatch[1].toUpperCase().charCodeAt(0) - 65] = optionMatch[2];
       mode = 'options';
@@ -190,6 +215,11 @@ function buildHtml(template, set) {
 
 const template = fs.readFileSync(templatePath, 'utf8');
 for (const set of sets) {
+  const mdPath = path.join(root, set.md);
+  if (!fs.existsSync(mdPath)) {
+    console.log(`Skipping ${set.md} (file not found)`);
+    continue;
+  }
   const html = buildHtml(template, set);
   const outPath = path.join(root, set.out);
   fs.writeFileSync(outPath, html);

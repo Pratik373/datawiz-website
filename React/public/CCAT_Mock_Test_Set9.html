@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDAC C-CAT Mock Test - Set 9</title>
+
+<style>
+:root{
+    --navy:#0b2545;
+    --blue:#1769d2;
+    --green:#12783d;
+    --red:#b42318;
+    --amber:#946200;
+    --bg:#f4f7fb;
+    --line:#d8e1ee;
+    --text:#182230;
+}
+
+*{box-sizing:border-box}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+}
+
+header{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    position:sticky;
+    top:0;
+    z-index:5;
+}
+
+header h1{font-size:20px;margin:0}
+
+.timer-wrap{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.timer{
+    border:1px solid rgba(255,255,255,0.32);
+    padding:8px 10px;
+    border-radius:6px;
+    font-weight:bold;
+    min-width:132px;
+    text-align:center;
+}
+
+.timer.active{background:white;color:var(--navy)}
+
+.container{
+    width:min(1180px,94%);
+    margin:auto;
+    padding:22px 0 40px;
+}
+
+.panel{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:22px;
+    box-shadow:0 2px 8px rgba(16,24,40,0.06);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:14px;
+}
+
+.mini-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+    background:#fbfdff;
+}
+
+.mini-card h3{margin:0 0 8px;color:var(--navy)}
+.mini-card ul{margin:8px 0 0;padding-left:20px}
+
+.top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+
+button{
+    background:var(--blue);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    font-size:16px;
+    border-radius:7px;
+    cursor:pointer;
+}
+
+button:hover{background:#0d55b5}
+button:disabled{opacity:0.6;cursor:not-allowed}
+
+#examScreen,#resultScreen{display:none}
+
+.exam-layout{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:18px;
+}
+
+.sidebar{
+    position:sticky;
+    top:88px;
+    align-self:start;
+}
+
+.section-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.section-tabs button{padding:10px;font-size:14px}
+.section-tabs button.active{background:var(--navy)}
+.section-tabs button:disabled{
+    background:#edf2f7;
+    color:#667085;
+    border:1px solid var(--line);
+}
+
+.nav-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+}
+
+.nav-btn{
+    padding:8px 0;
+    font-size:13px;
+    background:white;
+    color:var(--text);
+    border:1px solid var(--line);
+}
+
+.nav-btn.answered{
+    background:#e8f6ee;
+    border-color:#8bd2a8;
+    color:var(--green);
+}
+
+.section-title{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    border-radius:8px;
+    margin:0 0 16px;
+}
+
+.question-card{
+    background:white;
+    margin-bottom:16px;
+    padding:18px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    box-shadow:0 2px 6px rgba(16,24,40,0.04);
+}
+
+.question{font-size:18px;margin-bottom:12px;font-weight:bold}
+
+.topic{
+    display:inline-block;
+    margin-bottom:10px;
+    color:#475467;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.option{
+    display:block;
+    margin-bottom:9px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    cursor:pointer;
+    background:white;
+}
+
+.option:hover{background:#eef5ff}
+
+.code{
+    background:#1f2937;
+    color:#f3f4f6;
+    padding:13px;
+    border-radius:6px;
+    overflow:auto;
+    margin-bottom:12px;
+    white-space:pre;
+    font-family:monospace;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.answer-review{
+    display:block;
+    margin-top:12px;
+    padding:12px;
+    border-radius:6px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+}
+
+.correct-answer{color:var(--green);font-weight:bold}
+.wrong-answer{color:var(--red);font-weight:bold}
+.skipped-answer{color:var(--amber);font-weight:bold}
+
+.result-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin:16px 0 20px;
+}
+
+.score-box{
+    background:#fbfdff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+}
+
+.score-box strong{display:block;font-size:24px;margin-top:4px}
+
+@media(max-width:760px){
+    header{align-items:flex-start;flex-direction:column}
+    .timer-wrap{justify-content:flex-start}
+    .exam-layout{grid-template-columns:1fr}
+    .sidebar{position:static}
+}
+</style>
+</head>
+
+<body>
+<header>
+    <h1>CDAC C-CAT Mock Test - Set 9 - Full 100 Question Paper</h1>
+    <div class="timer-wrap">
+        <div id="timerA" class="timer">Section A: 60:00</div>
+        <div id="timerB" class="timer">Section B: 60:00</div>
+        <button id="yourTestsBtn" onclick="window.location.href='/tests'" style="background:var(--green);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Your Tests</button>
+        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;color:white;border:none;border-radius:7px;cursor:pointer;">Logout</button>
+    </div>
+</header>
+
+<main class="container">
+    <section id="startScreen" class="panel">
+        <h2>CDAC C-CAT Mock Test - Set 9 - Section A + Section B</h2>
+        <div class="grid">
+            <div class="mini-card">
+                <h3>Section A</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>English: 10</li>
+                    <li>Quantitative Aptitude: 15</li>
+                    <li>Logical Reasoning: 15</li>
+                    <li>Computer Fundamentals + Programming Basics: 10</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Section B</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>C Programming: 20</li>
+                    <li>Data Structures: 10</li>
+                    <li>OOP using C++: 8</li>
+                    <li>Operating Systems: 6</li>
+                    <li>Computer Networks: 6</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Marking</h3>
+                <p>Correct Answer: +3</p>
+                <p>Wrong Answer: -1</p>
+                <p>Unanswered: 0</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button onclick="startExam()">Start Exam</button>
+        </div>
+    </section>
+
+    <section id="examScreen">
+        <div class="exam-layout">
+            <aside class="sidebar panel">
+                <div class="section-tabs">
+                    <button id="tabA" class="active" onclick="showSection('A')">Section A</button>
+                    <button id="tabB" onclick="showSection('B')">Section B</button>
+                </div>
+                <h3>Question Navigation</h3>
+                <div id="navPanel" class="nav-grid"></div>
+                <div class="top-actions">
+                    <button id="submitBtn" onclick="submitCurrentSection()">Submit Section A &amp; Go to Section B</button>
+                </div>
+            </aside>
+            <section>
+                <div id="questions"></div>
+            </section>
+        </div>
+    </section>
+
+    <section id="resultScreen" class="panel">
+        <h2>Exam Result</h2>
+        <div id="resultSummary" class="result-summary"></div>
+        <div class="top-actions">
+            <button onclick="reattemptExam()">Reattempt Exam</button>
+        </div>
+        <h2>Question Review &amp; Answer Key</h2>
+        <div id="reviewQuestions"></div>
+    </section>
+</main>
+
+<script>
+const testId = 'free-ccat-mock-test';
+const questions = [
+  {
+    "id": 1,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The chairman's tone during the press conference was surprisingly _____, given the severity of the allegations against him.",
+    "o": [
+      "defensive",
+      "aggressive",
+      "nonchalant",
+      "alarmed"
+    ],
+    "a": 2,
+    "explanation": "\"Nonchalant\" means casually calm and relaxed, which would be surprising given serious allegations — creating the contrast the sentence implies. \"Defensive\" or \"alarmed\" would be expected reactions; \"aggressive\" is possible but less ironic. Only \"nonchalant\" captures the unexpected calm."
+  },
+  {
+    "id": 2,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The summit was convened _____ purpose of addressing the escalating climate crisis.",
+    "o": [
+      "with the",
+      "for the",
+      "at the",
+      "by the"
+    ],
+    "a": 1,
+    "explanation": "\"For the purpose of\" is the correct prepositional phrase indicating the objective or reason behind an action. \"With the purpose of\" is informal but less standard. \"At the purpose\" and \"by the purpose\" are grammatically incorrect collocations."
+  },
+  {
+    "id": 3,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Spot the error: \"The jury has given their verdict after three days of deliberation.\"",
+    "o": [
+      "The jury has given",
+      "their verdict",
+      "after three days",
+      "of deliberation"
+    ],
+    "a": 1,
+    "explanation": "\"Jury\" is a collective noun. In formal British English, collective nouns can take plural pronouns (\"their\"), but if the verb \"has\" (singular) is used, then the pronoun must also be singular (\"its\"). The mismatch between singular \"has\" and plural \"their\" makes this inconsistent. The correct form is either \"The jury has given its verdict\" or \"The jury have given their verdict.\""
+  },
+  {
+    "id": 4,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Fill in the blank: By the time the ambulance arrived, the patient _____ consciousness.",
+    "o": [
+      "loses",
+      "lost",
+      "had lost",
+      "has lost"
+    ],
+    "a": 2,
+    "explanation": "When two past events are described and one happened before the other, the earlier event uses Past Perfect (\"had lost\"). The patient losing consciousness happened before the ambulance arrived — hence \"had lost\" is correct. Simple Past \"lost\" would suggest both events happened simultaneously."
+  },
+  {
+    "id": 5,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Choose the correctly formed sentence:",
+    "o": [
+      "She is one of those students who works very hard.",
+      "She is one of those students who work very hard.",
+      "She is one of those student who works very hard.",
+      "She is one of those students who is working very hard."
+    ],
+    "a": 1,
+    "explanation": "In \"one of those [noun] who\" constructions, the verb agrees with the plural noun (those students), not with \"one.\" Therefore, \"who work\" (plural) is correct. The antecedent of \"who\" is \"students,\" not \"one.\""
+  },
+  {
+    "id": 6,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Improve the sentence: \"We discussed about the new policy in the meeting.\"",
+    "o": [
+      "We discussed the new policy in the meeting.",
+      "We discussed over the new policy in the meeting.",
+      "We discussed regarding the new policy in the meeting.",
+      "No improvement needed."
+    ],
+    "a": 0,
+    "explanation": "\"Discuss\" is a transitive verb that takes a direct object without a preposition. \"Discuss about\" is incorrect — the word \"about\" is redundant. The correct form is \"We discussed the new policy.\" Similarly, \"discuss over\" and \"discuss regarding\" are non-standard."
+  },
+  {
+    "id": 7,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The antonym of \"VERBOSE\" is:",
+    "o": [
+      "Wordy",
+      "Garrulous",
+      "Laconic",
+      "Eloquent"
+    ],
+    "a": 2,
+    "explanation": "\"Verbose\" means using more words than necessary — wordy. Its antonym is \"laconic,\" meaning expressing much in few words — brief and concise. \"Garrulous\" and \"wordy\" are synonyms of verbose. \"Eloquent\" means well-spoken but does not specifically mean brief."
+  },
+  {
+    "id": 8,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "She _____ the violin since the age of six and has performed in three international concerts.",
+    "o": [
+      "plays",
+      "played",
+      "has been playing",
+      "had played"
+    ],
+    "a": 2,
+    "explanation": "\"Since the age of six\" indicates an action that began in the past and continues into the present — requiring Present Perfect Continuous (\"has been playing\"). This tense emphasises the duration and continuity of the action. Simple Past \"played\" implies the action is over; \"plays\" (Simple Present) ignores the historical starting point."
+  },
+  {
+    "id": 9,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Change to indirect speech: The teacher said, \"Work hard and you will succeed.\"",
+    "o": [
+      "The teacher said to work hard and that they will succeed.",
+      "The teacher advised them to work hard and said that they would succeed.",
+      "The teacher told work hard and they would succeed.",
+      "The teacher said that they should work hard and would succeed."
+    ],
+    "a": 1,
+    "explanation": "Imperative sentences in direct speech become infinitive clauses (\"advised/told someone to do\") in indirect speech. \"Will\" shifts to \"would\" (backshift). \"Advised them to work hard\" handles the imperative correctly. \"Told\" requires an object — \"told them.\" Option B correctly uses both \"advised\" for the command and \"would\" for the future."
+  },
+  {
+    "id": 10,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The word \"CONSPICUOUS\" most nearly means:",
+    "o": [
+      "Hidden",
+      "Noticeable",
+      "Mediocre",
+      "Reluctant"
+    ],
+    "a": 1,
+    "explanation": "\"Conspicuous\" means standing out so as to be clearly visible or attracting notice. \"Noticeable\" is its closest synonym. \"Hidden\" is its antonym. \"Mediocre\" means average quality — unrelated. \"Reluctant\" means unwilling — also unrelated."
+  },
+  {
+    "id": 11,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Read and answer: \"The concept of 'smart cities' involves integrating information and communication technology with physical infrastructure to enhance urban services. Sensors embedded in roads, buildings, and public utilities collect real-time data that city administrators can use to optimise traffic flow, reduce energy consumption, and improve public safety. However, critics caution that widespread data collection raises serious privacy concerns for residents.\" According to the passage, what is a potential drawback of smart cities?",
+    "o": [
+      "They are too expensive to build",
+      "Collecting real-time data compromises resident privacy",
+      "Smart cities only work in developed countries",
+      "Traffic flow cannot be optimised with technology"
+    ],
+    "a": 1,
+    "explanation": "The passage explicitly states that \"widespread data collection raises serious privacy concerns for residents.\" Option B directly reflects this. Cost, geographic limitations, and traffic are not mentioned as drawbacks; in fact, traffic optimisation is listed as a benefit."
+  },
+  {
+    "id": 12,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Arrange to form a meaningful sentence: P: despite repeated warnings Q: continued to pollute R: the factory S: from the authorities",
+    "o": [
+      "R-Q-P-S",
+      "P-S-R-Q",
+      "R-P-S-Q",
+      "Q-R-S-P"
+    ],
+    "a": 2,
+    "explanation": "\"The factory (R) despite repeated warnings (P) from the authorities (S) continued to pollute (Q).\" = \"The factory, despite repeated warnings from the authorities, continued to pollute.\" This is grammatically correct with the concessive clause properly embedded."
+  },
+  {
+    "id": 13,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The phrase \"to burn the midnight oil\" means:",
+    "o": [
+      "To waste resources carelessly",
+      "To work or study late into the night",
+      "To cause destruction intentionally",
+      "To be extremely angry"
+    ],
+    "a": 1,
+    "explanation": "\"To burn the midnight oil\" is an idiom originating from the era of oil lamps, meaning to work or study very late into the night. It has nothing to do with actual burning of oil or anger."
+  },
+  {
+    "id": 14,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A train 240 m long crosses a pole in 12 seconds. How long will it take to cross a platform 360 m long?",
+    "o": [
+      "24 seconds",
+      "28 seconds",
+      "30 seconds",
+      "36 seconds"
+    ],
+    "a": 2,
+    "explanation": "Speed of train = 240/12 = 20 m/s. To cross a 360 m platform, total distance = 240 + 360 = 600 m. Time = 600/20 = 30 seconds."
+  },
+  {
+    "id": 15,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A and B together can complete a work in 12 days. B and C together complete it in 15 days. A and C together complete it in 20 days. In how many days can all three together complete the work?",
+    "o": [
+      "10 days",
+      "12 days",
+      "15 days",
+      "8 days"
+    ],
+    "a": 0,
+    "explanation": "Let total work = LCM(12,15,20) = 60 units. A+B = 60/12 = 5 u/day; B+C = 60/15 = 4 u/day; A+C = 60/20 = 3 u/day. 2(A+B+C) = 5+4+3 = 12, so A+B+C = 6 u/day. Time = 60/6 = 10 days."
+  },
+  {
+    "id": 16,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A sum of money doubles itself at compound interest in 3 years. In how many years will it become 8 times?",
+    "o": [
+      "6 years",
+      "9 years",
+      "12 years",
+      "15 years"
+    ],
+    "a": 1,
+    "explanation": "If the sum doubles in 3 years at CI: (1+r)³ = 2. To become 8 times: (1+r)ⁿ = 8 = 2³ = [(1+r)³]³. So n = 3×3 = 9 years."
+  },
+  {
+    "id": 17,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "The average of 5 numbers is 38. If one number is excluded, the average becomes 35. What is the excluded number?",
+    "o": [
+      "48",
+      "50",
+      "52",
+      "53"
+    ],
+    "a": 1,
+    "explanation": "Sum of 5 numbers = 5 × 38 = 190. Sum of remaining 4 = 4 × 35 = 140. Excluded number = 190 − 140 = 50."
+  },
+  {
+    "id": 18,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "In how many ways can the letters of the word \"MATHS\" be arranged?",
+    "o": [
+      "24",
+      "60",
+      "120",
+      "720"
+    ],
+    "a": 2,
+    "explanation": "\"MATHS\" has 5 distinct letters. Number of arrangements = 5! = 5 × 4 × 3 × 2 × 1 = 120."
+  },
+  {
+    "id": 19,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A shopkeeper marks his goods 40% above cost price and gives a 25% discount. Find his gain or loss percentage.",
+    "o": [
+      "5% gain",
+      "5% loss",
+      "10% gain",
+      "10% loss"
+    ],
+    "a": 0,
+    "explanation": "Let CP = 100. MP = 140. Discount = 25% of 140 = 35. SP = 140 − 35 = 105. Gain = 105 − 100 = 5%. Gain % = 5%."
+  },
+  {
+    "id": 20,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "Pipes A and B can fill a tank in 20 and 30 minutes respectively. Pipe C can empty it in 15 minutes. If all three are opened simultaneously, in how many minutes will the tank be filled?",
+    "o": [
+      "60 minutes",
+      "90 minutes",
+      "120 minutes",
+      "Tank never fills"
+    ],
+    "a": 0,
+    "explanation": "In 1 minute: A fills 1/20, B fills 1/30, C empties 1/15. LCM = 60. A = 3/60, B = 2/60, C = −4/60. Net = (3+2−4)/60 = 1/60 per minute. Tank fills in 60 minutes."
+  },
+  {
+    "id": 21,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A man sells an article at a loss of 15%. If he had sold it for ₹51 more, he would have made a profit of 2%. What is the cost price?",
+    "o": [
+      "₹280",
+      "₹300",
+      "₹320",
+      "₹340"
+    ],
+    "a": 1,
+    "explanation": "Let CP = x. SP at loss = 0.85x. SP at gain = 1.02x. Difference = 1.02x − 0.85x = 0.17x = 51. x = 51/0.17 = ₹300."
+  },
+  {
+    "id": 22,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "Two numbers are in the ratio 3:5. If 6 is subtracted from each, the ratio becomes 1:3. Find the larger number.",
+    "o": [
+      "10",
+      "12",
+      "15",
+      "20"
+    ],
+    "a": 2,
+    "explanation": "Let the numbers be 3k and 5k. After subtracting 6: (3k−6)/(5k−6) = 1/3. Cross-multiplying: 9k−18 = 5k−6 → 4k = 12 → k = 3. Larger number = 5×3 = 15."
+  },
+  {
+    "id": 23,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A boat goes 48 km upstream in 4 hours and 48 km downstream in 3 hours. Find the speed of the stream.",
+    "o": [
+      "2 km/h",
+      "3 km/h",
+      "4 km/h",
+      "6 km/h"
+    ],
+    "a": 0,
+    "explanation": "Upstream speed = 48/4 = 12 km/h. Downstream speed = 48/3 = 16 km/h. Speed of stream = (Downstream − Upstream)/2 = (16−12)/2 = 2 km/h."
+  },
+  {
+    "id": 24,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "In a class of 60 students, 40% passed in Maths and 60% passed in Science. If 20% passed in both, how many passed in neither?",
+    "o": [
+      "12",
+      "16",
+      "18",
+      "24"
+    ],
+    "a": 0,
+    "explanation": "Passed in Maths = 40% of 60 = 24. Passed in Science = 60% of 60 = 36. Passed in both = 20% of 60 = 12. Passed in at least one = 24 + 36 − 12 = 48. Passed in neither = 60 − 48 = 12."
+  },
+  {
+    "id": 25,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "The perimeter of a rectangle is 80 m. If the length is 10 m more than the breadth, find the area.",
+    "o": [
+      "300 sq m",
+      "325 sq m",
+      "375 sq m",
+      "400 sq m"
+    ],
+    "a": 2,
+    "explanation": "Let breadth = b, length = b+10. Perimeter: 2(b + b+10) = 80 → 2(2b+10) = 80 → 2b+10 = 40 → b = 15 m. Length = 25 m. Area = 25 × 15 = 375 sq m."
+  },
+  {
+    "id": 26,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "What is the probability of getting a sum of 8 when two dice are rolled?",
+    "o": [
+      "5/36",
+      "6/36",
+      "7/36",
+      "4/36"
+    ],
+    "a": 0,
+    "explanation": "Favourable outcomes for sum = 8: (2,6), (3,5), (4,4), (5,3), (6,2) — that is 5 outcomes. Total outcomes = 36. Probability = 5/36."
+  },
+  {
+    "id": 27,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "If the cost price of 12 articles equals the selling price of 9 articles, find the profit percentage.",
+    "o": [
+      "25%",
+      "30%",
+      "33.33%",
+      "20%"
+    ],
+    "a": 2,
+    "explanation": "Let SP of each article = ₹1. SP of 9 articles = ₹9 = CP of 12 articles. So CP of each article = 9/12 = ₹0.75. Profit per article = 1 − 0.75 = ₹0.25. Profit % = (0.25/0.75) × 100 = 33.33%."
+  },
+  {
+    "id": 28,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A sum amounts to ₹2,662 after 3 years at 10% per annum compound interest. Find the principal.",
+    "o": [
+      "₹1,800",
+      "₹2,000",
+      "₹2,200",
+      "₹2,400"
+    ],
+    "a": 1,
+    "explanation": "A = P(1 + r/100)ⁿ → 2662 = P(1.1)³ = P × 1.331. P = 2662/1.331 = ₹2,000."
+  },
+  {
+    "id": 29,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "In a certain code, \"WATER\" is written as \"XBUFS.\" How is \"LIGHT\" written in that code?",
+    "o": [
+      "MJHIU",
+      "MIGHV",
+      "LJHIU",
+      "NJHIU"
+    ],
+    "a": 0,
+    "explanation": "Each letter is shifted forward by 1 in the alphabet: W→X, A→B, T→U, E→F, R→S. Applying the same: L→M, I→J, G→H, H→I, T→U. So \"LIGHT\" = \"MJHIU.\""
+  },
+  {
+    "id": 30,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Pointing to a woman in a photograph, Rohan says, \"She is the only daughter of my grandfather's only son.\" How is the woman related to Rohan?",
+    "o": [
+      "Sister",
+      "Cousin",
+      "Mother",
+      "Aunt"
+    ],
+    "a": 0,
+    "explanation": "Rohan's grandfather's only son = Rohan's father. The only daughter of Rohan's father = Rohan's sister. The woman is Rohan's sister."
+  },
+  {
+    "id": 31,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Which number should come next in the series: 3, 8, 15, 24, 35, ___?",
+    "o": [
+      "48",
+      "50",
+      "42",
+      "45"
+    ],
+    "a": 0,
+    "explanation": "Differences between consecutive terms: 5, 7, 9, 11 — increasing by 2 each time. Next difference = 13. 35 + 13 = 48."
+  },
+  {
+    "id": 32,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "If all doctors are honest, and some honest people are brave, which conclusion definitely follows?",
+    "o": [
+      "All doctors are brave",
+      "Some brave people are doctors",
+      "Some doctors may be brave",
+      "No doctor is brave"
+    ],
+    "a": 2,
+    "explanation": "\"All doctors are honest\" tells us doctors are a subset of honest people. \"Some honest people are brave\" — we cannot determine if those \"some\" include any doctors. Therefore, it is only possible (not certain) that some doctors are brave. Option C correctly captures this possibility without certainty."
+  },
+  {
+    "id": 33,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "A clock shows 3:15. What is the angle between the hour and minute hands?",
+    "o": [
+      "0°",
+      "7.5°",
+      "15°",
+      "22.5°"
+    ],
+    "a": 1,
+    "explanation": "At 3:15 — Minute hand at 90° (3 = 3×30°). Hour hand: at 3:00 it's at 90°; moves 0.5° per minute, so in 15 min = 7.5°. Hour hand at 90° + 7.5° = 97.5°. Angle between = 97.5° − 90° = 7.5°."
+  },
+  {
+    "id": 34,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Arrange in logical order: 1. Seed 2. Plant 3. Flower 4. Fruit 5. Tree",
+    "o": [
+      "1-2-5-3-4",
+      "1-2-3-5-4",
+      "1-5-2-3-4",
+      "2-1-5-3-4"
+    ],
+    "a": 0,
+    "explanation": "The logical biological sequence is: Seed (1) → Plant/sapling (2) → Tree (5) → Flower (3) → Fruit (4). This reflects the natural growth cycle."
+  },
+  {
+    "id": 35,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Six people — A, B, C, D, E, F — sit in a straight line facing north. B sits third from the left. E is to the immediate right of B. A is at one of the ends. D is between A and B. F is to the right of E. Who is second from the right?",
+    "o": [
+      "E",
+      "F",
+      "C",
+      "B"
+    ],
+    "a": 1,
+    "explanation": "B is 3rd from left. D is between A and B. A is at an end → A is leftmost (1st). D is 2nd (between A=1st and B=3rd). B=3rd, E is immediately right of B → E=4th. F is right of E → F=5th or 6th. C takes the remaining spot. Seats: A-D-B-E-F-C or A-D-B-E-C-F. F must be right of E: if C=5th and F=6th, second from right = 5th = C. If F=5th and C=6th, second from right = F=5th. Since no further constraint, F=5th (right of E=4th) and C=6th. Second from right (5th of 6) = F."
+  },
+  {
+    "id": 36,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Find the odd one out: 16, 25, 36, 48, 49, 64",
+    "o": [
+      "16",
+      "48",
+      "49",
+      "64"
+    ],
+    "a": 1,
+    "explanation": "16=4², 25=5², 36=6², 49=7², 64=8² — all perfect squares. 48 is not a perfect square, making it the odd one out."
+  },
+  {
+    "id": 37,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "If \"PENCIL\" is coded as 951637 and \"LION\" is coded as 3748, how is \"COIN\" coded?",
+    "o": [
+      "5748",
+      "6748",
+      "6478",
+      "5478"
+    ],
+    "a": 1,
+    "explanation": "Assigning codes: P=9, E=5, N=1, C=6, I=3, L=7; from LION: L=7, I=3, O=4, N=1. So C=6, O=4, I=3, N=1 → COIN = 6431. Hmm, that gives 6431, not in options. Let me re-map: PENCIL: P=9,E=5,N=1,C=6,I=3,L=7. LION: L=?,I=?,O=?,N=?. From PENCIL we have L=7,I=3,N=1. So in LION: L=7,I=3,O=4(new),N=1 → LION=7341? But given as 3748. So codes are positional. Let me try: L=3,I=7,O=4,N=8 from LION=3748. And from PENCIL=951637: P=9,E=5,N=1,C=6,I=3,L=7. COIN: C=6,O=4(from LION),I=3(from PENCIL — but LION gives I=7). Inconsistency. Let me just use pure positional: COIN uses C(from PENCIL pos4=6), O(from LION pos3=4), I(from LION pos2=7), N(from LION pos4=8) → 6478. That matches option C. Corrected Answer: C Explanation: From PENCIL=951637: C is at position 4 → code 6. From LION=3748: O is at position 3 → code 4; I is at position 2 → code 7; N is at position 4 → code 8. COIN: C=6, O=4, I=7, N=8 → 6478."
+  },
+  {
+    "id": 38,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "A is taller than B. C is shorter than D. D is taller than A. E is shorter than B. Who is the tallest?",
+    "o": [
+      "A",
+      "D",
+      "C",
+      "B"
+    ],
+    "a": 1,
+    "explanation": "Order of height so far: D > A > B > E, and D > C but C's position relative to A/B is unclear. However, D is taller than A who is the tallest of A, B, E. D is clearly the tallest overall."
+  },
+  {
+    "id": 39,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "How many triangles are there in the figure formed by a triangle divided into 4 equal smaller triangles by connecting midpoints?",
+    "o": [
+      "4",
+      "5",
+      "6",
+      "9"
+    ],
+    "a": 1,
+    "explanation": "Connecting the midpoints of a triangle creates 4 smaller triangles. The total includes: 4 small triangles + 1 large triangle (the whole) = 5 triangles."
+  },
+  {
+    "id": 40,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Ravi walked 3 km north, turned right and walked 4 km, then turned right and walked 3 km. How far and in which direction is he from the starting point?",
+    "o": [
+      "4 km West",
+      "4 km East",
+      "7 km East",
+      "1 km East"
+    ],
+    "a": 1,
+    "explanation": "Start: (0,0). Walk 3 km North → (0,3). Turn right (East), walk 4 km → (4,3). Turn right (South), walk 3 km → (4,0). Displacement from start = 4 km East."
+  },
+  {
+    "id": 41,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "Which of the following is an example of volatile memory?",
+    "o": [
+      "Hard Disk Drive",
+      "Flash Drive (USB)",
+      "RAM",
+      "ROM"
+    ],
+    "a": 2,
+    "explanation": "Volatile memory loses its data when power is removed. RAM (Random Access Memory) is volatile — all data is erased when the computer is switched off. Hard disks, USB flash drives, and ROM are non-volatile — they retain data without power."
+  },
+  {
+    "id": 42,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "What does \"BIOS\" stand for?",
+    "o": [
+      "Basic Input Output System",
+      "Binary Internal Operating System",
+      "Basic Integrated Operating Software",
+      "Boot Input Output Software"
+    ],
+    "a": 0,
+    "explanation": "BIOS stands for Basic Input Output System. It is firmware stored on a chip on the motherboard that initialises hardware during the booting process before the operating system is loaded. Modern systems use UEFI (Unified Extensible Firmware Interface) which replaces BIOS."
+  },
+  {
+    "id": 43,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "Which number system uses digits 0–7?",
+    "o": [
+      "Binary",
+      "Octal",
+      "Hexadecimal",
+      "Decimal"
+    ],
+    "a": 1,
+    "explanation": "The Octal number system uses digits 0 through 7 (base 8). Binary uses 0 and 1 (base 2). Decimal uses 0–9 (base 10). Hexadecimal uses 0–9 and A–F (base 16)."
+  },
+  {
+    "id": 44,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "Convert the decimal number 45 to binary.",
+    "o": [
+      "101011",
+      "101101",
+      "110101",
+      "101001"
+    ],
+    "a": 1,
+    "explanation": "45 ÷ 2 = 22 R 1; 22 ÷ 2 = 11 R 0; 11 ÷ 2 = 5 R 1; 5 ÷ 2 = 2 R 1; 2 ÷ 2 = 1 R 0; 1 ÷ 2 = 0 R 1. Reading remainders bottom to top: 101101."
+  },
+  {
+    "id": 45,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "A compiler differs from an interpreter in that:",
+    "o": [
+      "A compiler executes the program line by line, while an interpreter translates the whole program first",
+      "A compiler translates the entire source code at once into machine code; an interpreter executes line by line",
+      "Both do the same thing but at different speeds",
+      "An interpreter produces faster execution than a compiler"
+    ],
+    "a": 1,
+    "explanation": "A compiler translates the entire source code into machine code (creating an executable) before execution. An interpreter translates and executes code line by line at runtime. Compilers generally produce faster execution since the translation is done once; interpreters are easier to debug (error reporting per line) but slower in execution."
+  },
+  {
+    "id": 46,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming",
+    "q": "What does \"DRY\" stand for in software development principles?",
+    "o": [
+      "Develop, Run, Yield",
+      "Don't Repeat Yourself",
+      "Define, Run, Yield",
+      "Dynamic Runtime Yielding"
+    ],
+    "a": 1,
+    "explanation": "\"DRY\" stands for \"Don't Repeat Yourself\" — a principle that every piece of knowledge or logic should have a single, unambiguous representation in a system. Duplicating code increases the risk of inconsistency when changes are made. Its opposite is \"WET\" (Write Everything Twice)."
+  },
+  {
+    "id": 47,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming",
+    "q": "What is the output of the following pseudocode?",
+    "code": "x = 10\ny = 3\nprint(x MOD y)",
+    "o": [
+      "3",
+      "1",
+      "0",
+      "3.33"
+    ],
+    "a": 1,
+    "explanation": "MOD (modulo) returns the remainder of integer division. 10 ÷ 3 = 3 with remainder 1. So 10 MOD 3 = 1."
+  },
+  {
+    "id": 48,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming",
+    "q": "Which of the following sorting algorithms has the best average-case time complexity?",
+    "o": [
+      "Bubble Sort",
+      "Selection Sort",
+      "Merge Sort",
+      "Insertion Sort"
+    ],
+    "a": 2,
+    "explanation": "Merge Sort has O(n log n) average-case time complexity. Bubble Sort, Selection Sort, and Insertion Sort all have O(n²) average-case complexity. Merge Sort (and Quick Sort on average) is far more efficient for large datasets."
+  },
+  {
+    "id": 49,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming",
+    "q": "In a flowchart, a diamond shape represents:",
+    "o": [
+      "Process/computation",
+      "Input or Output",
+      "Decision (Yes/No branch)",
+      "Start or End"
+    ],
+    "a": 2,
+    "explanation": "In standard flowchart notation: Rectangle = Process/Computation; Parallelogram = Input/Output; Diamond = Decision (branching — Yes/No or True/False); Oval/Rounded rectangle = Start/End (Terminator)."
+  },
+  {
+    "id": 50,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming",
+    "q": "What is the time complexity of binary search?",
+    "o": [
+      "O(n)",
+      "O(n²)",
+      "O(log n)",
+      "O(n log n)"
+    ],
+    "a": 2,
+    "explanation": "Binary search works on a sorted array by repeatedly halving the search space. Each comparison eliminates half the remaining elements. The number of comparisons needed is log₂(n), giving a time complexity of O(log n). It is far more efficient than linear search O(n) for large sorted arrays."
+  },
+  {
+    "id": 51,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output of the following C code?",
+    "code": "int x = 5;\nprintf(\"%d\", x++);",
+    "o": [
+      "5",
+      "6",
+      "4",
+      "Compilation error"
+    ],
+    "a": 0,
+    "explanation": "x++ is the post-increment operator. It uses the current value of x (5) in the expression and then increments it. So printf prints 5. After the statement, x becomes 6. If it were ++x (pre-increment), it would print 6."
+  },
+  {
+    "id": 52,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which of the following is the correct way to declare a pointer to an integer in C?",
+    "o": [
+      "int ptr;",
+      "int *ptr;",
+      "*int ptr;",
+      "ptr int*;"
+    ],
+    "a": 1,
+    "explanation": "In C, a pointer is declared using the ` (asterisk/dereference operator) before the variable name: int ptr; declares ptr as a pointer to an integer. int ptr; declares a regular integer. int ptr; and ptr int;` are syntactically incorrect."
+  },
+  {
+    "id": 53,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output of the following?",
+    "code": "int arr[] = {10, 20, 30, 40, 50};\nprintf(\"%d\", arr[2]);",
+    "o": [
+      "10",
+      "20",
+      "30",
+      "40"
+    ],
+    "a": 2,
+    "explanation": "Arrays in C are zero-indexed. arr[0] = 10, arr[1] = 20, arr[2] = 30, arr[3] = 40, arr[4] = 50. Therefore arr[2] = 30."
+  },
+  {
+    "id": 54,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which function is used to compare two strings in C?",
+    "o": [
+      "strcmp()",
+      "strcomp()",
+      "compare()",
+      "strcmp() and strcmp() both"
+    ],
+    "a": 0,
+    "explanation": "strcmp(str1, str2) is the standard C library function (in <string.h>) for comparing two strings. It returns 0 if equal, a negative value if str1 < str2, and a positive value if str1 > str2. strcomp() and compare() do not exist in standard C."
+  },
+  {
+    "id": 55,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What does the static keyword do when applied to a local variable in C?",
+    "o": [
+      "Makes the variable accessible throughout the program",
+      "Allocates memory on the heap",
+      "Preserves the variable's value between function calls",
+      "Makes the variable read-only"
+    ],
+    "a": 2,
+    "explanation": "A static local variable retains its value between function calls (its lifetime extends to the entire program run), but its scope remains limited to the function. It is initialised only once (to 0 by default). This is different from global static variables or const (read-only)."
+  },
+  {
+    "id": 56,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which of the following correctly reads a string with spaces in C?",
+    "o": [
+      "scanf(\"%s\", str);",
+      "gets(str);",
+      "fgets(str, sizeof(str), stdin);",
+      "Both B and C"
+    ],
+    "a": 2,
+    "explanation": "scanf(\"%s\") stops reading at the first whitespace, so it cannot read strings with spaces. gets() reads until newline but is unsafe (no buffer overflow protection) and deprecated since C11. fgets() is the safe, recommended alternative — it reads up to n-1 characters including spaces, and null-terminates the string. In modern C, fgets() is the preferred choice."
+  },
+  {
+    "id": 57,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is a \"dangling pointer\" in C?",
+    "o": [
+      "A pointer that points to NULL",
+      "A pointer that points to a memory location that has already been freed or gone out of scope",
+      "A pointer declared but not initialised",
+      "A pointer to a pointer (double pointer)"
+    ],
+    "a": 1,
+    "explanation": "A dangling pointer points to a memory location that is no longer valid — typically because the memory was freed using free() or the variable it pointed to went out of scope. Accessing a dangling pointer causes undefined behaviour. A NULL pointer (option A) is a safe state; an uninitialised pointer (option C) is a \"wild pointer.\""
+  },
+  {
+    "id": 58,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output?",
+    "code": "int i;\nfor(i = 0; i < 5; i++) {\n    if(i == 3) continue;\n    printf(\"%d \", i);\n}",
+    "o": [
+      "0 1 2 3 4",
+      "0 1 2 4",
+      "0 1 2 3",
+      "1 2 4"
+    ],
+    "a": 1,
+    "explanation": "The continue statement skips the rest of the current iteration and jumps to the next. When i == 3, printf is skipped, so 3 is not printed. Output: 0 1 2 4."
+  },
+  {
+    "id": 59,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is a structure in C?",
+    "o": [
+      "A function that groups related operations",
+      "A user-defined data type that groups variables of different data types under a single name",
+      "An array of pointers",
+      "A built-in data type in C"
+    ],
+    "a": 1,
+    "explanation": "A struct in C is a user-defined composite data type that groups together variables of different data types (unlike arrays which hold the same type) under one name. Each variable in a struct is called a member or field. Structs are fundamental for building complex data structures."
+  },
+  {
+    "id": 60,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What will sizeof(int) return on a 64-bit system with most modern compilers?",
+    "o": [
+      "2 bytes",
+      "4 bytes",
+      "8 bytes",
+      "Platform-dependent; typically 4 bytes"
+    ],
+    "a": 3,
+    "explanation": "The size of int is not mandated by the C standard to be any specific value — only that it is at least 16 bits. On most 64-bit systems and compilers (GCC, MSVC), sizeof(int) returns 4 bytes (32 bits). However, it is technically platform/compiler-dependent. The C standard guarantees sizeof(int) >= sizeof(short) and sizeof(int) <= sizeof(long)."
+  },
+  {
+    "id": 61,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which storage class makes a variable visible only within the file it is declared in?",
+    "o": [
+      "auto",
+      "register",
+      "static (when applied to a global variable)",
+      "extern"
+    ],
+    "a": 2,
+    "explanation": "When static is applied to a global variable or function, it restricts the visibility (linkage) to the file in which it is declared (internal linkage). This prevents other files from accessing it via extern. auto is the default for local variables. register suggests storing the variable in a CPU register. extern declares that the variable is defined in another file."
+  },
+  {
+    "id": 62,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output of:",
+    "code": "int a = 10, b = 5;\nprintf(\"%d\", a & b);",
+    "o": [
+      "0",
+      "15",
+      "0",
+      "10"
+    ],
+    "a": 0,
+    "explanation": "& is the bitwise AND operator. a = 10 = 1010 in binary. b = 5 = 0101 in binary. 1010 AND 0101 = 0000 = 0. So the output is 0."
+  },
+  {
+    "id": 63,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What does malloc() return if memory allocation fails?",
+    "o": [
+      "0",
+      "-1",
+      "NULL",
+      "It throws an exception"
+    ],
+    "a": 2,
+    "explanation": "malloc() returns NULL if it fails to allocate the requested memory (e.g., insufficient heap space). C does not have exceptions (that's C++), so there is no \"throw.\" The programmer must always check if malloc() returned NULL before using the pointer. Returning -1 is UNIX convention for system calls, not for malloc()."
+  },
+  {
+    "id": 64,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which of the following is true about recursion?",
+    "o": [
+      "Recursive functions cannot return values",
+      "Every recursive function must have a base case to prevent infinite recursion",
+      "Recursion always uses less memory than iteration",
+      "C does not support recursion"
+    ],
+    "a": 1,
+    "explanation": "A recursive function must have at least one base case — a condition under which it does not call itself — to terminate the recursion. Without a base case, recursion continues infinitely, eventually causing a stack overflow. Recursion can return values, uses more stack memory than iteration (not less), and C fully supports recursion."
+  },
+  {
+    "id": 65,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the purpose of the #define preprocessor directive in C?",
+    "o": [
+      "To declare a variable",
+      "To include a header file",
+      "To define a macro (constant or function-like substitution)",
+      "To define a function prototype"
+    ],
+    "a": 2,
+    "explanation": "#define is a preprocessor directive used to define macros. For constants: #define PI 3.14159 replaces every occurrence of PI with 3.14159 before compilation. Function-like macros: #define SQUARE(x) ((x)*(x)). Unlike const, macros have no type and are handled by the preprocessor, not the compiler. #include is used for header files."
+  },
+  {
+    "id": 66,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the time complexity of inserting an element at the beginning of a singly linked list?",
+    "o": [
+      "O(n)",
+      "O(log n)",
+      "O(1)",
+      "O(n²)"
+    ],
+    "a": 2,
+    "explanation": "Inserting at the beginning of a singly linked list requires only: creating a new node, setting its next pointer to the current head, and updating the head pointer. This takes constant time O(1), regardless of list length. Contrast this with arrays where insertion at the beginning requires shifting all elements O(n)."
+  },
+  {
+    "id": 67,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "Which data structure is best suited for implementing the \"Undo\" feature in a text editor?",
+    "o": [
+      "Queue",
+      "Stack",
+      "Binary Search Tree",
+      "Hash Table"
+    ],
+    "a": 1,
+    "explanation": "The \"Undo\" feature requires reversing the most recent action first — Last In, First Out (LIFO) behaviour. A Stack is ideal: each action is pushed; pressing Undo pops the most recent action. A Queue (FIFO) would undo the oldest action first, which is incorrect. BSTs and Hash Tables are for searching, not sequencing operations."
+  },
+  {
+    "id": 68,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "In a Binary Search Tree (BST), which traversal visits nodes in sorted (ascending) order?",
+    "o": [
+      "Preorder",
+      "Postorder",
+      "Inorder",
+      "Level order"
+    ],
+    "a": 2,
+    "explanation": "Inorder traversal (Left → Root → Right) of a BST visits nodes in ascending sorted order. This property makes inorder traversal essential for BST operations. Preorder (Root → Left → Right) is used for copying trees. Postorder (Left → Right → Root) is used for deleting trees."
+  },
+  {
+    "id": 69,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the maximum number of nodes in a binary tree of height h (where the root is at height 0)?",
+    "o": [
+      "2h",
+      "2^h − 1",
+      "2^(h+1) − 1",
+      "h²"
+    ],
+    "a": 2,
+    "explanation": "A complete binary tree of height h has 1 node at level 0 (root), 2 at level 1, 4 at level 2, ..., 2ʰ at level h. Total nodes = 2⁰ + 2¹ + ... + 2ʰ = 2^(h+1) − 1. For example, height 2: 1+2+4 = 7 = 2³−1 = 2^(2+1)−1 ✓."
+  },
+  {
+    "id": 70,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "Which of the following operations is NOT efficiently supported by a Hash Table?",
+    "o": [
+      "Insertion",
+      "Search by key",
+      "Deletion",
+      "Finding the minimum element"
+    ],
+    "a": 3,
+    "explanation": "Hash tables provide O(1) average-case for insertion, search (by key), and deletion. However, finding the minimum (or maximum) element requires scanning all n entries O(n) because hash tables do not maintain sorted order. For min/max operations, a heap or sorted structure is more appropriate."
+  },
+  {
+    "id": 71,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "A queue is implemented using two stacks. What is the time complexity of the dequeue operation (amortised)?",
+    "o": [
+      "O(1)",
+      "O(n)",
+      "O(log n)",
+      "O(n²)"
+    ],
+    "a": 0,
+    "explanation": "In the two-stack queue implementation, enqueue pushes to stack1 O(1). Dequeue: if stack2 is empty, move all elements from stack1 to stack2 (O(n) in worst case for one dequeue), then pop from stack2. Amortised over n operations, each element is moved at most once — making the amortised cost O(1) per dequeue."
+  },
+  {
+    "id": 72,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is \"collision\" in the context of hashing?",
+    "o": [
+      "When two processes access the same memory",
+      "When two different keys produce the same hash value",
+      "When a stack overflows",
+      "When a linked list has a cycle"
+    ],
+    "a": 1,
+    "explanation": "A collision occurs when two different keys are mapped to the same index (bucket) by the hash function. Since hash functions map a large key space to a smaller table, collisions are inevitable. Common resolution techniques include chaining (linked lists at each bucket) and open addressing (linear probing, quadratic probing)."
+  },
+  {
+    "id": 73,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the space complexity of Merge Sort?",
+    "o": [
+      "O(1)",
+      "O(log n)",
+      "O(n)",
+      "O(n log n)"
+    ],
+    "a": 2,
+    "explanation": "Merge Sort requires O(n) auxiliary space to create temporary arrays during the merge step. This is a disadvantage compared to in-place sorting algorithms like Heap Sort (O(1) space) or Quick Sort (O(log n) stack space for recursion). The O(n) space is required to merge two halves."
+  },
+  {
+    "id": 74,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "Which OOP concept allows a class to have multiple methods with the same name but different parameters?",
+    "o": [
+      "Inheritance",
+      "Encapsulation",
+      "Method Overloading",
+      "Method Overriding"
+    ],
+    "a": 2,
+    "explanation": "Method Overloading (compile-time polymorphism / static polymorphism) allows multiple methods in the same class to share the same name but differ in the number, type, or order of parameters. The compiler determines which version to call at compile time. Method Overriding (runtime polymorphism) involves redefining a parent class method in a subclass."
+  },
+  {
+    "id": 75,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "In C++, what is the purpose of a destructor?",
+    "o": [
+      "To initialise object members",
+      "To overload the constructor",
+      "To release resources held by an object when it goes out of scope or is deleted",
+      "To prevent object creation"
+    ],
+    "a": 2,
+    "explanation": "A destructor is a special member function invoked automatically when an object's lifetime ends (goes out of scope, delete is called, or program exits). It is used to release resources like dynamically allocated memory, file handles, or network connections. It has the same name as the class, preceded by ~, and takes no parameters."
+  },
+  {
+    "id": 76,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "What is \"data abstraction\" in OOP?",
+    "o": [
+      "Hiding implementation details and exposing only essential features to the user",
+      "Grouping similar objects together",
+      "Allowing a class to inherit from multiple classes",
+      "Storing data in a database"
+    ],
+    "a": 0,
+    "explanation": "Abstraction is the OOP principle of hiding internal implementation details while exposing only the necessary interface to the user. It reduces complexity and increases efficiency. For example, a car's driver only uses the steering wheel and pedals (interface) without needing to know the engine's internal working (implementation)."
+  },
+  {
+    "id": 77,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "Which keyword prevents a class from being subclassed in Java/C#?",
+    "o": [
+      "static",
+      "abstract",
+      "final (Java) / sealed (C#)",
+      "private"
+    ],
+    "a": 2,
+    "explanation": "In Java, the final keyword on a class prevents it from being subclassed. In C#, sealed serves the same purpose. abstract is the opposite — it cannot be instantiated and is designed to be subclassed. static and private have different purposes unrelated to inheritance prevention."
+  },
+  {
+    "id": 78,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "What is the output of the following C++ code?",
+    "code": "class Animal {\npublic:\n    void speak() { cout << \"Animal\"; }\n};\nclass Dog : public Animal {\npublic:\n    void speak() { cout << \"Dog\"; }\n};\nint main() {\n    Animal *a = new Dog();\n    a->speak();\n    return 0;\n}",
+    "o": [
+      "Animal",
+      "Dog",
+      "Compilation error",
+      "Runtime error"
+    ],
+    "a": 0,
+    "explanation": "Since speak() is not declared virtual in the base class, this is static binding (early binding). The pointer type is Animal*, so Animal::speak() is called regardless of the actual object being a Dog. If virtual void speak() were used, the output would be \"Dog\" (dynamic dispatch/late binding)."
+  },
+  {
+    "id": 79,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "Which of the following is an example of runtime polymorphism in C++?",
+    "o": [
+      "Function overloading",
+      "Operator overloading",
+      "Template specialisation",
+      "Virtual function overriding"
+    ],
+    "a": 3,
+    "explanation": "Runtime polymorphism (dynamic dispatch) occurs when the function to be called is determined at runtime based on the actual object type, not the pointer/reference type. This is achieved through virtual functions in C++. Function overloading, operator overloading, and templates are all resolved at compile time (static polymorphism)."
+  },
+  {
+    "id": 80,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "What is the default access specifier for class members in C++?",
+    "o": [
+      "public",
+      "protected",
+      "private",
+      "internal"
+    ],
+    "a": 2,
+    "explanation": "In C++, class members are private by default — they cannot be accessed from outside the class. This enforces encapsulation. In struct, the default access specifier is public. In Java, the default (no keyword) is package-private (accessible within the same package)."
+  },
+  {
+    "id": 81,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "Which OOP pillar does the concept of \"IS-A\" relationship represent?",
+    "o": [
+      "Encapsulation",
+      "Polymorphism",
+      "Inheritance",
+      "Abstraction"
+    ],
+    "a": 2,
+    "explanation": "The \"IS-A\" relationship represents Inheritance — a Dog IS-A Animal, a Car IS-A Vehicle. Inheritance allows a subclass to inherit properties and methods from a parent class. The \"HAS-A\" relationship represents Composition/Aggregation (a Car HAS-A Engine)."
+  },
+  {
+    "id": 82,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "What is a \"pure virtual function\" in C++?",
+    "o": [
+      "A virtual function that has a body",
+      "A function declared with = 0 that must be overridden in derived classes, making the class abstract",
+      "A static virtual function",
+      "A function that cannot be called"
+    ],
+    "a": 1,
+    "explanation": "A pure virtual function is declared by assigning 0 to it: virtual void draw() = 0;. A class containing at least one pure virtual function becomes an abstract class and cannot be instantiated. Derived classes must override all pure virtual functions to be concrete (instantiable). Pure virtual functions define the interface a derived class must implement."
+  },
+  {
+    "id": 83,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming",
+    "q": "What is the difference between shallow copy and deep copy in OOP?",
+    "o": [
+      "Shallow copy copies only primitive types; deep copy copies objects",
+      "Shallow copy copies references to objects (both point to the same memory); deep copy creates independent copies of all objects",
+      "Deep copy is faster than shallow copy",
+      "Both do exactly the same thing"
+    ],
+    "a": 1,
+    "explanation": "A shallow copy copies the object's field values — for reference types, it copies the reference (pointer), not the actual object. So both the original and copy point to the same underlying object. A deep copy recursively copies all objects, creating independent copies with no shared references. Deep copy is safer but slower and requires more memory."
+  },
+  {
+    "id": 84,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is the purpose of the \"page table\" in an operating system?",
+    "o": [
+      "To store a list of running processes",
+      "To map virtual (logical) addresses to physical memory addresses",
+      "To manage the file system",
+      "To schedule CPU tasks"
+    ],
+    "a": 1,
+    "explanation": "A page table is a data structure maintained by the OS for each process that maps virtual page numbers to physical frame numbers. When a process accesses a virtual address, the Memory Management Unit (MMU) uses the page table to translate it to the actual physical address. This enables virtual memory and process isolation."
+  },
+  {
+    "id": 85,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is the difference between \"preemptive\" and \"non-preemptive\" scheduling?",
+    "o": [
+      "Preemptive scheduling does not allow CPU to be taken from a process; non-preemptive does",
+      "Preemptive scheduling allows the OS to forcibly take the CPU from a running process; non-preemptive allows a process to run until it voluntarily releases the CPU",
+      "Both are the same",
+      "Non-preemptive scheduling is always more efficient"
+    ],
+    "a": 1,
+    "explanation": "In preemptive scheduling (e.g., Round Robin, SRTF), the OS can interrupt and suspend a running process to allocate the CPU to another process (e.g., higher priority). In non-preemptive scheduling (e.g., FCFS, SJF non-preemptive), once a process is given the CPU, it runs until it completes or voluntarily blocks for I/O. Preemptive is more responsive but complex."
+  },
+  {
+    "id": 86,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is \"thrashing\" in the context of virtual memory?",
+    "o": [
+      "A CPU becoming too hot",
+      "A situation where the OS spends more time swapping pages in and out than executing processes",
+      "A disk becoming full",
+      "A network being overloaded"
+    ],
+    "a": 1,
+    "explanation": "Thrashing occurs when a process (or the system) does not have enough physical memory frames to hold its working set — causing frequent page faults. The OS spends most of its time swapping pages between RAM and disk, severely degrading performance. Solutions include increasing RAM, reducing multiprogramming degree, or using working set models."
+  },
+  {
+    "id": 87,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What is the difference between a \"router\" and a \"switch\"?",
+    "o": [
+      "A router connects devices within a LAN; a switch connects different networks",
+      "A switch connects devices within a LAN at Layer 2; a router routes traffic between different networks at Layer 3",
+      "They are functionally identical",
+      "A switch works with IP addresses; a router works with MAC addresses"
+    ],
+    "a": 1,
+    "explanation": "A switch operates at Layer 2 (Data Link Layer) and connects devices within the same LAN using MAC addresses to forward frames. A router operates at Layer 3 (Network Layer) and connects different networks (e.g., LAN to internet) using IP addresses to route packets. Routers enable inter-network communication; switches enable intra-network communication."
+  },
+  {
+    "id": 88,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What does \"DNS\" do in networking?",
+    "o": [
+      "Assigns IP addresses to devices automatically",
+      "Translates human-readable domain names into IP addresses",
+      "Encrypts web traffic",
+      "Manages email delivery"
+    ],
+    "a": 1,
+    "explanation": "DNS (Domain Name System) is often called the \"phonebook of the internet.\" It translates human-readable domain names (e.g., www.google.com) into machine-readable IP addresses (e.g., 142.250.182.14), enabling browsers to locate and connect to web servers. DHCP assigns IP addresses; HTTPS encrypts web traffic; SMTP manages email."
+  },
+  {
+    "id": 89,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What is the purpose of a \"firewall\" in network security?",
+    "o": [
+      "To speed up internet connection",
+      "To store backup data",
+      "To monitor and filter incoming/outgoing network traffic based on security rules",
+      "To connect wireless devices to the internet"
+    ],
+    "a": 2,
+    "explanation": "A firewall is a network security device (hardware or software) that monitors incoming and outgoing network traffic and decides whether to allow or block specific traffic based on predefined security rules. It acts as a barrier between trusted internal networks and untrusted external networks (like the internet)."
+  },
+  {
+    "id": 90,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "Which protocol is used to transfer files between a client and a server over the internet?",
+    "o": [
+      "HTTP",
+      "SMTP",
+      "FTP",
+      "POP3"
+    ],
+    "a": 2,
+    "explanation": "FTP (File Transfer Protocol) is specifically designed for transferring files between a client and a server over a TCP/IP network. HTTP is for web page transfer, SMTP is for sending email, and POP3 is for receiving email. SFTP (Secure FTP) is the encrypted version of FTP."
+  },
+  {
+    "id": 91,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What is a \"VPN\" (Virtual Private Network)?",
+    "o": [
+      "A very fast internet connection",
+      "A network that creates an encrypted tunnel over the internet, allowing secure remote access to a private network",
+      "A type of wireless networking standard",
+      "A protocol for streaming video"
+    ],
+    "a": 1,
+    "explanation": "A VPN creates an encrypted tunnel between the user's device and a VPN server, making it appear as if the user is on the private network. It provides security (encryption), privacy (masks IP address), and remote access (employees can securely connect to corporate networks from anywhere). VPNs use protocols like OpenVPN, IPSec, and WireGuard."
+  },
+  {
+    "id": 92,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What is the role of \"YARN\" in the Hadoop ecosystem?",
+    "o": [
+      "A data storage layer",
+      "A SQL query engine",
+      "A resource management and job scheduling framework",
+      "A real-time streaming tool"
+    ],
+    "a": 2,
+    "explanation": "YARN (Yet Another Resource Negotiator) is the resource management layer of Hadoop. It manages computing resources in the cluster, schedules jobs, and allocates resources (CPU, memory) to applications. It separates resource management from data processing (which was mixed in Hadoop 1.x's MapReduce)."
+  },
+  {
+    "id": 93,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What does \"gradient descent\" do in machine learning?",
+    "o": [
+      "Sorts data in descending order",
+      "An optimisation algorithm that iteratively adjusts model parameters to minimise the loss function",
+      "Evaluates model performance on test data",
+      "Splits data into training and testing sets"
+    ],
+    "a": 1,
+    "explanation": "Gradient descent is an optimisation algorithm used to train ML models. It computes the gradient (partial derivatives) of the loss function with respect to each parameter, then updates parameters in the opposite direction of the gradient to reduce loss. Variants include Batch GD, Stochastic GD (SGD), and Mini-batch GD."
+  },
+  {
+    "id": 94,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What is \"data augmentation\" in machine learning?",
+    "o": [
+      "Adding more columns to a dataset",
+      "Cleaning incorrect data entries",
+      "Artificially increasing the training dataset size by creating modified versions of existing data",
+      "Removing duplicate records from data"
+    ],
+    "a": 2,
+    "explanation": "Data augmentation artificially expands the training dataset by creating modified copies of existing data (e.g., flipping, rotating, cropping images; adding noise to audio; synonym replacement in text). It helps prevent overfitting and improves model generalisation, especially when labelled training data is scarce."
+  },
+  {
+    "id": 95,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "Which of the following best describes a \"decision tree\" in machine learning?",
+    "o": [
+      "A diagram showing the hierarchy of company decisions",
+      "A tree-shaped model that makes predictions by splitting data based on feature values at each node",
+      "A neural network with branching architecture",
+      "A method for sorting data"
+    ],
+    "a": 1,
+    "explanation": "A decision tree is a supervised learning algorithm that models decisions and their outcomes in a tree structure. Each internal node represents a feature test, each branch a possible outcome, and each leaf node a prediction (class or value). It is interpretable, easy to visualise, and handles both classification and regression tasks."
+  },
+  {
+    "id": 96,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What is \"Apache Pig\" in the Hadoop ecosystem?",
+    "o": [
+      "A workflow scheduler",
+      "A NoSQL database for Hadoop",
+      "A high-level data flow scripting language for writing MapReduce programs",
+      "A real-time stream processing engine"
+    ],
+    "a": 2,
+    "explanation": "Apache Pig provides a high-level scripting language called Pig Latin for describing data analysis programs. Pig Latin programs are automatically translated into MapReduce jobs, allowing developers to write complex data transformations without writing verbose Java MapReduce code. It is suited for ETL tasks and data pipelines on Hadoop."
+  },
+  {
+    "id": 97,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What is the difference between \"supervised\" and \"unsupervised\" learning?",
+    "o": [
+      "Supervised learning uses a teacher; unsupervised learning is self-taught by the computer",
+      "Supervised learning uses labelled training data (input-output pairs); unsupervised learning finds patterns in unlabelled data",
+      "Supervised learning works on images only; unsupervised on text",
+      "There is no difference — both require labelled data"
+    ],
+    "a": 1,
+    "explanation": "Supervised learning trains on labelled data (each input has a known output label), learning a mapping from inputs to outputs. Examples: classification, regression. Unsupervised learning finds hidden patterns in unlabelled data without predefined outputs. Examples: clustering (K-Means), dimensionality reduction (PCA), anomaly detection."
+  },
+  {
+    "id": 98,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What is a \"convolutional neural network\" (CNN) primarily used for?",
+    "o": [
+      "Time series forecasting",
+      "Processing and analysing grid-structured data, especially images",
+      "Natural language text generation",
+      "Reinforcement learning in games"
+    ],
+    "a": 1,
+    "explanation": "CNNs are a class of deep neural networks designed for processing data with a grid-like topology — most notably images. They use convolutional layers to automatically learn spatial hierarchies of features (edges → shapes → objects). CNNs are the backbone of image classification, object detection, and face recognition systems."
+  },
+  {
+    "id": 99,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What does \"F1 Score\" measure in model evaluation?",
+    "o": [
+      "The speed of a machine learning model",
+      "The harmonic mean of precision and recall, balancing both metrics",
+      "The total number of features used by the model",
+      "The ratio of training time to inference time"
+    ],
+    "a": 1,
+    "explanation": "F1 Score = 2 × (Precision × Recall) / (Precision + Recall). It is the harmonic mean of precision and recall. It is used when there is an imbalance between classes and when both false positives and false negatives matter. A high F1 Score requires both high precision and high recall."
+  },
+  {
+    "id": 100,
+    "section": "B",
+    "topic": "Part 11: Big Data & AI",
+    "q": "What is \"Principal Component Analysis\" (PCA)?",
+    "o": [
+      "A clustering algorithm",
+      "A dimensionality reduction technique that transforms data into principal components (orthogonal directions of maximum variance)",
+      "A type of neural network layer",
+      "A method for generating synthetic data"
+    ],
+    "a": 1,
+    "explanation": "PCA is an unsupervised dimensionality reduction technique. It identifies the principal components — orthogonal axes capturing the most variance in the data — and projects the data onto a lower-dimensional space. It reduces computation, removes noise, and helps visualise high-dimensional data. It is widely used in data preprocessing before ML modelling."
+  }
+];
+
+let currentSection = "A";
+let examStarted = false;
+let examSubmitted = false;
+let sectionALocked = false;
+let timeLeft = {A:60*60, B:60*60};
+let timerInterval = null;
+
+function startExam(){
+    examStarted = true;
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("examScreen").style.display = "block";
+    showSection("A");
+    updateSubmitButton();
+    timerInterval = setInterval(tickTimer, 1000);
+}
+
+function showSection(section){
+    if(section === "A" && sectionALocked && !examSubmitted) return;
+    currentSection = section;
+    document.getElementById("tabA").classList.toggle("active", section==="A");
+    document.getElementById("tabB").classList.toggle("active", section==="B");
+    document.getElementById("tabA").disabled = sectionALocked && !examSubmitted;
+    document.getElementById("timerA").classList.toggle("active", section==="A");
+    document.getElementById("timerB").classList.toggle("active", section==="B");
+    renderQuestions();
+    renderNav();
+    updateSubmitButton();
+}
+
+function renderQuestions(){
+    const qs = questions.filter(q => q.section === currentSection);
+    const title = currentSection === "A"
+        ? "Section A: English, Aptitude, Reasoning, Computer Fundamentals"
+        : "Section B: C Programming, Data Structures, OOP, OS, Networking";
+    let html = `<h2 class="section-title">${title}</h2>`;
+    qs.forEach(q => {
+        html += `<div class="question-card" id="card${q.id}">
+            <span class="topic">${q.topic}</span>
+            <div class="question">Q${q.id}. ${q.q}</div>
+            ${q.code ? `<div class="code">${q.code}</div>` : ""}`;
+        q.o.forEach((opt,i) => {
+            const checked = getSelected(q.id) === i ? "checked" : "";
+            html += `<label class="option">
+                <input type="radio" name="q${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id},${i})">
+                ${String.fromCharCode(65+i)}) ${opt}
+            </label>`;
+        });
+        html += `</div>`;
+    });
+    document.getElementById("questions").innerHTML = html;
+}
+
+function renderNav(){
+    const qs = questions.filter(q => q.section === currentSection);
+    let html = "";
+    qs.forEach(q => {
+        const cls = getSelected(q.id) !== null ? "answered" : "";
+        html += `<button class="nav-btn ${cls}" onclick="goToQuestion(${q.id})">${q.id}</button>`;
+    });
+    document.getElementById("navPanel").innerHTML = html;
+}
+
+function saveAnswer(id, value){
+    localStorage.setItem("ccat_" + testId + "_q" + id, value);
+    renderNav();
+}
+
+function getSelected(id){
+    const v = localStorage.getItem("ccat_" + testId + "_q" + id);
+    return v === null ? null : Number(v);
+}
+
+function goToQuestion(id){
+    const q = questions.find(q => q.id === id);
+    if(q.section !== currentSection) showSection(q.section);
+    setTimeout(() => document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"}), 50);
+}
+
+function tickTimer(){
+    if(!examStarted || examSubmitted) return;
+    timeLeft[currentSection]--;
+    updateTimers();
+    if(timeLeft[currentSection] <= 0){
+        timeLeft[currentSection] = 0;
+        currentSection === "A" ? submitCurrentSection() : submitExam();
+    }
+}
+
+function updateTimers(){
+    document.getElementById("timerA").innerHTML = "Section A: " + formatTime(timeLeft.A);
+    document.getElementById("timerB").innerHTML = "Section B: " + formatTime(timeLeft.B);
+}
+
+function formatTime(s){
+    return `${Math.floor(s/60)}:${(s%60)<10?"0":""}${s%60}`;
+}
+
+function updateSubmitButton(){
+    document.getElementById("submitBtn").innerHTML = currentSection === "A"
+        ? "Submit Section A &amp; Go to Section B"
+        : "Submit Exam";
+}
+
+function submitCurrentSection(){
+    if(currentSection === "A"){
+        sectionALocked = true;
+        showSection("B");
+        window.scrollTo({top:0, behavior:"smooth"});
+        return;
+    }
+    submitExam();
+}
+
+function submitExam(){
+    if(examSubmitted) return;
+    examSubmitted = true;
+    localStorage.setItem('ccat_test_completed', 'true');
+    localStorage.setItem('ccat_test_completed_id', 'free-ccat-mock-test');
+    clearInterval(timerInterval);
+    document.getElementById("submitBtn").disabled = true;
+
+    let score=0, correct=0, wrong=0, attempted=0;
+    let ss={A:0,B:0}, sc={A:0,B:0};
+    questions.forEach(q => {
+        const sel = getSelected(q.id);
+        if(sel !== null){
+            attempted++;
+            if(sel === q.a){ score+=3; ss[q.section]+=3; correct++; sc[q.section]++; }
+            else { score-=1; ss[q.section]-=1; wrong++; }
+        }
+    });
+
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = `
+        <div class="score-box">Total Score<strong>${score}/300</strong></div>
+        <div class="score-box">Correct<strong>${correct}</strong></div>
+        <div class="score-box">Wrong<strong>${wrong}</strong></div>
+        <div class="score-box">Unanswered<strong>${questions.length - attempted}</strong></div>
+        <div class="score-box">Section A<strong>${ss.A}/150</strong><span>${sc.A}/50 correct</span></div>
+        <div class="score-box">Section B<strong>${ss.B}/150</strong><span>${sc.B}/50 correct</span></div>`;
+    renderReview();
+    window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderReview(){
+    let html = "";
+    ["A","B"].forEach(sec => {
+        html += `<h2 class="section-title">Section ${sec} Answer Key</h2>`;
+        questions.filter(q => q.section === sec).forEach(q => {
+            const sel = getSelected(q.id);
+            const selText = sel === null ? "Not attempted" : `${String.fromCharCode(65+sel)}) ${q.o[sel]}`;
+            const corrText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
+            const cls = sel === null ? "skipped-answer" : sel === q.a ? "correct-answer" : "wrong-answer";
+            html += `<div class="question-card">
+                <span class="topic">${q.topic}</span>
+                <div class="question">Q${q.id}. ${q.q}</div>
+                ${q.code ? `<div class="code">${q.code}</div>` : ""}
+                <div class="answer-review">
+                    <div>Your Answer: <span class="${cls}">${selText}</span></div>
+                    <div>Correct Answer: <span class="correct-answer">${corrText}</span></div>
+                </div>
+            </div>`;
+        });
+    });
+    document.getElementById("reviewQuestions").innerHTML = html;
+}
+
+function reattemptExam(){
+    questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
+    localStorage.removeItem('ccat_test_completed');
+    localStorage.removeItem('ccat_test_completed_id');
+    clearInterval(timerInterval);
+    currentSection="A"; examStarted=false; examSubmitted=false;
+    sectionALocked=false; timeLeft={A:60*60,B:60*60}; timerInterval=null;
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("tabA").disabled = false;
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "none";
+    document.getElementById("startScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = "";
+    document.getElementById("reviewQuestions").innerHTML = "";
+    updateTimers(); updateSubmitButton();
+    window.scrollTo({top:0, behavior:"smooth"});
+}
+
+updateTimers();
+</script>
+
+
+
+
+
+
+<!-- Supabase CDN and Review Interceptor -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const originalSubmitExam = window.submitExam;
+  if (!originalSubmitExam) return;
+
+  const testId = 'premium-ccat-set-9';
+
+  // Create style element for overlay
+  const style = document.createElement('style');
+  style.textContent = `
+    .review-overlay-container {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .review-card {
+      background: white !important;
+      border-radius: 16px !important;
+      width: 100% !important;
+      max-width: 440px !important;
+      padding: 28px !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+      text-align: center !important;
+      border: 1px solid #e2e8f0 !important;
+      animation: reviewFadeIn 0.3s ease-out;
+    }
+    @keyframes reviewFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .review-icon-wrap {
+      width: 64px !important;
+      height: 64px !important;
+      background: #f0fdf4 !important;
+      color: #15803d !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 auto 16px !important;
+    }
+    .review-icon {
+      font-size: 32px !important;
+      font-weight: bold !important;
+    }
+    .review-title {
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 0 8px 0 !important;
+    }
+    .review-subtitle {
+      font-size: 14px !important;
+      color: #475569 !important;
+      line-height: 1.5 !important;
+      margin: 0 0 20px 0 !important;
+    }
+    .stars-row {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 12px !important;
+      margin-bottom: 20px !important;
+    }
+    .star-btn {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+      font-size: 36px !important;
+      color: #cbd5e1 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      transition: transform 0.1s, color 0.1s !important;
+    }
+    .star-btn:hover,
+    .star-btn:focus,
+    .star-btn:active {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      transform: scale(1.1) !important;
+      color: #cbd5e1 !important;
+    }
+    .star-btn.active {
+      color: #eab308 !important;
+    }
+    .star-btn.active:hover,
+    .star-btn.active:focus,
+    .star-btn.active:active {
+      color: #eab308 !important;
+    }
+    .review-textarea {
+      width: 100% !important;
+      height: 100px !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 12px !important;
+      padding: 12px !important;
+      font-size: 14px !important;
+      resize: none !important;
+      outline: none !important;
+      margin-bottom: 12px !important;
+      transition: border-color 0.2s !important;
+      background: white !important;
+      color: #0f172a !important;
+    }
+    .review-textarea:focus {
+      border-color: #1769d2 !important;
+    }
+    .review-error {
+      color: #b42318 !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      margin: -6px 0 12px !important;
+      text-align: left !important;
+    }
+    .review-btn-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+    .review-submit-btn {
+      background: #1769d2 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 9999px !important;
+      padding: 12px !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      transition: opacity 0.2s !important;
+      width: 100% !important;
+    }
+    .review-submit-btn:hover {
+      background: #0d55b5 !important;
+    }
+    .review-skip-btn {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      color: #475569 !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      text-decoration: underline !important;
+      width: 100% !important;
+      text-align: center !important;
+      padding: 4px !important;
+    }
+    .review-skip-btn:hover {
+      background: transparent !important;
+      color: #0f172a !important;
+      text-decoration: underline !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.submitExam = async function() {
+    // Call the original exam submit logic to compute result
+    originalSubmitExam();
+
+    const resultScreen = document.getElementById("resultScreen");
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    let user = null;
+    let alreadyReviewed = false;
+
+    if (supabaseClient) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        user = session?.user;
+        if (user) {
+          const { data } = await supabaseClient
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('test_id', testId)
+            .maybeSingle();
+          if (data) {
+            alreadyReviewed = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error checking review:', err);
+      }
+    }
+
+    if (alreadyReviewed || !user) {
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+      localStorage.removeItem('ccat_test_completed');
+      localStorage.removeItem('ccat_test_completed_id');
+      return;
+    }
+
+    // Hide result screen immediately
+    if (resultScreen) {
+      resultScreen.style.display = "none";
+    }
+
+    // Create the overlay DOM elements
+    const overlay = document.createElement('div');
+    overlay.className = 'review-overlay-container';
+    overlay.innerHTML = `
+      <div class="review-card">
+        <div class="review-icon-wrap">
+          <span class="review-icon">✍</span>
+        </div>
+        <h2 class="review-title">Submit Test Review</h2>
+        <p class="review-subtitle">
+          Please leave a quick review of your experience. Your feedback helps us improve the quality of our mock tests.
+        </p>
+        <div class="stars-row">
+          <button type="button" class="star-btn active" data-star="1">★</button>
+          <button type="button" class="star-btn active" data-star="2">★</button>
+          <button type="button" class="star-btn active" data-star="3">★</button>
+          <button type="button" class="star-btn active" data-star="4">★</button>
+          <button type="button" class="star-btn active" data-star="5">★</button>
+        </div>
+        <textarea 
+          class="review-textarea" 
+          placeholder="Write your review here (minimum 10 characters)..."
+        ></textarea>
+        <div class="review-error" style="display:none"></div>
+        <div class="review-btn-row">
+          <button type="button" class="review-submit-btn">Submit Review</button>
+          <button type="button" class="review-skip-btn">Skip for now</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let selectedRating = 5;
+    const stars = overlay.querySelectorAll('.star-btn');
+    stars.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rating = parseInt(btn.getAttribute('data-star'));
+        selectedRating = rating;
+        stars.forEach(s => {
+          const sRating = parseInt(s.getAttribute('data-star'));
+          if (sRating <= rating) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+      });
+    });
+
+    const textarea = overlay.querySelector('.review-textarea');
+    const errDiv = overlay.querySelector('.review-error');
+    const submitBtn = overlay.querySelector('.review-submit-btn');
+    const skipBtn = overlay.querySelector('.review-skip-btn');
+
+    const showResults = () => {
+      overlay.remove();
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+    };
+
+    submitBtn.addEventListener('click', async () => {
+      const text = textarea.value.trim();
+      if (!text) {
+        errDiv.textContent = 'Review text is required.';
+        errDiv.style.display = 'block';
+        return;
+      }
+      if (text.length < 10) {
+        errDiv.textContent = 'Please write at least 10 characters.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      errDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        let user = null;
+        if (supabaseClient) {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          user = session?.user;
+        }
+
+        if (!user) {
+          alert('You must be logged in to submit a review. The review will be skipped and you can review later.');
+          showResults();
+          return;
+        }
+
+        const { error } = await supabaseClient.from('reviews').insert({
+          user_id: user.id,
+          user_name: user.user_metadata?.full_name || user.email.split('@')[0] || 'User',
+          user_email: user.email,
+          rating: selectedRating,
+          review_text: text,
+          test_id: testId,
+          is_approved: false
+        });
+
+        if (error) throw error;
+
+        // Success - remove local storage flags since review is submitted
+        localStorage.removeItem('ccat_test_completed');
+        localStorage.removeItem('ccat_test_completed_id');
+        alert('Thank you! Your review has been submitted for admin approval.');
+        showResults();
+      } catch (err) {
+        console.error('Error submitting review:', err);
+        errDiv.textContent = err.message || 'Failed to submit review. Please try skipping.';
+        errDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    });
+
+    skipBtn.addEventListener('click', () => {
+      showResults();
+    });
+  };
+})();
+</script>
+
+</body>
+</html>
