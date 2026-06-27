@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { STARTER_PRICE_INR, PRO_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, PRO_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
 import ProfileDropdown from '../components/ProfileDropdown'
+import SupportChatWidget from '../components/SupportChatWidget'
 
 
 const RAZORPAY_KEY_ID = process.env.REACT_APP_RAZORPAY_KEY_ID || 'rzp_test_Spy62mcDroIz0U'
@@ -679,7 +680,7 @@ export default function MockTestPortal() {
               <h2 className="font-headline-md text-headline-md">Unlock Premium Tests</h2>
               <p className="text-on-surface-variant font-body-sm leading-snug">Get instant access to full-length C-CAT mock papers. Choose the plan that fits your prep.</p>
               
-              {!hasProAccess && (
+              {hasPremiumAccess && !hasProAccess && (
                 <div className="w-full max-w-md mx-auto bg-surface-container-low border border-outline-variant rounded-xl p-sm mt-sm text-left space-y-xs">
                   <span className="block text-[10px] uppercase font-extrabold text-on-surface-variant tracking-wider">Apply Coupon Code</span>
                   <div className="flex gap-sm">
@@ -724,7 +725,7 @@ export default function MockTestPortal() {
                       <span className="text-[10px] font-bold text-primary px-1.5 py-0.5 rounded bg-primary-fixed-dim/20">80% OFF</span>
                     </div>
                     <ul className="space-y-1 text-xs text-on-surface-variant mb-md">
-                      {['5 Full-length Mock Tests', '120 mins & 100 Qs per test', 'Detailed answer review'].map(f => (
+                      {['5 Full-length Mock Tests', '120 mins & 100 Qs per test', 'Detailed answer review', 'Direct DM Support with Admin'].map(f => (
                         <li key={f} className="flex items-start gap-1">
                            <span className="material-symbols-outlined text-primary text-[14px] shrink-0 mt-[2px]">check_circle</span>
                            <span>{f}</span>
@@ -761,7 +762,7 @@ export default function MockTestPortal() {
                       <span className="text-[10px] font-bold text-primary px-1.5 py-0.5 rounded bg-primary-fixed-dim/20">85% OFF</span>
                     </div>
                     <ul className="space-y-1 text-xs text-on-surface-variant mb-md">
-                      {['10 Full-length Mock Tests', 'Includes all 5 starter tests', '5 additional premium tests', 'Detailed answer review'].map(f => (
+                      {['10 Full-length Mock Tests', 'Includes all 5 starter tests', '5 additional premium tests', 'Detailed answer review', 'Direct DM Support with Admin'].map(f => (
                         <li key={f} className="flex items-start gap-1">
                            <span className="material-symbols-outlined text-primary text-[14px] shrink-0 mt-[2px]">check_circle</span>
                            <span>{f}</span>
@@ -797,6 +798,11 @@ export default function MockTestPortal() {
 
 
 
+      <SupportChatWidget 
+        user={user} 
+        hasPremiumAccess={hasPremiumAccess} 
+        onOpenUpgradeModal={() => setShowUnlockModal(true)} 
+      />
     </div>
   )
 }

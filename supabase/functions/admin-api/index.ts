@@ -738,6 +738,81 @@ async function deleteNotification(payload: Record<string, unknown>) {
   return { ok: true };
 }
 
+async function listSupportThreads() {
+  const { data: messages, error } = await supabaseAdmin
+    .from('support_messages')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  const threadsMap = new Map();
+  for (const msg of (messages || [])) {
+    if (!threadsMap.has(msg.user_id)) {
+      threadsMap.set(msg.user_id, {
+        user_id: msg.user_id,
+        user_email: msg.user_email || 'Unknown User',
+        last_message: msg.message,
+        last_message_at: msg.created_at,
+        unread_count: 0,
+      });
+    }
+    if (msg.sender === 'user' && !msg.is_read_by_admin) {
+      const thread = threadsMap.get(msg.user_id);
+      thread.unread_count += 1;
+    }
+  }
+
+  return Array.from(threadsMap.values());
+}
+
+async function getSupportMessages(payload: Record<string, unknown>) {
+  const targetUserId = text(payload.user_id);
+  if (!targetUserId) return json({ error: 'User ID is required.' }, 400);
+
+  await supabaseAdmin
+    .from('support_messages')
+    .update({ is_read_by_admin: true })
+    .eq('user_id', targetUserId)
+    .eq('sender', 'user')
+    .eq('is_read_by_admin', false);
+
+  const { data: messages, error } = await supabaseAdmin
+    .from('support_messages')
+    .select('*')
+    .eq('user_id', targetUserId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return { messages: messages || [] };
+}
+
+async function sendSupportReply(payload: Record<string, unknown>) {
+  const targetUserId = text(payload.user_id);
+  const message = text(payload.message);
+  const userEmail = text(payload.user_email);
+
+  if (!targetUserId || !message) {
+    return json({ error: 'User ID and message are required.' }, 400);
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('support_messages')
+    .insert({
+      user_id: targetUserId,
+      user_email: userEmail || null,
+      sender: 'admin',
+      message: message,
+      is_read_by_admin: true,
+      is_read_by_user: false,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { ok: true, message: data };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -793,6 +868,12 @@ Deno.serve(async (req) => {
         return json(await createNotification(payload));
       case 'delete-notification':
         return json(await deleteNotification(payload));
+      case 'list-support-threads':
+        return json({ threads: await listSupportThreads() });
+      case 'get-support-messages':
+        return json(await getSupportMessages(payload));
+      case 'send-support-reply':
+        return json(await sendSupportReply(payload));
       default:
         return json({ error: 'Unknown admin action.' }, 400);
     }
