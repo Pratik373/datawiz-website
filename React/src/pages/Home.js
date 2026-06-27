@@ -463,6 +463,7 @@ export default function Home() {
                     '100 Questions & 120 Minutes Per Test',
                     'Easy, Medium & Hard Level Question Papers',
                     'Detailed Explanations & Answers Key',
+                    'Direct DM Support with Admin',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-base text-body-md">
                       <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
@@ -528,6 +529,7 @@ export default function Home() {
                     'Easy, Medium & Hard Level Question Papers',
                     'Detailed Explanations & Answers Key',
                     'Comprehensive Score Analysis',
+                    'Direct DM Support with Admin',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-base text-body-md">
                       <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
