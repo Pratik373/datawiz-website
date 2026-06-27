@@ -29,26 +29,6 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
-    // Double check upgrade status from DB if user_id is provided
-    if (plan === 'pro' && user_id) {
-      const supabase = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-      const { data: starterPayment } = await supabase
-        .from('payments')
-        .select('id')
-        .eq('user_id', user_id)
-        .eq('plan', 'starter')
-        .eq('status', 'successful')
-        .maybeSingle();
-
-      if (starterPayment) {
-        console.log(`[API] User has Starter Pack payment. Overriding plan to upgrade (₹50)`);
-        baseAmount = 50;
-      }
-    }
-
     // 2. Validate coupon code
     let discount = 0;
     let valid = false;
@@ -63,10 +43,6 @@ module.exports = async function handler(req, res) {
       valid = true;
     } else if (code === 'SAVE20') {
       discount = Math.min(20, baseAmount - 1);
-      valid = true;
-    } else if (code === 'FREE') {
-      // Explicit 100% free coupon — intentionally makes order free
-      discount = baseAmount;
       valid = true;
     } else if (code) {
       console.log(`[API] Coupon code '${code}' is invalid.`);
