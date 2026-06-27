@@ -26,42 +26,15 @@ module.exports = async function handler(req, res) {
       baseAmount = selected.amount;
       testsToAdd = selected.tests;
       planName = selected.name;
-    } else if (plan === 'upgrade') {
-      baseAmount = 50;
-      testsToAdd = 5;
-      planName = 'Complete Pack Upgrade';
     } else {
       console.error(`[API] Error: Invalid plan '${plan}' requested`);
       return res.status(400).json({ error: 'Invalid plan' });
     }
 
-    // Check if upgrading dynamically
-    let isUpgrade = (plan === 'upgrade');
-    if (plan === 'pro' && user_id) {
-      const supabase = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-      const { data: starterPayment } = await supabase
-        .from('payments')
-        .select('id')
-        .eq('user_id', user_id)
-        .eq('plan', 'starter')
-        .eq('status', 'successful')
-        .maybeSingle();
-
-      if (starterPayment) {
-        console.log(`[API] User has Starter Pack payment. Overriding plan to upgrade (₹50)`);
-        baseAmount = 50;
-        testsToAdd = 5;
-        planName = 'Complete Pack Upgrade';
-        isUpgrade = true;
-      }
-    }
+    const isUpgrade = false;
 
     // Apply coupon if valid
     let discount = 0;
-    let isExplicitlyFree = false;
     if (couponCode) {
       const code = (couponCode || '').toUpperCase().trim();
       if (code === 'DATAWIZ100') {
@@ -71,27 +44,11 @@ module.exports = async function handler(req, res) {
         discount = Math.min(50, baseAmount - 1);
       } else if (code === 'SAVE20') {
         discount = Math.min(20, baseAmount - 1);
-      } else if (code === 'FREE') {
-        // Explicit 100% free coupon — intentionally bypasses Razorpay
-        discount = baseAmount;
-        isExplicitlyFree = true;
       }
     }
 
-    const finalAmount = Math.max(0, baseAmount - discount);
-    console.log(`[API] Final order amount computed: base ₹${baseAmount} - discount ₹${discount} = ₹${finalAmount} (explicitlyFree: ${isExplicitlyFree})`);
-
-    if (isExplicitlyFree && finalAmount === 0) {
-      console.log(`[API] Free order via explicit FREE coupon. Bypassing Razorpay.`);
-      return res.status(200).json({
-        id: `free_${plan}_${Date.now()}`,
-        amount: 0,
-        currency: 'INR',
-        tests: testsToAdd,
-        planName: planName,
-        isFree: true,
-      });
-    }
+    const finalAmount = Math.max(1, baseAmount - discount);
+    console.log(`[API] Final order amount computed: base ₹${baseAmount} - discount ₹${discount} = ₹${finalAmount}`);
 
     console.log(`[API] Initializing Razorpay with Key ID: ${process.env.RAZORPAY_KEY_ID ? 'Set' : 'Missing!'} and Secret: ${process.env.RAZORPAY_KEY_SECRET ? 'Set' : 'Missing!'}`);
     const razorpay = new Razorpay({
@@ -104,7 +61,7 @@ module.exports = async function handler(req, res) {
       amount:   finalAmount * 100, // paise
       currency: 'INR',
       receipt:  `dw_${plan}_${Date.now()}`,
-      notes:    { plan: isUpgrade ? 'pro' : plan, tests: testsToAdd, user_id, couponCode },
+      notes:    { plan, tests: testsToAdd, user_id, couponCode },
     });
 
     console.log(`[API] Order created successfully! Order ID: ${order.id}`);
