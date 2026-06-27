@@ -104,6 +104,7 @@ export default function AdminDashboard() {
           ['reviews', 'Reviews'],
           ['notifications', '📢 Notifications'],
           ['support', '💬 Support Chat'],
+          ['community', '🌐 Community Manager'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -128,6 +129,7 @@ export default function AdminDashboard() {
         {activeTab === 'reviews' && <ReviewsPanel showNotice={showNotice} />}
         {activeTab === 'notifications' && <NotificationsPanel showNotice={showNotice} />}
         {activeTab === 'support' && <SupportChatPanel showNotice={showNotice} />}
+        {activeTab === 'community' && <CommunityPanel showNotice={showNotice} />}
       </main>
     </div>
   );
@@ -2063,4 +2065,344 @@ function SupportChatPanel({ showNotice }) {
     </section>
   );
 }
+
+function CommunityPanel({ showNotice }) {
+  const [groups, setGroups] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchEmail, setSearchEmail] = useState('');
+  
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('DAC');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
+  const [isPrivate, setIsPrivate] = useState(true);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [selectedEmails, setSelectedEmails] = useState([]);
+  const [creating, setCreating] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [groupsRes, usersRes] = await Promise.all([
+        supabase.from('community_groups').select('*').order('created_at', { ascending: false }),
+        listAdminUsers()
+      ]);
+      setGroups(groupsRes.data || []);
+      setUsers(usersRes.users || []);
+    } catch (err) {
+      showNotice(err.message || 'Failed to load community data', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotice]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const toggleEmail = (email) => {
+    setSelectedEmails(prev => 
+      prev.includes(email) ? prev.filter(e => e !== email) : [...prev, email]
+    );
+  };
+
+  const handleSelectAll = () => {
+    const allFiltered = filteredUsers.map(u => u.email);
+    setSelectedEmails(prev => Array.from(new Set([...prev, ...allFiltered])));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedEmails([]);
+  };
+
+  const handleCreateGroup = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      showNotice('Please enter a group name', 'error');
+      return;
+    }
+
+    const finalCategory = isCustomCategory ? customCategory.trim() : category;
+    if (!finalCategory) {
+      showNotice('Please specify a category', 'error');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Date.now().toString().slice(-4);
+      const { data: groupData, error: groupErr } = await supabase
+        .from('community_groups')
+        .insert({
+          name: name.trim(),
+          slug,
+          description: description.trim(),
+          category: finalCategory,
+          is_private: isPrivate,
+          is_read_only: isReadOnly
+        })
+        .select()
+        .single();
+
+      if (groupErr) throw groupErr;
+
+      if (selectedEmails.length > 0) {
+        const memberRows = selectedEmails.map(email => {
+          const matchedUser = users.find(u => u.email === email);
+          return {
+            group_id: groupData.id,
+            user_email: email,
+            user_id: matchedUser ? matchedUser.id : null
+          };
+        });
+
+        const { error: memberErr } = await supabase
+          .from('community_group_members')
+          .insert(memberRows);
+
+        if (memberErr) console.error('Error inserting group members:', memberErr);
+      }
+
+      showNotice(`Group "${name}" created successfully with ${selectedEmails.length} selected members!`);
+      setName('');
+      setDescription('');
+      setSelectedEmails([]);
+      setCustomCategory('');
+      setIsCustomCategory(false);
+      setIsReadOnly(false);
+      fetchData();
+    } catch (err) {
+      showNotice(err.message || 'Failed to create group', 'error');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDeleteGroup = async (id, groupName) => {
+    if (!window.confirm(`Are you sure you want to delete group "${groupName}"?`)) return;
+    try {
+      const { error } = await supabase.from('community_groups').delete().eq('id', id);
+      if (error) throw error;
+      showNotice(`Group "${groupName}" deleted.`);
+      fetchData();
+    } catch (err) {
+      showNotice(err.message || 'Failed to delete group', 'error');
+    }
+  };
+
+  const handleToggleReadOnly = async (id, currentStatus, groupName) => {
+    const newStatus = !currentStatus;
+    try {
+      const { error } = await supabase
+        .from('community_groups')
+        .update({ is_read_only: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      showNotice(`Group "${groupName}" chat is now ${newStatus ? 'PAUSED (Read-Only)' : 'RESUMED'}.`);
+      fetchData();
+    } catch (err) {
+      showNotice(err.message || 'Failed to update group status', 'error');
+    }
+  };
+
+  const filteredUsers = useMemo(() => {
+    const query = searchEmail.toLowerCase().trim();
+    return users
+      .filter(u => (u.email || '').toLowerCase().includes(query))
+      .sort((a, b) => {
+        const aSelected = selectedEmails.includes(a.email);
+        const bSelected = selectedEmails.includes(b.email);
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+        return (a.email || '').localeCompare(b.email || '');
+      });
+  }, [users, searchEmail, selectedEmails]);
+
+  return (
+    <section className="admin-panel">
+      <div className="panel-header">
+        <h1>🌐 Community & Batch Management</h1>
+        <p>Create dedicated community groups for DAC, DBDA, or custom batches and assign student emails.</p>
+      </div>
+
+      <div className="community-mgmt-grid">
+        <div className="community-card">
+          <h3>Create New Community / Batch</h3>
+          <form onSubmit={handleCreateGroup} className="community-form">
+            <div className="community-form-group">
+              <label>Group Name *</label>
+              <input
+                type="text"
+                className="community-input"
+                placeholder="e.g. DAC August Batch 2026"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="community-form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ margin: 0 }}>Category *</label>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomCategory(!isCustomCategory)}
+                  style={{ fontSize: '12px', color: '#006565', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  {isCustomCategory ? '← Select Existing Category' : '➕ Add Custom Category'}
+                </button>
+              </div>
+
+              {!isCustomCategory ? (
+                <select
+                  className="community-select"
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                >
+                  <option value="DAC">DAC (Diploma in Advanced Computing)</option>
+                  <option value="DBDA">DBDA (Big Data Analytics)</option>
+                  <option value="general">General Community</option>
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className="community-input"
+                  placeholder="Enter new category name (e.g. DESD, DITISS)..."
+                  value={customCategory}
+                  onChange={e => setCustomCategory(e.target.value)}
+                  required
+                />
+              )}
+            </div>
+
+            <div className="community-form-group">
+              <label>Description</label>
+              <textarea
+                className="community-textarea"
+                placeholder="Brief description of this community group..."
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                rows={2}
+              />
+            </div>
+
+            <div className="community-form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label htmlFor="isPrivateCheck" className="community-checkbox-label">
+                <input
+                  type="checkbox"
+                  id="isPrivateCheck"
+                  className="community-checkbox"
+                  checked={isPrivate}
+                  onChange={e => setIsPrivate(e.target.checked)}
+                />
+                <span>Restrict Access (Only selected student emails can see & join this group)</span>
+              </label>
+
+              <label htmlFor="isReadOnlyCheck" className="community-checkbox-label">
+                <input
+                  type="checkbox"
+                  id="isReadOnlyCheck"
+                  className="community-checkbox"
+                  checked={isReadOnly}
+                  onChange={e => setIsReadOnly(e.target.checked)}
+                />
+                <span style={{ fontWeight: '600', color: '#b45309' }}>🔒 Create as Read-Only / Announcement Channel (Students cannot send messages)</span>
+              </label>
+            </div>
+
+            <div className="community-form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <label style={{ margin: 0 }}>
+                  Select Student Emails ({selectedEmails.length} selected)
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button type="button" onClick={handleSelectAll} style={{ fontSize: '12px', color: '#006565', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                    Select All
+                  </button>
+                  <button type="button" onClick={handleDeselectAll} style={{ fontSize: '12px', color: '#6e7979', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Clear
+                  </button>
+                </div>
+              </div>
+              <input
+                type="text"
+                className="community-input"
+                placeholder="Search user emails..."
+                value={searchEmail}
+                onChange={e => setSearchEmail(e.target.value)}
+                style={{ marginBottom: '8px' }}
+              />
+              <div className="email-picker-wrapper">
+                {filteredUsers.length === 0 ? (
+                  <div style={{ fontSize: '13px', color: '#6e7979', textAlign: 'center', padding: '12px' }}>No users found</div>
+                ) : (
+                  filteredUsers.map(u => {
+                    const isChecked = selectedEmails.includes(u.email);
+                    return (
+                      <label key={u.id} className={`email-picker-row ${isChecked ? 'selected' : ''}`}>
+                        <input
+                          type="checkbox"
+                          className="community-checkbox-simple"
+                          checked={isChecked}
+                          onChange={() => toggleEmail(u.email)}
+                        />
+                        <span className="email-text-item">{u.email}</span>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <button type="submit" className="admin-primary-btn" disabled={creating} style={{ marginTop: '8px' }}>
+              {creating ? 'Creating Group...' : '🚀 Create Community Group'}
+            </button>
+          </form>
+        </div>
+
+        <div className="community-card">
+          <h3>Existing Communities & Groups ({groups.length})</h3>
+          {loading ? (
+            <div className="admin-empty">Loading groups...</div>
+          ) : groups.length === 0 ? (
+            <div className="admin-empty">No community groups created yet.</div>
+          ) : (
+            <div className="group-list-wrapper">
+              {groups.map(g => (
+                <div key={g.id} className="group-card-item">
+                  <div className="group-card-info">
+                    <div className="group-title-row">
+                      <span>{g.name}</span>
+                      <span className={`badge-tag ${g.category?.toLowerCase() || 'general'}`}>{g.category}</span>
+                      {g.is_private && <span className="badge-tag private">Private</span>}
+                      {g.is_read_only && <span className="badge-tag paused" style={{ background: '#ef4444', color: '#fff' }}>Paused</span>}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#6e7979', marginTop: '2px' }}>{g.description || 'No description provided.'}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => handleToggleReadOnly(g.id, g.is_read_only, g.name)}
+                      className="admin-secondary-btn"
+                      style={{ fontSize: '12px', padding: '4px 8px' }}
+                      title={g.is_read_only ? "Resume chat for all users" : "Pause chat (Make read-only for students)"}
+                    >
+                      {g.is_read_only ? '▶ Resume' : '⏸ Pause'}
+                    </button>
+                    <button onClick={() => handleDeleteGroup(g.id, g.name)} className="admin-danger-btn-small">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 

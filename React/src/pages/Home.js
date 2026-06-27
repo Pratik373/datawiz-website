@@ -109,6 +109,7 @@ export default function Home() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false)
+  const [hasCommunityAccess, setHasCommunityAccess] = useState(false)
   const [reviews, setReviews] = useState([])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -121,6 +122,7 @@ export default function Home() {
   useEffect(() => {
     if (!user?.id) {
       setHasPremiumAccess(false)
+      setHasCommunityAccess(false)
       return
     }
     fetch(`${API_BASE}/api/user-test-access`, {
@@ -131,6 +133,21 @@ export default function Home() {
       .then(res => res.json())
       .then(data => setHasPremiumAccess(Boolean(data.hasPremiumAccess)))
       .catch(() => setHasPremiumAccess(false))
+
+    async function checkCommunityAccess() {
+      if (user.email === 'adminspp@datawiz.com') {
+        setHasCommunityAccess(true)
+        return
+      }
+      const [{ count: memberCount }, { count: adminCount }] = await Promise.all([
+        supabase.from('community_group_members').select('*', { count: 'exact', head: true }).eq('user_email', user.email),
+        supabase.from('admin_users').select('*', { count: 'exact', head: true }).or(`user_id.eq.${user.id},email.eq.${user.email}`)
+      ])
+      const memberHasGroup = Boolean(memberCount && memberCount > 0)
+      const isAdminUser = Boolean(adminCount && adminCount > 0)
+      setHasCommunityAccess(memberHasGroup || isAdminUser)
+    }
+    checkCommunityAccess()
   }, [user])
 
   useEffect(() => {
@@ -211,6 +228,12 @@ export default function Home() {
           <nav className="hidden md:flex gap-lg items-center">
             <button onClick={() => scrollTo('footer')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">About</button>
             <button onClick={() => goTo('/study-material')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Study Materials</button>
+            {Boolean(hasCommunityAccess) && (
+              <button onClick={() => goTo('/community')} className="text-primary font-body-md text-body-md font-bold transition-colors cursor-pointer flex items-center gap-1">
+                <span>Community</span>
+                <span className="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded-full uppercase tracking-wider">New</span>
+              </button>
+            )}
             <button onClick={() => goTo('/blogs')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Blogs</button>
             <button onClick={() => goTo('/tests')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Your Tests</button>
             <button onClick={() => scrollTo('reviews')} className="text-on-surface-variant hover:text-primary font-body-md text-body-md transition-colors cursor-pointer">Reviews</button>
@@ -266,6 +289,15 @@ export default function Home() {
                 <span className="material-symbols-outlined text-[20px]">auto_stories</span>
                 Study Materials
               </button>
+              {Boolean(hasCommunityAccess) && (
+                <button 
+                  onClick={() => { setMobileMenuOpen(false); goTo('/community') }} 
+                  className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-primary font-body-md font-bold transition-all"
+                >
+                  <span className="material-symbols-outlined text-[20px]">groups</span>
+                  Community
+                </button>
+              )}
               <button 
                 onClick={() => { setMobileMenuOpen(false); goTo('/blogs') }} 
                 className="flex items-center gap-sm py-2 px-3 rounded-lg text-left text-on-surface-variant hover:bg-surface-container hover:text-primary font-body-md transition-all"
@@ -463,13 +495,17 @@ export default function Home() {
                     '100 Questions & 120 Minutes Per Test',
                     'Easy, Medium & Hard Level Question Papers',
                     'Detailed Explanations & Answers Key',
+                    'Exclusive Community Access (Discuss post-test updates with peers & Admin)',
                     'Direct DM Support with Admin',
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-base text-body-md">
-                      <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
+                  ].map((item) => {
+                    const isHighlight = item.includes('Exclusive Community Access') || item.includes('Direct DM Support')
+                    return (
+                      <li key={item} className="flex items-start gap-base text-body-md">
+                        <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                        <span className={isHighlight ? 'font-bold text-on-surface' : ''}>{item}</span>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
               <div className="p-md">
@@ -529,13 +565,17 @@ export default function Home() {
                     'Easy, Medium & Hard Level Question Papers',
                     'Detailed Explanations & Answers Key',
                     'Comprehensive Score Analysis',
+                    'Exclusive Community Access (Discuss post-test updates with peers & Admin)',
                     'Direct DM Support with Admin',
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-base text-body-md">
-                      <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
+                  ].map((item) => {
+                    const isHighlight = item.includes('Exclusive Community Access') || item.includes('Direct DM Support')
+                    return (
+                      <li key={item} className="flex items-start gap-base text-body-md">
+                        <span className="material-symbols-outlined text-primary shrink-0 mt-[2px]">check_circle</span>
+                        <span className={isHighlight ? 'font-bold text-on-surface' : ''}>{item}</span>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
               <div className="p-md">
