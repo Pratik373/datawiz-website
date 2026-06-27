@@ -1961,6 +1961,8 @@ let timeLeft = {A:60*60,B:60*60};
 let timerInterval = null;
 
 function startExam(){
+    // Clear any previously saved answers to ensure a fresh start
+    questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
     examStarted = true;
     const clearBtn = document.getElementById("clearAllBtn");
     if (clearBtn) clearBtn.style.display = "inline-block";
@@ -2010,6 +2012,11 @@ function renderQuestions(){
             </label>`;
         });
 
+        if(!examSubmitted){
+            const hasSel = getSelected(q.id) !== null;
+            html += `<div style="margin-top:6px;text-align:right"><button id="clearBtn_${q.id}" onclick="clearQuestion(${q.id})" style="display:${hasSel ? 'inline-block' : 'none'};background:transparent;border:1px solid #d0d5dd;color:#475467;font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;">&#x2715; Clear Selection</button></div>`;
+        }
+
         html += `</div>`;
     });
 
@@ -2029,6 +2036,9 @@ function renderNav(){
 function saveAnswer(id,value){
     localStorage.setItem("ccat_" + testId + "_q" + id,value);
     renderNav();
+    // Reveal the Clear Selection button for this question without re-rendering all cards
+    const clearBtnEl = document.getElementById("clearBtn_" + id);
+    if(clearBtnEl) clearBtnEl.style.display = "inline-block";
 }
 
 function getSelected(id){
@@ -2231,6 +2241,12 @@ updateTimers();
       if (typeof renderQuestions === 'function') renderQuestions();
       if (typeof renderNav === 'function') renderNav();
     }
+  };
+
+  window.clearQuestion = function(id) {
+    localStorage.removeItem("ccat_" + testId + "_q" + id);
+    if (typeof renderQuestions === 'function') renderQuestions();
+    if (typeof renderNav === 'function') renderNav();
   };
 
   // Create style element for overlay

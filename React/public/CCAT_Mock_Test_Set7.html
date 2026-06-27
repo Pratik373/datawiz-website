@@ -254,8 +254,9 @@ button:disabled{opacity:0.6;cursor:not-allowed}
     <div class="timer-wrap">
         <div id="timerA" class="timer">Section A: 60:00</div>
         <div id="timerB" class="timer">Section B: 60:00</div>
+        <button id="clearAllBtn" onclick="clearAllAnswers()" style="display:none;background:var(--blue);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Clear Section Answers</button>
         <button id="yourTestsBtn" onclick="window.location.href='/tests'" style="background:var(--green);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Your Tests</button>
-        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;color:white;border:none;border-radius:7px;cursor:pointer;">Logout</button>
+        <button id="logoutBtn" onclick="handleLogout()" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;color:white;border:none;border-radius:7px;cursor:pointer;">Logout</button>
     </div>
 </header>
 
@@ -1749,7 +1750,11 @@ let timeLeft = {A:60*60, B:60*60};
 let timerInterval = null;
 
 function startExam(){
+    // Clear any previously saved answers to ensure a fresh start
+    questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
     examStarted = true;
+    const clearBtn = document.getElementById("clearAllBtn");
+    if (clearBtn) clearBtn.style.display = "inline-block";
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("examScreen").style.display = "block";
     showSection("A");
@@ -1788,6 +1793,10 @@ function renderQuestions(){
                 ${String.fromCharCode(65+i)}) ${opt}
             </label>`;
         });
+        if(!examSubmitted){
+            const hasSel = getSelected(q.id) !== null;
+            html += `<div style="margin-top:6px;text-align:right"><button id="clearBtn_${q.id}" onclick="clearQuestion(${q.id})" style="display:${hasSel ? 'inline-block' : 'none'};background:transparent;border:1px solid #d0d5dd;color:#475467;font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;">&#x2715; Clear Selection</button></div>`;
+        }
         html += `</div>`;
     });
     document.getElementById("questions").innerHTML = html;
@@ -1806,6 +1815,9 @@ function renderNav(){
 function saveAnswer(id, value){
     localStorage.setItem("ccat_" + testId + "_q" + id, value);
     renderNav();
+    // Reveal the Clear Selection button for this question without re-rendering all cards
+    const clearBtnEl = document.getElementById("clearBtn_" + id);
+    if(clearBtnEl) clearBtnEl.style.display = "inline-block";
 }
 
 function getSelected(id){
@@ -1910,6 +1922,8 @@ function renderReview(){
 }
 
 function reattemptExam(){
+    const clearBtnR = document.getElementById("clearAllBtn");
+    if (clearBtnR) clearBtnR.style.display = "none";
     questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
     localStorage.removeItem('ccat_test_completed');
     localStorage.removeItem('ccat_test_completed_id');
@@ -1934,6 +1948,42 @@ updateTimers();
 
 
 
+
+<script>
+function clearQuestion(id){
+    localStorage.removeItem("ccat_" + testId + "_q" + id);
+    renderQuestions();
+    renderNav();
+}
+
+function clearAllAnswers(){
+    const activeSec = (typeof currentSection !== 'undefined') ? currentSection : 'A';
+    if(confirm("Are you sure you want to clear all Section " + activeSec + " answers?")){
+        questions.forEach(q => {
+            if(q.section === activeSec){
+                localStorage.removeItem("ccat_" + testId + "_q" + q.id);
+            }
+        });
+        if(typeof renderQuestions === 'function') renderQuestions();
+        if(typeof renderNav === 'function') renderNav();
+    }
+}
+
+async function handleLogout(){
+    try {
+        if (window.supabase) {
+            const client = window.supabase.createClient(
+                'https://uoqfnvrdbicbepjxapcf.supabase.co',
+                'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+            );
+            await client.auth.signOut();
+        }
+    } catch(e) {
+        console.error("Logout error:", e);
+    }
+    window.location.href = '/login';
+}
+</script>
 
 <!-- Supabase CDN and Review Interceptor -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
