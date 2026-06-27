@@ -53,12 +53,7 @@ export default function MockTestPortal() {
   const [couponError, setCouponError] = useState('')
   const [paymentProcessing, setPaymentProcessing] = useState(false)
 
-  const [showReviewModal, setShowReviewModal] = useState(false)
-  const [completedTestId, setCompletedTestId] = useState('')
-  const [reviewRating, setReviewRating] = useState(5)
-  const [reviewText, setReviewText] = useState('')
-  const [submittingReview, setSubmittingReview] = useState(false)
-  const [reviewError, setReviewError] = useState('')
+
 
 
   // Track if we've done the first access load — avoids skeleton on token refreshes
@@ -354,89 +349,9 @@ export default function MockTestPortal() {
   }
 
   useEffect(() => {
-    if (!user) return
-
-    const checkPendingReview = async () => {
-      const isCompleted = localStorage.getItem('ccat_test_completed')
-      const testId = localStorage.getItem('ccat_test_completed_id')
-
-      if (isCompleted === 'true' && testId) {
-        try {
-          const { data, error } = await supabase
-            .from('reviews')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('test_id', testId)
-            .maybeSingle()
-
-          if (error) {
-            console.error('Error checking review status:', error)
-            return
-          }
-
-          if (data) {
-            localStorage.removeItem('ccat_test_completed')
-            localStorage.removeItem('ccat_test_completed_id')
-          } else {
-            setCompletedTestId(testId)
-            setShowReviewModal(true)
-          }
-        } catch (err) {
-          console.error(err)
-        }
-      }
-    }
-
-    checkPendingReview()
+    localStorage.removeItem('ccat_test_completed')
+    localStorage.removeItem('ccat_test_completed_id')
   }, [user])
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault()
-    if (!reviewText.trim()) {
-      setReviewError('Review text is required.')
-      return
-    }
-    if (reviewText.trim().length < 10) {
-      setReviewError('Please write a slightly longer review (minimum 10 characters).')
-      return
-    }
-
-    setSubmittingReview(true)
-    setReviewError('')
-    try {
-      const { error } = await supabase.from('reviews').insert({
-        user_id: user.id,
-        user_name: user.user_metadata?.full_name || user.email.split('@')[0] || 'User',
-        user_email: user.email,
-        rating: reviewRating,
-        review_text: reviewText,
-        test_id: completedTestId,
-        is_approved: false
-      })
-
-      if (error) throw error
-
-      localStorage.removeItem('ccat_test_completed')
-      localStorage.removeItem('ccat_test_completed_id')
-      setShowReviewModal(false)
-      setReviewText('')
-      setReviewRating(5)
-      alert('Thank you! Your review has been submitted for admin approval.')
-    } catch (err) {
-      setReviewError(err.message || 'Failed to submit review.')
-    } finally {
-      setSubmittingReview(false)
-    }
-  }
-
-  const getCompletedTestTitle = (id) => {
-    if (id === 'free-ccat-mock-test' || id === 'free-test') return 'Free C-CAT Mock Test'
-    if (id.startsWith('premium-ccat-set-')) {
-      const num = id.split('-').pop()
-      return `Premium Mock Test Set ${num}`
-    }
-    return 'C-CAT Mock Test'
-  }
 
   const startTest = async (test) => {
     setStartError('')
@@ -881,69 +796,7 @@ export default function MockTestPortal() {
 
 
 
-      {showReviewModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl p-lg max-w-md w-full shadow-xl relative animate-fade-in text-center">
-            <div className="space-y-md">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <span className="material-symbols-outlined text-primary text-[32px]">rate_review</span>
-              </div>
-              <h2 className="font-headline-md text-headline-md text-on-surface">Submit Test Review</h2>
-              <p className="text-on-surface-variant font-body-sm leading-snug">
-                You just completed the <strong>{getCompletedTestTitle(completedTestId)}</strong>! 
-                Please leave a quick review of your experience. Your review is mandatory and helps us improve.
-              </p>
-              
-              <form onSubmit={handleReviewSubmit} className="space-y-md text-left">
-                <div className="space-y-xs">
-                  <label className="block text-xs uppercase font-bold text-on-surface-variant">Rating</label>
-                  <div className="flex gap-sm">
-                    {[1, 2, 3, 4, 5].map((stars) => (
-                      <button
-                        type="button"
-                        key={stars}
-                        onClick={() => setReviewRating(stars)}
-                        className="text-amber-500 hover:scale-110 active:scale-95 transition-all"
-                      >
-                        <span 
-                          className="material-symbols-outlined text-[32px]"
-                          style={{ fontVariationSettings: stars <= reviewRating ? "'FILL' 1" : "'FILL' 0" }}
-                        >
-                          star
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="space-y-xs">
-                  <label className="block text-xs uppercase font-bold text-on-surface-variant">Your Review</label>
-                  <textarea
-                    rows="4"
-                    value={reviewText}
-                    onChange={(e) => setReviewText(e.target.value)}
-                    placeholder="Describe your experience with the test quality, interface, and timing..."
-                    className="w-full p-sm border border-outline-variant rounded-xl text-body-sm focus:outline-none focus:border-primary transition-colors resize-none text-on-surface"
-                    disabled={submittingReview}
-                  />
-                </div>
-
-                {reviewError && (
-                  <p className="text-red-600 text-xs font-semibold">{reviewError}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={submittingReview}
-                  className="w-full py-3 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:bg-primary-container shadow active:scale-95 transition-all font-bold uppercase tracking-wide disabled:opacity-50"
-                >
-                  {submittingReview ? 'Submitting...' : 'Submit Review'}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
