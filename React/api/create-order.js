@@ -1,4 +1,5 @@
 const Razorpay = require('razorpay');
+const { createClient } = require('@supabase/supabase-js');
 const PLANS = require('./_plans');
 
 module.exports = async function handler(req, res) {
@@ -13,12 +14,79 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { plan, user_id } = req.body;
-    console.log(`[API] Requested plan: ${plan}`);
-    const selected = PLANS[plan];
-    if (!selected) {
+    const { plan, user_id, couponCode } = req.body;
+    console.log(`[API] Requested plan: ${plan}, user_id: ${user_id}, couponCode: ${couponCode}`);
+    
+    let selected = PLANS[plan];
+    let baseAmount = 0;
+    let testsToAdd = 5;
+    let planName = '';
+
+    if (selected) {
+      baseAmount = selected.amount;
+      testsToAdd = selected.tests;
+      planName = selected.name;
+    } else if (plan === 'upgrade') {
+      baseAmount = 50;
+      testsToAdd = 5;
+      planName = 'Complete Pack Upgrade';
+    } else {
       console.error(`[API] Error: Invalid plan '${plan}' requested`);
       return res.status(400).json({ error: 'Invalid plan' });
+    }
+
+    // Check if upgrading dynamically
+    let isUpgrade = (plan === 'upgrade');
+    if (plan === 'pro' && user_id) {
+      const supabase = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+      const { data: starterPayment } = await supabase
+        .from('payments')
+        .select('id')
+        .eq('user_id', user_id)
+        .eq('plan', 'starter')
+        .eq('status', 'successful')
+        .maybeSingle();
+
+      if (starterPayment) {
+        console.log(`[API] User has Starter Pack payment. Overriding plan to upgrade (₹50)`);
+        baseAmount = 50;
+        testsToAdd = 5;
+        planName = 'Complete Pack Upgrade';
+        isUpgrade = true;
+      }
+    }
+
+    // Apply coupon if valid
+    let discount = 0;
+    if (couponCode) {
+      const code = (couponCode || '').toUpperCase().trim();
+      if (code === 'DATAWIZ100') {
+        discount = 100;
+      } else if (code === 'SAVE50') {
+        discount = 50;
+      } else if (code === 'SAVE20') {
+        discount = 20;
+      } else if (code === 'FREE') {
+        discount = baseAmount;
+      }
+    }
+
+    const finalAmount = Math.max(0, baseAmount - discount);
+    console.log(`[API] Final order amount computed: base ₹${baseAmount} - discount ₹${discount} = ₹${finalAmount}`);
+
+    if (finalAmount === 0) {
+      console.log(`[API] Free order requested (Amount: 0). Bypassing Razorpay.`);
+      return res.status(200).json({
+        id: `free_${plan}_${Date.now()}`,
+        amount: 0,
+        currency: 'INR',
+        tests: testsToAdd,
+        planName: planName,
+        isFree: true,
+      });
     }
 
     console.log(`[API] Initializing Razorpay with Key ID: ${process.env.RAZORPAY_KEY_ID ? 'Set' : 'Missing!'} and Secret: ${process.env.RAZORPAY_KEY_SECRET ? 'Set' : 'Missing!'}`);
@@ -27,12 +95,12 @@ module.exports = async function handler(req, res) {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    console.log(`[API] Creating order for amount: ${selected.amount} INR (${selected.amount * 100} paise)`);
+    console.log(`[API] Creating order for amount: ${finalAmount} INR (${finalAmount * 100} paise)`);
     const order = await razorpay.orders.create({
-      amount:   selected.amount * 100, // paise
+      amount:   finalAmount * 100, // paise
       currency: 'INR',
       receipt:  `dw_${plan}_${Date.now()}`,
-      notes:    { plan, tests: selected.tests, user_id },
+      notes:    { plan: isUpgrade ? 'pro' : plan, tests: testsToAdd, user_id, couponCode },
     });
 
     console.log(`[API] Order created successfully! Order ID: ${order.id}`);
@@ -40,8 +108,9 @@ module.exports = async function handler(req, res) {
       id:       order.id,
       amount:   order.amount,
       currency: order.currency,
-      tests:    selected.tests,
-      planName: selected.name,
+      tests:    testsToAdd,
+      planName: planName,
+      isFree:   false,
     });
   } catch (err) {
     console.error('[API] create-order error:', err);

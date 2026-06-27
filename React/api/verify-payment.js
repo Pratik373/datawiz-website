@@ -23,23 +23,29 @@ module.exports = async function handler(req, res) {
       amount,
     } = req.body;
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !user_id) {
-      return res.status(400).json({ error: 'Missing required payment fields' });
+    const isFreeOrder = razorpay_order_id && razorpay_order_id.startsWith('free_');
+
+    if (!isFreeOrder) {
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !user_id) {
+        return res.status(400).json({ error: 'Missing required payment fields' });
+      }
+
+      console.log(`[API] Verifying payment for Order ID: ${razorpay_order_id}, Payment ID: ${razorpay_payment_id}, User ID: ${user_id}`);
+
+      // 1. Verify Razorpay signature
+      const expected = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
+
+      if (expected !== razorpay_signature) {
+        console.error(`[API] Signature mismatch! Expected: ${expected}, Got: ${razorpay_signature}`);
+        return res.status(400).json({ error: 'Payment verification failed — invalid signature' });
+      }
+      console.log(`[API] Signature verified successfully!`);
+    } else {
+      console.log(`[API] Free order bypass verified for Order ID: ${razorpay_order_id}`);
     }
-
-    console.log(`[API] Verifying payment for Order ID: ${razorpay_order_id}, Payment ID: ${razorpay_payment_id}, User ID: ${user_id}`);
-
-    // 1. Verify Razorpay signature
-    const expected = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex');
-
-    if (expected !== razorpay_signature) {
-      console.error(`[API] Signature mismatch! Expected: ${expected}, Got: ${razorpay_signature}`);
-      return res.status(400).json({ error: 'Payment verification failed — invalid signature' });
-    }
-    console.log(`[API] Signature verified successfully!`);
 
     // 2. Connect to Supabase with service role (bypasses RLS)
     const supabase = createClient(
@@ -69,7 +75,7 @@ module.exports = async function handler(req, res) {
     const { error: paymentInsertError } = await supabase.from('payments').insert([{
       user_id,
       razorpay_order_id,
-      razorpay_payment_id,
+      razorpay_payment_id: isFreeOrder ? `free_pay_${Date.now()}` : razorpay_payment_id,
       plan: plan || 'starter',
       amount: amount || 0,
       status: 'successful',

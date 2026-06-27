@@ -7,6 +7,11 @@ const DEFAULT_TESTS = [
   { id: 'premium-ccat-set-3', url: '/CCAT_Mock_Test_Set3.html', access: 'premium' },
   { id: 'premium-ccat-set-4', url: '/CCAT_Mock_Test_Set4.html', access: 'premium' },
   { id: 'premium-ccat-set-5', url: '/CCAT_Mock_Test_Set5.html', access: 'premium' },
+  { id: 'premium-ccat-set-6', url: '/CCAT_Mock_Test_Set6.html', access: 'premium' },
+  { id: 'premium-ccat-set-7', url: '/CCAT_Mock_Test_Set7.html', access: 'premium' },
+  { id: 'premium-ccat-set-8', url: '/CCAT_Mock_Test_Set8.html', access: 'premium' },
+  { id: 'premium-ccat-set-9', url: '/CCAT_Mock_Test_Set9.html', access: 'premium' },
+  { id: 'premium-ccat-set-10', url: '/CCAT_Mock_Test_Set10.html', access: 'premium' },
 ];
 
 module.exports = async function handler(req, res) {
@@ -50,13 +55,49 @@ module.exports = async function handler(req, res) {
           .eq('user_id', user_id)
           .single();
 
-        if (!creditError && creditData && creditData.tests_remaining > 0) {
-          hasAccess = true;
+        if (!creditError && creditData) {
+          const testsRemaining = creditData.tests_remaining || 0;
+          
+          // Query payments table to check if they have bought the Complete Pack or Upgrade
+          const { data: proPayment } = await supabase
+            .from('payments')
+            .select('id')
+            .eq('user_id', user_id)
+            .in('plan', ['pro', 'upgrade'])
+            .eq('status', 'successful')
+            .maybeSingle();
+
+          const hasProAccess = Boolean(proPayment);
+          
+          // Determine the set number from the test_id
+          const setNumberMatch = test_id.match(/premium-ccat-set-(\d+)/);
+          if (setNumberMatch) {
+            const setNumber = parseInt(setNumberMatch[1]);
+            // If the set number is > 5, user needs pro access
+            if (setNumber > 5 && !hasProAccess) {
+              return res.status(403).json({ 
+                success: false, 
+                error: 'Access denied. Please upgrade to the Complete Pack (10 Tests) to access this test.' 
+              });
+            }
+          }
+          
+          if (testsRemaining > 0) {
+            hasAccess = true;
+          }
         }
       }
 
       if (!hasAccess) {
         return res.status(403).json({ success: false, error: 'Access denied. Please buy the test series.' });
+      }
+
+      if (defaultTest.type === 'manual') {
+        return res.status(200).json({
+          success: true,
+          test_type: 'manual',
+          message: 'Test Set ' + defaultTest.id.split('-').pop() + ' is coming soon.'
+        });
       }
 
       return res.status(200).json({ success: true, test_type: 'html', url: defaultTest.url });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
-import { STARTER_ORIGINAL_PRICE_INR, STARTER_PRICE_INR } from './pricingConfig';
+import { STARTER_ORIGINAL_PRICE_INR, STARTER_PRICE_INR, PRO_PRICE_INR, PRO_ORIGINAL_PRICE_INR } from './pricingConfig';
 import './PricingSection.css';
 
 const PLANS = [
@@ -14,6 +14,17 @@ const PLANS = [
     color: '#6f57ff',
     features: ['5 Mock Tests', 'Unlimited Access', 'Answer Key & Review', 'Score Analysis'],
     badge: null,
+  },
+  {
+    id: 'pro',
+    name: 'Complete Pack',
+    price: PRO_PRICE_INR,
+    originalPrice: PRO_ORIGINAL_PRICE_INR,
+    tests: 10,
+    perTest: 'Unlimited access',
+    color: '#006565',
+    features: ['10 Mock Tests', 'Includes all starter tests', 'Unlimited Access', 'Answer Key & Review', 'Score Analysis'],
+    badge: 'Popular Choice',
   },
 ];
 

@@ -10,4 +10,10 @@ module.exports = {
     tests: 5,
     name: 'Starter Pack',
   },
+  pro: {
+    amount: priceFromEnv('REACT_APP_PRO_PRICE_INR', 149),
+    original_amount: priceFromEnv('REACT_APP_PRO_ORIGINAL_PRICE_INR', 999),
+    tests: 10,
+    name: 'Complete Pack',
+  },
 };

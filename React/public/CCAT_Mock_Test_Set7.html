@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDAC C-CAT Mock Test - Set 7</title>
+
+<style>
+:root{
+    --navy:#0b2545;
+    --blue:#1769d2;
+    --green:#12783d;
+    --red:#b42318;
+    --amber:#946200;
+    --bg:#f4f7fb;
+    --line:#d8e1ee;
+    --text:#182230;
+}
+
+*{box-sizing:border-box}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+}
+
+header{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    position:sticky;
+    top:0;
+    z-index:5;
+}
+
+header h1{font-size:20px;margin:0}
+
+.timer-wrap{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.timer{
+    border:1px solid rgba(255,255,255,0.32);
+    padding:8px 10px;
+    border-radius:6px;
+    font-weight:bold;
+    min-width:132px;
+    text-align:center;
+}
+
+.timer.active{background:white;color:var(--navy)}
+
+.container{
+    width:min(1180px,94%);
+    margin:auto;
+    padding:22px 0 40px;
+}
+
+.panel{
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:22px;
+    box-shadow:0 2px 8px rgba(16,24,40,0.06);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:14px;
+}
+
+.mini-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+    background:#fbfdff;
+}
+
+.mini-card h3{margin:0 0 8px;color:var(--navy)}
+.mini-card ul{margin:8px 0 0;padding-left:20px}
+
+.top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+
+button{
+    background:var(--blue);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    font-size:16px;
+    border-radius:7px;
+    cursor:pointer;
+}
+
+button:hover{background:#0d55b5}
+button:disabled{opacity:0.6;cursor:not-allowed}
+
+#examScreen,#resultScreen{display:none}
+
+.exam-layout{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:18px;
+}
+
+.sidebar{
+    position:sticky;
+    top:88px;
+    align-self:start;
+}
+
+.section-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.section-tabs button{padding:10px;font-size:14px}
+.section-tabs button.active{background:var(--navy)}
+.section-tabs button:disabled{
+    background:#edf2f7;
+    color:#667085;
+    border:1px solid var(--line);
+}
+
+.nav-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+}
+
+.nav-btn{
+    padding:8px 0;
+    font-size:13px;
+    background:white;
+    color:var(--text);
+    border:1px solid var(--line);
+}
+
+.nav-btn.answered{
+    background:#e8f6ee;
+    border-color:#8bd2a8;
+    color:var(--green);
+}
+
+.section-title{
+    background:var(--navy);
+    color:white;
+    padding:14px 18px;
+    border-radius:8px;
+    margin:0 0 16px;
+}
+
+.question-card{
+    background:white;
+    margin-bottom:16px;
+    padding:18px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    box-shadow:0 2px 6px rgba(16,24,40,0.04);
+}
+
+.question{font-size:18px;margin-bottom:12px;font-weight:bold}
+
+.topic{
+    display:inline-block;
+    margin-bottom:10px;
+    color:#475467;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.option{
+    display:block;
+    margin-bottom:9px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    cursor:pointer;
+    background:white;
+}
+
+.option:hover{background:#eef5ff}
+
+.code{
+    background:#1f2937;
+    color:#f3f4f6;
+    padding:13px;
+    border-radius:6px;
+    overflow:auto;
+    margin-bottom:12px;
+    white-space:pre;
+    font-family:monospace;
+    font-size:14px;
+    line-height:1.5;
+}
+
+.answer-review{
+    display:block;
+    margin-top:12px;
+    padding:12px;
+    border-radius:6px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+}
+
+.correct-answer{color:var(--green);font-weight:bold}
+.wrong-answer{color:var(--red);font-weight:bold}
+.skipped-answer{color:var(--amber);font-weight:bold}
+
+.result-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin:16px 0 20px;
+}
+
+.score-box{
+    background:#fbfdff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+}
+
+.score-box strong{display:block;font-size:24px;margin-top:4px}
+
+@media(max-width:760px){
+    header{align-items:flex-start;flex-direction:column}
+    .timer-wrap{justify-content:flex-start}
+    .exam-layout{grid-template-columns:1fr}
+    .sidebar{position:static}
+}
+</style>
+</head>
+
+<body>
+<header>
+    <h1>CDAC C-CAT Mock Test - Set 7 - Full 100 Question Paper</h1>
+    <div class="timer-wrap">
+        <div id="timerA" class="timer">Section A: 60:00</div>
+        <div id="timerB" class="timer">Section B: 60:00</div>
+        <button id="yourTestsBtn" onclick="window.location.href='/tests'" style="background:var(--green);padding:8px 15px;font-size:14px;margin-left:4px;font-weight:bold;color:white;border:none;border-radius:7px;cursor:pointer;">Your Tests</button>
+        <button id="logoutBtn" style="background:#b42318;padding:8px 15px;font-size:14px;margin-left:4px;color:white;border:none;border-radius:7px;cursor:pointer;">Logout</button>
+    </div>
+</header>
+
+<main class="container">
+    <section id="startScreen" class="panel">
+        <h2>CDAC C-CAT Mock Test - Set 7 - Section A + Section B</h2>
+        <div class="grid">
+            <div class="mini-card">
+                <h3>Section A</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>English: 10</li>
+                    <li>Quantitative Aptitude: 15</li>
+                    <li>Logical Reasoning: 15</li>
+                    <li>Computer Fundamentals + Programming Basics: 10</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Section B</h3>
+                <p>50 Questions | 150 Marks | 60 Minutes</p>
+                <ul>
+                    <li>C Programming: 20</li>
+                    <li>Data Structures: 10</li>
+                    <li>OOP using C++: 8</li>
+                    <li>Operating Systems: 6</li>
+                    <li>Computer Networks: 6</li>
+                </ul>
+            </div>
+            <div class="mini-card">
+                <h3>Marking</h3>
+                <p>Correct Answer: +3</p>
+                <p>Wrong Answer: -1</p>
+                <p>Unanswered: 0</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button onclick="startExam()">Start Exam</button>
+        </div>
+    </section>
+
+    <section id="examScreen">
+        <div class="exam-layout">
+            <aside class="sidebar panel">
+                <div class="section-tabs">
+                    <button id="tabA" class="active" onclick="showSection('A')">Section A</button>
+                    <button id="tabB" onclick="showSection('B')">Section B</button>
+                </div>
+                <h3>Question Navigation</h3>
+                <div id="navPanel" class="nav-grid"></div>
+                <div class="top-actions">
+                    <button id="submitBtn" onclick="submitCurrentSection()">Submit Section A &amp; Go to Section B</button>
+                </div>
+            </aside>
+            <section>
+                <div id="questions"></div>
+            </section>
+        </div>
+    </section>
+
+    <section id="resultScreen" class="panel">
+        <h2>Exam Result</h2>
+        <div id="resultSummary" class="result-summary"></div>
+        <div class="top-actions">
+            <button onclick="reattemptExam()">Reattempt Exam</button>
+        </div>
+        <h2>Question Review &amp; Answer Key</h2>
+        <div id="reviewQuestions"></div>
+    </section>
+</main>
+
+<script>
+const testId = 'free-ccat-mock-test';
+const questions = [
+  {
+    "id": 1,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The administration's response to the disaster was widely criticised for being _____.",
+    "o": [
+      "swift",
+      "proactive",
+      "tardy",
+      "decisive"
+    ],
+    "a": 2,
+    "explanation": "\"Tardy\" means late or slow, which fits a response that is widely criticised. \"Swift\" and \"decisive\" are positive attributes. \"Proactive\" means anticipatory — also positive. The context of criticism points to a negative characteristic, making \"tardy\" the best fit."
+  },
+  {
+    "id": 2,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The court ruling was seen as a departure _____ decades of established legal precedent.",
+    "o": [
+      "towards",
+      "from",
+      "against",
+      "within"
+    ],
+    "a": 1,
+    "explanation": "\"Departure from\" is the correct prepositional phrase meaning to deviate or move away from something. \"A departure from tradition/precedent\" is a standard collocation in formal English."
+  },
+  {
+    "id": 3,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Choose the correctly formed sentence:",
+    "o": [
+      "Neither of the solutions are correct.",
+      "Neither of the solutions is correct.",
+      "Neither of the solution are correct.",
+      "Neither of the solutions were correct."
+    ],
+    "a": 1,
+    "explanation": "\"Neither of\" is followed by a plural noun but takes a singular verb in formal standard English. \"Neither of the solutions is correct\" is therefore the grammatically correct form. Options A and D use plural verbs incorrectly, and option C uses the singular noun incorrectly."
+  },
+  {
+    "id": 4,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "His argument was predicated _____ assumptions that had never been empirically verified.",
+    "o": [
+      "over",
+      "for",
+      "upon",
+      "against"
+    ],
+    "a": 2,
+    "explanation": "\"Predicated upon/on\" is the correct prepositional collocation, meaning that something is based on or dependent upon a particular assumption or basis. \"Predicated over,\" \"predicated for,\" and \"predicated against\" are all incorrect collocations."
+  },
+  {
+    "id": 5,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Spot the error: \"Hardly had he entered the room than the lights went out.\"",
+    "o": [
+      "Hardly had he entered",
+      "the room",
+      "than the lights",
+      "went out"
+    ],
+    "a": 2,
+    "explanation": "After \"Hardly/Scarcely…,\" the correct conjunction is \"when,\" not \"than.\" \"Barely/Hardly…when\" is the correct construction. \"Than\" is used with \"No sooner…than.\" Correct sentence: \"Hardly had he entered the room when the lights went out.\""
+  },
+  {
+    "id": 6,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Improve the sentence: \"The reason for his failure is because he did not study.\"",
+    "o": [
+      "The reason for his failure is that he did not study.",
+      "The reason for his failure is due to not studying.",
+      "The reason for his failure is because of not studying.",
+      "No improvement needed."
+    ],
+    "a": 0,
+    "explanation": "\"The reason is because\" is redundant and incorrect — \"because\" already introduces a reason, so using it after \"reason\" is a double construction. The correct form is \"The reason is that…\" which introduces a noun clause properly."
+  },
+  {
+    "id": 7,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Fill in the blank: Despite working hard, she could not _____ her targets this quarter.",
+    "o": [
+      "achieve",
+      "achieving",
+      "achieved",
+      "be achieving"
+    ],
+    "a": 0,
+    "explanation": "After the modal-like expression \"could not,\" the base form (infinitive without \"to\") of the verb must follow: \"could not achieve.\" \"Achieving\" (gerund/present participle), \"achieved\" (past tense), and \"be achieving\" (progressive) are all grammatically incorrect in this modal construction."
+  },
+  {
+    "id": 8,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The diplomat's response was so _____ that the tense negotiation was immediately de-escalated.",
+    "o": [
+      "inflammatory",
+      "conciliatory",
+      "ambiguous",
+      "provocative"
+    ],
+    "a": 1,
+    "explanation": "\"Conciliatory\" means intended to make peace or reduce tension — the only option that logically results in de-escalation. \"Inflammatory\" and \"provocative\" would increase tension. \"Ambiguous\" means unclear and would not resolve the situation."
+  },
+  {
+    "id": 9,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Change to Direct Speech: She said that she had been waiting for an hour.",
+    "o": [
+      "She said, \"I am waiting for an hour.\"",
+      "She said, \"I have been waiting for an hour.\"",
+      "She said, \"I had been waiting for an hour.\"",
+      "She said, \"I was waiting for an hour.\""
+    ],
+    "a": 1,
+    "explanation": "When converting from indirect to direct speech, the tense is shifted forward: \"had been waiting\" (past perfect continuous) → \"have been waiting\" (present perfect continuous). This reverses the backshift applied in indirect speech."
+  },
+  {
+    "id": 10,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The synonym of \"BENEVOLENT\" is:",
+    "o": [
+      "Malicious",
+      "Indifferent",
+      "Charitable",
+      "Arrogant"
+    ],
+    "a": 2,
+    "explanation": "\"Benevolent\" means well-meaning and kindly, often generous. \"Charitable\" captures this quality of being kind and generous. \"Malicious\" is its antonym (intending harm). \"Indifferent\" means uncaring, and \"Arrogant\" means having excessive pride."
+  },
+  {
+    "id": 11,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Arrange to form a meaningful sentence: P: determined the outcome Q: more than individual talent R: of the game S: teamwork",
+    "o": [
+      "S-Q-P-R",
+      "S-P-Q-R",
+      "P-S-Q-R",
+      "Q-S-P-R"
+    ],
+    "a": 0,
+    "explanation": "The correct sentence is: \"Teamwork (S) more than individual talent (Q) determined the outcome (P) of the game (R).\" = \"Teamwork more than individual talent determined the outcome of the game.\""
+  },
+  {
+    "id": 12,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "Read and answer: \"Economic inequality has become one of the defining challenges of our time. Studies show that wealth is increasingly concentrated among the top 1%, while the purchasing power of the middle and lower classes stagnates. Policymakers face the difficult task of designing tax structures that incentivise growth while ensuring equitable distribution.\" According to the passage, what challenge do policymakers face?",
+    "o": [
+      "Reducing the number of billionaires globally",
+      "Designing tax systems that promote both growth and equitable wealth distribution",
+      "Increasing income of the top 1%",
+      "Eliminating all forms of economic disparity immediately"
+    ],
+    "a": 1,
+    "explanation": "The passage explicitly states that policymakers must design \"tax structures that incentivise growth while ensuring equitable distribution\" — this is precisely option B. The passage does not advocate reducing billionaires (A), increasing income of the top 1% (C), or eliminating all disparity immediately (D)."
+  },
+  {
+    "id": 13,
+    "section": "A",
+    "topic": "Part 1: English",
+    "q": "The word \"LOQUACIOUS\" is the antonym of:",
+    "o": [
+      "Verbose",
+      "Garrulous",
+      "Reticent",
+      "Eloquent"
+    ],
+    "a": 2,
+    "explanation": "\"Loquacious\" means very talkative. Its antonym would be someone who talks very little — \"reticent\" (reluctant to speak) fits perfectly. \"Verbose\" and \"garrulous\" are synonyms of loquacious. \"Eloquent\" means well-spoken but not necessarily quiet."
+  },
+  {
+    "id": 14,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "The difference between compound interest and simple interest on ₹10,000 at 10% per annum for 2 years is:",
+    "o": [
+      "₹100",
+      "₹150",
+      "₹200",
+      "₹250"
+    ],
+    "a": 0,
+    "explanation": "SI = P×R×T/100 = 10000×10×2/100 = ₹2,000. CI = P[(1+r)ⁿ−1] = 10000[(1.1)²−1] = 10000×0.21 = ₹2,100. Difference = 2100 − 2000 = ₹100."
+  },
+  {
+    "id": 15,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A mixture of 40 litres contains milk and water in ratio 3:1. How much water must be added to make the ratio 3:2?",
+    "o": [
+      "8 litres",
+      "10 litres",
+      "12 litres",
+      "6 litres"
+    ],
+    "a": 1,
+    "explanation": "Milk = 40×3/4 = 30 L. Water = 10 L. After adding x litres: 30/(10+x) = 3/2 → 60 = 30 + 3x → 3x = 30 → x = 10 litres."
+  },
+  {
+    "id": 16,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "In what time will ₹1,600 amount to ₹2,025 at 12.5% per annum simple interest?",
+    "o": [
+      "2 years",
+      "2.5 years",
+      "3 years",
+      "2.125 years"
+    ],
+    "a": 3,
+    "explanation": "SI = 2025 − 1600 = ₹425. T = (SI × 100)/(P × R) = (425 × 100)/(1600 × 12.5) = 42500/20000 = 2.125 years."
+  },
+  {
+    "id": 17,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A seller marks an article 25% above cost price and gives a 8% discount. Find his profit%.",
+    "o": [
+      "12%",
+      "15%",
+      "15.5%",
+      "17%"
+    ],
+    "a": 1,
+    "explanation": "Let CP = 100. MP = 125. SP = 125 × 0.92 = 115. Profit% = (115 − 100)/100 × 100 = 15%."
+  },
+  {
+    "id": 18,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "Find the LCM of 24, 36, and 48.",
+    "o": [
+      "96",
+      "144",
+      "120",
+      "288"
+    ],
+    "a": 1,
+    "explanation": "24 = 2³×3, 36 = 2²×3², 48 = 2⁴×3. LCM = 2⁴ × 3² = 16 × 9 = 144."
+  },
+  {
+    "id": 19,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "The average of 6 numbers is 35. If one number is removed, the average becomes 33. What is the removed number?",
+    "o": [
+      "42",
+      "43",
+      "44",
+      "45"
+    ],
+    "a": 3,
+    "explanation": "Sum of 6 numbers = 6×35 = 210. Sum of 5 remaining = 5×33 = 165. Removed number = 210 − 165 = 45."
+  },
+  {
+    "id": 20,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A works twice as fast as B. Together they complete a work in 18 days. In how many days will A alone complete it?",
+    "o": [
+      "27 days",
+      "36 days",
+      "54 days",
+      "24 days"
+    ],
+    "a": 0,
+    "explanation": "Let A's rate = 2x, B's rate = x. Together: 3x = 1/18 → x = 1/54. A's rate = 2/54 = 1/27. A alone takes 27 days."
+  },
+  {
+    "id": 21,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A cistern has an inlet pipe filling it in 6 hours and an outlet pipe emptying it in 10 hours. Both are opened when the cistern is empty. In how many hours will it be full?",
+    "o": [
+      "12 hours",
+      "15 hours",
+      "16 hours",
+      "20 hours"
+    ],
+    "a": 1,
+    "explanation": "Net filling per hour = 1/6 − 1/10 = 5/30 − 3/30 = 2/30 = 1/15. Time = 15 hours."
+  },
+  {
+    "id": 22,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "If √3 = 1.732, find the value of √75.",
+    "o": [
+      "8.660",
+      "8.360",
+      "7.820",
+      "9.120"
+    ],
+    "a": 0,
+    "explanation": "√75 = √(25×3) = 5√3 = 5 × 1.732 = 8.660."
+  },
+  {
+    "id": 23,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "Find the area of a triangle with sides 7 cm, 24 cm, and 25 cm.",
+    "o": [
+      "84 cm²",
+      "91 cm²",
+      "72 cm²",
+      "100 cm²"
+    ],
+    "a": 0,
+    "explanation": "Check: 7² + 24² = 49 + 576 = 625 = 25². This is a right triangle! Area = ½ × base × height = ½ × 7 × 24 = 84 cm²."
+  },
+  {
+    "id": 24,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "Three bells ring at intervals of 10, 15, and 20 minutes. If they ring together at 9:00 AM, when will they next ring together?",
+    "o": [
+      "9:30 AM",
+      "10:00 AM",
+      "10:30 AM",
+      "11:00 AM"
+    ],
+    "a": 1,
+    "explanation": "LCM(10, 15, 20): 10=2×5, 15=3×5, 20=2²×5. LCM = 2²×3×5 = 60 minutes. 9:00 AM + 60 min = 10:00 AM."
+  },
+  {
+    "id": 25,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "₹7,200 is divided among P, Q, R in ratio 3:2:1. Find Q's share.",
+    "o": [
+      "₹2,400",
+      "₹3,600",
+      "₹1,200",
+      "₹2,000"
+    ],
+    "a": 0,
+    "explanation": "Total parts = 3+2+1 = 6. Q's share = (2/6) × 7200 = ₹2,400."
+  },
+  {
+    "id": 26,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "The population of a town is 50,000. It grows at 4% per annum. What will the population be after 2 years?",
+    "o": [
+      "54,000",
+      "54,080",
+      "53,800",
+      "54,200"
+    ],
+    "a": 1,
+    "explanation": "Population after 2 years = 50000 × (1.04)² = 50000 × 1.0816 = 54,080."
+  },
+  {
+    "id": 27,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "Two numbers have HCF 6 and LCM 72. If one number is 18, find the other.",
+    "o": [
+      "24",
+      "36",
+      "12",
+      "48"
+    ],
+    "a": 0,
+    "explanation": "Product of two numbers = HCF × LCM = 6 × 72 = 432. Other number = 432 / 18 = 24."
+  },
+  {
+    "id": 28,
+    "section": "A",
+    "topic": "Part 2: Quantitative Aptitude",
+    "q": "A person saves 20% of his income. If his income increases by 25% and savings increase by 30%, what is the new savings percentage?",
+    "o": [
+      "20.8%",
+      "22%",
+      "24%",
+      "26%"
+    ],
+    "a": 0,
+    "explanation": "Let income = 100, savings = 20. New income = 125, new savings = 20 × 1.30 = 26. New savings% = 26/125 × 100 = 20.8%."
+  },
+  {
+    "id": 29,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "A series: 1, 4, 9, 16, 25, 36, ?",
+    "o": [
+      "42",
+      "49",
+      "48",
+      "54"
+    ],
+    "a": 1,
+    "explanation": "The series is perfect squares: 1², 2², 3², 4², 5², 6², 7² = 49."
+  },
+  {
+    "id": 30,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Statement: \"All roses are flowers. Some flowers fade quickly.\" Conclusions: I. All roses fade quickly. II. Some roses may fade quickly.",
+    "o": [
+      "Only I follows",
+      "Only II follows",
+      "Both I and II follow",
+      "Neither follows"
+    ],
+    "a": 1,
+    "explanation": "From \"All roses are flowers\" and \"Some flowers fade quickly\" — it's possible but not certain that some of those fading flowers are roses. So we cannot conclude \"All roses fade quickly\" (too strong), but \"Some roses may fade quickly\" is a valid possibility conclusion. Only II follows."
+  },
+  {
+    "id": 31,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "In a family, A is the father of B. C is the sister of B. D is the husband of C. E is the son of D. How is E related to A?",
+    "o": [
+      "Son",
+      "Grandson",
+      "Nephew",
+      "Son-in-law"
+    ],
+    "a": 1,
+    "explanation": "A is B's father. C is B's sister → C is also A's daughter. D is C's husband → D is A's son-in-law. E is D's son → E is A's grandson."
+  },
+  {
+    "id": 32,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Find the missing number: 6, 11, 21, 36, 56, ?",
+    "o": [
+      "80",
+      "81",
+      "82",
+      "83"
+    ],
+    "a": 1,
+    "explanation": "Differences: 5, 10, 15, 20, 25 (increasing by 5 each time). Next: 56 + 25 = 81."
+  },
+  {
+    "id": 33,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Arrange in logical order: 1. Sentence 2. Letter 3. Word 4. Paragraph 5. Chapter",
+    "o": [
+      "2-3-1-4-5",
+      "3-2-1-4-5",
+      "2-1-3-4-5",
+      "1-3-2-4-5"
+    ],
+    "a": 0,
+    "explanation": "Building from smallest to largest: Letter (2) → Word (3) → Sentence (1) → Paragraph (4) → Chapter (5). Order: 2-3-1-4-5."
+  },
+  {
+    "id": 34,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Looking at a mirror image, if the clock shows 8:20, what is the actual time?",
+    "o": [
+      "3:40",
+      "4:40",
+      "3:20",
+      "4:20"
+    ],
+    "a": 0,
+    "explanation": "For mirror time: subtract the given time from 11:60. 11:60 − 8:20 = 3:40. So the actual time is 3:40."
+  },
+  {
+    "id": 35,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Statement: \"Some cats are dogs. All dogs are animals.\" Conclusions: I. Some cats are animals. II. All animals are dogs.",
+    "o": [
+      "Only I follows",
+      "Only II follows",
+      "Both follow",
+      "Neither follows"
+    ],
+    "a": 0,
+    "explanation": "Since some cats are dogs, and all dogs are animals, those cats that are dogs are also animals — so \"Some cats are animals\" (Conclusion I) follows. \"All animals are dogs\" cannot be concluded from the given premises — the given statement only says all dogs are animals (not vice versa). Only I follows."
+  },
+  {
+    "id": 36,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "A cube painted red on all faces is cut into 64 equal small cubes. How many small cubes have exactly 2 faces painted?",
+    "o": [
+      "8",
+      "16",
+      "24",
+      "32"
+    ],
+    "a": 2,
+    "explanation": "A cube cut into 4×4×4 = 64 cubes. Edge cubes (not corners, not face centres) have exactly 2 faces painted. Each edge of the cube has (4−2)=2 such cubes, and a cube has 12 edges. Total = 12 × 2 = 24."
+  },
+  {
+    "id": 37,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Coding: If PASTE = 16+1+19+20+5 = 61, what is CREAM?",
+    "o": [
+      "38",
+      "39",
+      "40",
+      "41"
+    ],
+    "a": 2,
+    "explanation": "C=3, R=18, E=5, A=1, M=13. Sum = 3+18+5+1+13 = 40."
+  },
+  {
+    "id": 38,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Six people are sitting around a circular table. A is opposite B. C is to the right of A. D is between B and E. Where is F?",
+    "o": [
+      "Between A and C",
+      "Between C and B",
+      "Between E and A",
+      "Opposite to C"
+    ],
+    "a": 1,
+    "explanation": "In a 6-person circular arrangement, \"opposite\" means 3 seats apart. A is opposite B. C is to A's right. D is between B and E. The remaining positions can be worked out: A, C, ?, B, D/E, E/D. F occupies the gap between C and B (position 3). Answer: B (between C and B)."
+  },
+  {
+    "id": 39,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Find the odd one out: Nitrogen, Oxygen, Carbon Dioxide, Hydrogen, Argon",
+    "o": [
+      "Nitrogen",
+      "Oxygen",
+      "Carbon Dioxide",
+      "Hydrogen"
+    ],
+    "a": 2,
+    "explanation": "Nitrogen, Oxygen, Hydrogen, and Argon are all elements (atomic). Carbon dioxide (CO₂) is a compound, not an element. Hence it is the odd one out."
+  },
+  {
+    "id": 40,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Cause and Effect: Statement 1: The bridge on the main highway was under repair. Statement 2: Traffic was diverted to the ring road.",
+    "o": [
+      "Statement 1 is cause; Statement 2 is effect",
+      "Statement 2 is cause; Statement 1 is effect",
+      "Both are independent",
+      "Both are effects of the same cause"
+    ],
+    "a": 0,
+    "explanation": "Bridge repair (Statement 1) necessitates traffic diversion (Statement 2). Statement 1 is the logical cause leading to the effect in Statement 2."
+  },
+  {
+    "id": 41,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Series: Z, W, T, Q, N, ?",
+    "o": [
+      "J",
+      "K",
+      "L",
+      "M"
+    ],
+    "a": 1,
+    "explanation": "Each letter decreases by 3: Z(26)→W(23)→T(20)→Q(17)→N(14)→K(11)."
+  },
+  {
+    "id": 42,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Five students scored: Priya > Arun > Meera > Kiran > Suman. Who scored 3rd highest?",
+    "o": [
+      "Arun",
+      "Meera",
+      "Kiran",
+      "Priya"
+    ],
+    "a": 1,
+    "explanation": "Ranking: 1st Priya, 2nd Arun, 3rd Meera, 4th Kiran, 5th Suman. Meera is 3rd highest."
+  },
+  {
+    "id": 43,
+    "section": "A",
+    "topic": "Part 3: Reasoning",
+    "q": "Data Sufficiency: What is the value of x²+y²? Statement I: x + y = 10 Statement II: xy = 21",
+    "o": [
+      "Only Statement I is sufficient",
+      "Only Statement II is sufficient",
+      "Both statements together are sufficient",
+      "Neither is sufficient"
+    ],
+    "a": 2,
+    "explanation": "x²+y² = (x+y)² − 2xy. With Statement I (x+y=10) and Statement II (xy=21): x²+y² = 100 − 42 = 58. Both statements together are needed and sufficient."
+  },
+  {
+    "id": 44,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "What is the difference between a compiler and an interpreter?",
+    "o": [
+      "A compiler translates code line by line; an interpreter translates the whole program at once",
+      "A compiler translates the entire program at once before execution; an interpreter translates and executes line by line",
+      "Both do the same job but for different languages",
+      "An interpreter creates executable files; a compiler does not"
+    ],
+    "a": 1,
+    "explanation": "A compiler translates the entire source code into machine code before execution, producing an executable file. An interpreter translates and executes source code line by line at runtime. Compiled programs (C, C++) generally run faster; interpreted programs (Python, early BASIC) are more flexible and easier to debug."
+  },
+  {
+    "id": 45,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "What is the decimal equivalent of the binary number 11001010?",
+    "o": [
+      "196",
+      "202",
+      "194",
+      "198"
+    ],
+    "a": 1,
+    "explanation": "11001010₂ = 128+64+0+0+8+0+2+0 = 128+64+8+2 = 202."
+  },
+  {
+    "id": 46,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "Which of the following is NOT a type of computer memory?",
+    "o": [
+      "Cache Memory",
+      "Virtual Memory",
+      "Register",
+      "Algorithm"
+    ],
+    "a": 3,
+    "explanation": "Cache memory, virtual memory, and registers are all types of computer memory. An algorithm is a set of step-by-step instructions for solving a problem — it is not a type of memory."
+  },
+  {
+    "id": 47,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "What is the hexadecimal equivalent of decimal 255?",
+    "o": [
+      "FA",
+      "FE",
+      "FF",
+      "EF"
+    ],
+    "a": 2,
+    "explanation": "255 ÷ 16 = 15 remainder 15. 15 in hex = F. So 255 = FF in hexadecimal. (15×16 + 15 = 240 + 15 = 255 ✓)"
+  },
+  {
+    "id": 48,
+    "section": "A",
+    "topic": "Part 4: Computer Fundamentals",
+    "q": "What does \"booting\" refer to in computing?",
+    "o": [
+      "Shutting down the computer safely",
+      "The process of starting a computer and loading the operating system",
+      "Installing software on a computer",
+      "Backing up data"
+    ],
+    "a": 1,
+    "explanation": "Booting refers to the process of starting (or restarting) a computer, during which the BIOS/UEFI initialises hardware and loads the operating system into RAM. \"Cold boot\" is starting from powered off; \"warm boot\" is restarting without cutting power."
+  },
+  {
+    "id": 49,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming & C Programming",
+    "q": "What is the time complexity of the following algorithm?",
+    "code": "for i = 1 to n:\n    for j = 1 to n:\n        print(i * j)",
+    "o": [
+      "O(n)",
+      "O(n log n)",
+      "O(n²)",
+      "O(2n)"
+    ],
+    "a": 2,
+    "explanation": "The outer loop runs n times and the inner loop also runs n times for each iteration of the outer loop, resulting in n × n = n² total operations. Time complexity = O(n²)."
+  },
+  {
+    "id": 50,
+    "section": "A",
+    "topic": "Part 5: Concepts of Programming & C Programming",
+    "q": "In C, what is the difference between #define and const?",
+    "o": [
+      "#define creates a typed constant; const creates an untyped macro",
+      "#define is a preprocessor directive that creates macros; const creates typed, scoped constants",
+      "They are identical in behaviour",
+      "const is processed before #define"
+    ],
+    "a": 1,
+    "explanation": "#define is a preprocessor directive — it does simple text replacement before compilation with no type or scope. const creates a typed, scope-respecting constant variable that is processed by the compiler. const is generally preferred in C++ for type safety; #define is common in C for simple constants."
+  },
+  {
+    "id": 51,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output?",
+    "code": "int a = 3, b = 4, c = 5;\nprintf(\"%d\", a > b ? a : b > c ? b : c);",
+    "o": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "a": 2,
+    "explanation": "The ternary operator is right-associative. Evaluate: a > b → 3 > 4 → false. So evaluate b > c ? b : c → 4 > 5 → false → c = 5. Output: 5."
+  },
+  {
+    "id": 52,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which of the following correctly reads a character from the user in C?",
+    "o": [
+      "scanf(\"%s\", &ch);",
+      "scanf(\"%c\", &ch);",
+      "scanf(\"%d\", ch);",
+      "printf(\"%c\", &ch);"
+    ],
+    "a": 1,
+    "explanation": "scanf(\"%c\", &ch) correctly reads a single character using the %c format specifier and passes the address of ch. %s is for strings, %d is for integers, and printf is for output, not input."
+  },
+  {
+    "id": 53,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the result of the following expression in C?",
+    "code": "int x = 10;\nx += x -= x;\nprintf(\"%d\", x);",
+    "o": [
+      "0",
+      "10",
+      "20",
+      "Undefined behavior"
+    ],
+    "a": 3,
+    "explanation": "The expression x += x -= x modifies x multiple times between sequence points, which is undefined behaviour in C. The result is implementation-dependent and should never be relied upon."
+  },
+  {
+    "id": 54,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is a \"file pointer\" in C?",
+    "o": [
+      "A pointer that points to the last byte of a file",
+      "A pointer of type FILE* used to refer to an open file",
+      "An integer that stores the file size",
+      "A pointer to a string containing the filename"
+    ],
+    "a": 1,
+    "explanation": "In C, a file pointer is a pointer of type FILE* (from <stdio.h>) returned by fopen(). It refers to the control structure for an open file and is used with file I/O functions like fread(), fwrite(), fprintf(), and fclose()."
+  },
+  {
+    "id": 55,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output?",
+    "code": "void func(int n) {\n    if(n == 0) return;\n    printf(\"%d \", n);\n    func(n - 1);\n    printf(\"%d \", n);\n}\nint main() {\n    func(3);\n}",
+    "o": [
+      "3 2 1 1 2 3",
+      "3 2 1 0 1 2 3",
+      "1 2 3 3 2 1",
+      "3 2 1"
+    ],
+    "a": 0,
+    "explanation": "func(3): prints 3, calls func(2). func(2): prints 2, calls func(1). func(1): prints 1, calls func(0). func(0): returns. Back in func(1): prints 1. Back in func(2): prints 2. Back in func(3): prints 3. Output: 3 2 1 1 2 3."
+  },
+  {
+    "id": 56,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the difference between struct and union in C?",
+    "o": [
+      "struct allocates memory for the largest member; union allocates memory for all members",
+      "union allocates memory for the largest member; struct allocates memory for all members",
+      "Both allocate the same amount of memory",
+      "struct is used only with pointers"
+    ],
+    "a": 1,
+    "explanation": "In a struct, each member has its own memory location — total size is the sum of all members' sizes (with padding). In a union, all members share the same memory location — size equals the size of the largest member. Only one member holds a meaningful value at any time in a union."
+  },
+  {
+    "id": 57,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output?",
+    "code": "char str[] = \"Hello\";\nprintf(\"%d\", strlen(str));",
+    "o": [
+      "4",
+      "5",
+      "6",
+      "Garbage value"
+    ],
+    "a": 1,
+    "explanation": "strlen() returns the number of characters before the null terminator \\0. \"Hello\" has 5 characters (H, e, l, l, o). The array str has 6 bytes (including \\0), but strlen returns 5."
+  },
+  {
+    "id": 58,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "Which of the following is true about calloc() vs malloc()?",
+    "o": [
+      "calloc() allocates uninitialized memory; malloc() initializes to zero",
+      "malloc() takes two arguments; calloc() takes one argument",
+      "calloc() initializes allocated memory to zero; malloc() leaves it uninitialized",
+      "They are completely identical"
+    ],
+    "a": 2,
+    "explanation": "malloc(size) allocates size bytes but leaves memory uninitialized (contains garbage). calloc(n, size) allocates n elements of size bytes each and initializes all bytes to zero. calloc takes two arguments (count and size); malloc takes one (total size)."
+  },
+  {
+    "id": 59,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output?",
+    "code": "int a[5] = {1, 2, 3, 4, 5};\nint *p = a + 2;\nprintf(\"%d %d\", *p, *(p+1));",
+    "o": [
+      "2 3",
+      "3 4",
+      "3 5",
+      "4 5"
+    ],
+    "a": 1,
+    "explanation": "a + 2 points to a[2] = 3. So p = 3. (p+1) points to a[3] = 4. Output: 3 4."
+  },
+  {
+    "id": 60,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "In C, a function that returns a pointer should be declared as:",
+    "o": [
+      "*int func()",
+      "int* func()",
+      "int func*()",
+      "func*int()"
+    ],
+    "a": 1,
+    "explanation": "In C, a function that returns a pointer to int is declared as int func() or equivalently int func(). The asterisk can be placed next to the type or the function name — both are valid. The other syntaxes are not valid C."
+  },
+  {
+    "id": 61,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What does the break statement do inside a loop?",
+    "o": [
+      "Pauses the loop temporarily",
+      "Terminates the loop and transfers control to the statement after the loop",
+      "Skips the current iteration and continues the loop",
+      "Restarts the loop from the beginning"
+    ],
+    "a": 1,
+    "explanation": "break immediately exits the innermost enclosing loop (or switch statement) and transfers control to the statement following it. continue (not break) skips the current iteration and moves to the next."
+  },
+  {
+    "id": 62,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the output?",
+    "code": "int x = 5;\nprintf(\"%d %d\", x*2, x++);",
+    "o": [
+      "10 5",
+      "10 6",
+      "12 6",
+      "Undefined behavior"
+    ],
+    "a": 3,
+    "explanation": "The order of evaluation of function arguments in C is unspecified. The expression x++ and x2 both access x, and x++ modifies it — whether x2 uses the original or incremented value is implementation-defined. This is undefined/unspecified behaviour."
+  },
+  {
+    "id": 63,
+    "section": "B",
+    "topic": "Part 6: C Programming",
+    "q": "What is the purpose of typedef in C?",
+    "o": [
+      "To define a new data type from scratch",
+      "To create an alias for an existing data type",
+      "To declare a global variable",
+      "To include a header file"
+    ],
+    "a": 1,
+    "explanation": "typedef creates an alias (alternate name) for an existing data type. For example, typedef unsigned long int ulong; creates ulong as an alias for unsigned long int. It's commonly used to simplify complex type declarations, especially with structs and function pointers."
+  },
+  {
+    "id": 64,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the output of Inorder traversal of a BST with values inserted as: 50, 30, 70, 20, 40?",
+    "o": [
+      "20 30 40 50 70",
+      "50 30 20 40 70",
+      "20 40 30 70 50",
+      "50 70 40 30 20"
+    ],
+    "a": 0,
+    "explanation": "BST structure: 50 is root, 30 is left child, 70 is right child, 20 is left of 30, 40 is right of 30. Inorder (Left-Root-Right) traversal: 20, 30, 40, 50, 70 — which is sorted ascending order."
+  },
+  {
+    "id": 65,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "Which of the following is an application of Queues?",
+    "o": [
+      "Undo/Redo operations",
+      "CPU Scheduling (FCFS)",
+      "Syntax parsing of expressions",
+      "Recursion call management"
+    ],
+    "a": 1,
+    "explanation": "FCFS (First Come First Served) CPU scheduling is a classic queue application — processes are executed in the order they arrive. Undo/Redo and recursion management use stacks. Syntax parsing typically uses stacks for operator precedence."
+  },
+  {
+    "id": 66,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the time complexity of Merge Sort?",
+    "o": [
+      "O(n²) in all cases",
+      "O(n log n) in all cases",
+      "O(n log n) average, O(n²) worst",
+      "O(n) best case only"
+    ],
+    "a": 1,
+    "explanation": "Merge Sort has O(n log n) time complexity in all cases (best, average, and worst), making it one of the most consistent sorting algorithms. It always divides the array in half and merges, regardless of input order."
+  },
+  {
+    "id": 67,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "In Hashing, what is a \"collision\"?",
+    "o": [
+      "When the hash function crashes",
+      "When two different keys produce the same hash value",
+      "When the hash table is full",
+      "When two hash tables are merged"
+    ],
+    "a": 1,
+    "explanation": "A collision in hashing occurs when two or more different input keys produce the same hash index. It is resolved using techniques like chaining (each bucket holds a linked list of elements) or open addressing (probing for the next empty slot)."
+  },
+  {
+    "id": 68,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the advantage of a doubly linked list over a singly linked list?",
+    "o": [
+      "Uses less memory",
+      "Faster traversal in one direction",
+      "Can be traversed in both forward and backward directions",
+      "Supports random access by index"
+    ],
+    "a": 2,
+    "explanation": "A doubly linked list has both next and prev pointers, allowing traversal in both directions. A singly linked list can only be traversed forward. The tradeoff is extra memory for the prev pointer in each node."
+  },
+  {
+    "id": 69,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "Which algorithm is used by the \"Prim's Algorithm\"?",
+    "o": [
+      "Finding shortest path in a weighted graph",
+      "Finding minimum spanning tree",
+      "Topological sorting",
+      "Detecting cycles in a graph"
+    ],
+    "a": 1,
+    "explanation": "Prim's algorithm finds the Minimum Spanning Tree (MST) of a weighted undirected graph — a subset of edges connecting all vertices with minimum total weight. Dijkstra's algorithm finds shortest paths. Kahn's or DFS is used for topological sorting."
+  },
+  {
+    "id": 70,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "What is the space complexity of Recursive DFS on a graph with V vertices and E edges?",
+    "o": [
+      "O(1)",
+      "O(V)",
+      "O(E)",
+      "O(V+E)"
+    ],
+    "a": 1,
+    "explanation": "Recursive DFS uses the call stack, which can go as deep as the number of vertices V in the worst case (for a path graph). Space for the visited array is also O(V). The adjacency list representation uses O(V+E) but for DFS stack space specifically, it is O(V)."
+  },
+  {
+    "id": 71,
+    "section": "B",
+    "topic": "Part 7: Data Structures",
+    "q": "Which of the following best describes a \"circular linked list\"?",
+    "o": [
+      "A linked list where all nodes are arranged in a circle",
+      "A linked list where the last node points back to the first node",
+      "A doubly linked list with no head",
+      "A linked list where nodes are arranged in sorted order in a circle"
+    ],
+    "a": 1,
+    "explanation": "In a circular linked list, the next pointer of the last node points back to the first node (head) instead of NULL. This allows continuous circular traversal. It can be singly or doubly linked."
+  },
+  {
+    "id": 72,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What is the output?",
+    "code": "class Counter {\n    int count;\npublic:\n    Counter() : count(0) {}\n    Counter operator++(int) {\n        Counter temp = *this;\n        count++;\n        return temp;\n    }\n    void show() { cout << count; }\n};\nint main() {\n    Counter c;\n    Counter d = c++;\n    d.show();\n    c.show();\n}",
+    "o": [
+      "0 0",
+      "0 1",
+      "1 0",
+      "1 1"
+    ],
+    "a": 1,
+    "explanation": "c++ is postfix increment — d gets a copy of c before increment (count=0), then c is incremented (count=1). d.show() prints 0 (original), c.show() prints 1 (incremented)."
+  },
+  {
+    "id": 73,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What is a \"virtual destructor\" and why is it important?",
+    "o": [
+      "A destructor that cannot be overridden",
+      "A destructor declared virtual to ensure proper cleanup of derived objects when deleted through a base pointer",
+      "A destructor that is called before the object is created",
+      "A destructor inherited from a base class"
+    ],
+    "a": 1,
+    "explanation": "When a derived class object is deleted through a base class pointer, without a virtual destructor, only the base class destructor is called — leading to memory leaks in derived class resources. Declaring the base destructor virtual ensures the derived destructor is called first, then the base, achieving proper cleanup."
+  },
+  {
+    "id": 74,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "Which of the following is NOT a valid type of inheritance in C++?",
+    "o": [
+      "Single inheritance",
+      "Multiple inheritance",
+      "Circular inheritance",
+      "Hierarchical inheritance"
+    ],
+    "a": 2,
+    "explanation": "C++ supports single, multiple, multilevel, hierarchical, and hybrid inheritance. Circular inheritance (where A inherits from B and B inherits from A) is not valid and causes a compilation error. There are no circular inheritance hierarchies possible in C++."
+  },
+  {
+    "id": 75,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What does the :: (scope resolution operator) do in C++?",
+    "o": [
+      "Compares two values",
+      "Accesses members of a class or namespace",
+      "Dereferences a pointer",
+      "Creates a new object"
+    ],
+    "a": 1,
+    "explanation": "The scope resolution operator :: is used to access class members outside the class definition (e.g., ClassName::memberFunction()), to access global variables shadowed by local ones (e.g., ::globalVar), and to access members of a namespace."
+  },
+  {
+    "id": 76,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What is the output?",
+    "code": "class A {\npublic:\n    void show() { cout << \"A\"; }\n};\nclass B : public A {\npublic:\n    void show() { cout << \"B\"; }\n};\nint main() {\n    A *a = new A();\n    a->show();\n    A *b = new B();\n    b->show();\n}",
+    "o": [
+      "A B",
+      "A A",
+      "B B",
+      "B A"
+    ],
+    "a": 1,
+    "explanation": "show() is NOT declared virtual. Without virtual, method resolution is based on the pointer type, not the object type (static dispatch). a->show() → calls A::show() (prints A). b->show() → pointer is A*, so A::show() is called (prints A). Output: A A."
+  },
+  {
+    "id": 77,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "In C++, what is \"function hiding\"?",
+    "o": [
+      "Making a function private",
+      "When a derived class defines a function with the same name as a base class function, hiding all base class overloads",
+      "Using static to restrict function visibility",
+      "Declaring a function inside another function"
+    ],
+    "a": 1,
+    "explanation": "Function hiding in C++ occurs when a derived class declares a function with the same name as a base class function — this hides ALL overloads of that name from the base class, not just the matching signature. This is different from overriding (which requires virtual). To access base class version, use Base::funcName() or using Base::funcName;."
+  },
+  {
+    "id": 78,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What is the default access specifier for members of a class in C++?",
+    "o": [
+      "public",
+      "protected",
+      "private",
+      "internal"
+    ],
+    "a": 2,
+    "explanation": "In C++, the default access specifier for members of a class is private — meaning members are inaccessible from outside the class unless explicitly specified otherwise. For struct, the default is public. This is the key syntactic difference between class and struct in C++."
+  },
+  {
+    "id": 79,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What is an \"abstract class\" in C++?",
+    "o": [
+      "A class with no data members",
+      "A class that cannot be used in a program",
+      "A class with at least one pure virtual function that cannot be instantiated directly",
+      "A class with only private members"
+    ],
+    "a": 2,
+    "explanation": "An abstract class in C++ is one that contains at least one pure virtual function (virtual void func() = 0;). It cannot be instantiated directly — it serves as a blueprint for derived classes that must implement all pure virtual functions to be concrete (instantiable)."
+  },
+  {
+    "id": 80,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "What is the output?",
+    "code": "int main() {\n    try {\n        throw 42;\n    } catch(double d) {\n        cout << \"double: \" << d;\n    } catch(int i) {\n        cout << \"int: \" << i;\n    }\n}",
+    "o": [
+      "double: 42",
+      "int: 42",
+      "Compile error",
+      "Runtime error"
+    ],
+    "a": 1,
+    "explanation": "throw 42 throws an integer. The catch(double d) block does not match (int ≠ double in exception handling — no implicit conversion). The catch(int i) block matches. Output: int: 42."
+  },
+  {
+    "id": 81,
+    "section": "B",
+    "topic": "Part 8: Object Oriented Programming — C++",
+    "q": "Which of the following demonstrates \"composition\" in OOP?",
+    "o": [
+      "Class B inherits from Class A",
+      "Class A has a member that is an object of Class B",
+      "Class A and Class B implement the same interface",
+      "Class A is an abstract class"
+    ],
+    "a": 1,
+    "explanation": "Composition is a \"has-a\" relationship — a class contains an object of another class as a member. This is distinct from inheritance (\"is-a\" relationship). Composition is generally preferred over inheritance for code reuse when the relationship is not truly \"is-a.\""
+  },
+  {
+    "id": 82,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is the difference between a process and a thread?",
+    "o": [
+      "A process is lighter than a thread",
+      "A thread is an independent program; a process is a sub-unit of a thread",
+      "A process is an independent program execution unit; a thread is the smallest execution unit within a process sharing its resources",
+      "Both are identical in modern operating systems"
+    ],
+    "a": 2,
+    "explanation": "A process is an independent program in execution with its own memory space. A thread is the smallest unit of execution within a process — multiple threads in the same process share memory, file descriptors, and other resources. Threads are \"lighter\" than processes (less overhead to create/switch)."
+  },
+  {
+    "id": 83,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is \"starvation\" in operating systems?",
+    "o": [
+      "When a process uses too much CPU time",
+      "When a low-priority process is indefinitely denied the resources it needs",
+      "When the OS runs out of memory",
+      "When all processes are waiting for each other"
+    ],
+    "a": 1,
+    "explanation": "Starvation occurs when a process is repeatedly denied access to resources because higher-priority processes continuously preempt it. It is a problem in priority scheduling algorithms. \"Aging\" (gradually increasing a process's priority the longer it waits) is a common solution."
+  },
+  {
+    "id": 84,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "Which page replacement algorithm always replaces the page that will not be used for the longest time in the future?",
+    "o": [
+      "FIFO",
+      "LRU",
+      "Optimal (OPT)",
+      "MRU"
+    ],
+    "a": 2,
+    "explanation": "The Optimal (OPT or Bélády's) algorithm replaces the page that will not be referenced for the longest time in the future. It gives the minimum page fault rate and serves as a benchmark, but it's impractical because it requires future knowledge of references. LRU approximates it using past reference history."
+  },
+  {
+    "id": 85,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is the purpose of a \"mutex\" in concurrent programming?",
+    "o": [
+      "To increase CPU speed",
+      "To ensure that only one thread at a time accesses a critical section",
+      "To create multiple threads simultaneously",
+      "To manage memory allocation"
+    ],
+    "a": 1,
+    "explanation": "A mutex (Mutual Exclusion lock) is a synchronisation primitive that ensures only one thread can access a critical section (shared resource) at a time. A thread \"locks\" the mutex before entering the critical section and \"unlocks\" it after exiting, preventing race conditions."
+  },
+  {
+    "id": 86,
+    "section": "B",
+    "topic": "Part 9: Operating Systems",
+    "q": "What is \"spooling\" in operating systems?",
+    "o": [
+      "A method of memory management",
+      "Storing data in a buffer so slow devices (like printers) can be used more efficiently",
+      "A CPU scheduling technique",
+      "Dividing the hard disk into partitions"
+    ],
+    "a": 1,
+    "explanation": "SPOOL stands for Simultaneous Peripheral Operations On-Line. Spooling stores output data (e.g., print jobs) in a buffer (spool) on disk, allowing the CPU to continue working while slow I/O devices process the data at their own pace. Print spooling is the most common example."
+  },
+  {
+    "id": 87,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What is the purpose of the \"TTL\" (Time to Live) field in an IP packet?",
+    "o": [
+      "To specify the transmission speed",
+      "To prevent packets from circulating forever by limiting the number of hops",
+      "To identify the source IP address",
+      "To encrypt the packet"
+    ],
+    "a": 1,
+    "explanation": "The TTL field in an IP header specifies the maximum number of router hops a packet can travel before being discarded. Each router decrements TTL by 1; when TTL reaches 0, the packet is dropped and an ICMP \"Time Exceeded\" message is sent to the source. This prevents endless routing loops."
+  },
+  {
+    "id": 88,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "Which protocol operates at the Application Layer of the OSI model?",
+    "o": [
+      "IP",
+      "TCP",
+      "FTP",
+      "Ethernet"
+    ],
+    "a": 2,
+    "explanation": "FTP (File Transfer Protocol) operates at Layer 7 (Application Layer) of the OSI model. IP operates at Layer 3 (Network Layer), TCP operates at Layer 4 (Transport Layer), and Ethernet is a Layer 2 (Data Link Layer) and Layer 1 (Physical Layer) technology."
+  },
+  {
+    "id": 89,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What is \"NAT\" (Network Address Translation)?",
+    "o": [
+      "A protocol for assigning IP addresses",
+      "A technique for translating private IP addresses to a public IP address for internet access",
+      "A method for encrypting network traffic",
+      "A protocol for routing between different networks"
+    ],
+    "a": 1,
+    "explanation": "NAT translates private IP addresses (used within a local network) to one or more public IP addresses for communication over the internet. It allows multiple devices on a private network to share a single public IP address, conserving the IPv4 address space."
+  },
+  {
+    "id": 90,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What type of cable is used in Ethernet networks for connecting computers within a building?",
+    "o": [
+      "Coaxial cable",
+      "Twisted pair cable (UTP/STP)",
+      "Optical fibre",
+      "Power line cable"
+    ],
+    "a": 1,
+    "explanation": "Twisted pair cables (UTP — Unshielded Twisted Pair, or STP — Shielded Twisted Pair) are the most commonly used in modern Ethernet LANs. Category 5e, Cat6, and Cat6a UTP cables are standard for 100Mbps to 10Gbps connections within buildings."
+  },
+  {
+    "id": 91,
+    "section": "B",
+    "topic": "Part 10: Networking",
+    "q": "What is the function of a \"gateway\" in networking?",
+    "o": [
+      "To connect devices within the same network",
+      "To convert between different network protocols and act as an entry/exit point to a network",
+      "To broadcast signals to all devices",
+      "To measure network speed"
+    ],
+    "a": 1,
+    "explanation": "A gateway connects networks that use different protocols, converting between them to allow communication. A default gateway in a home/office network is the router that forwards traffic from the local network to the internet. Unlike bridges and switches (same protocol), gateways work across different protocols."
+  },
+  {
+    "id": 92,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "What is \"feature engineering\" in machine learning?",
+    "o": [
+      "Building hardware for ML models",
+      "The process of selecting, transforming, and creating input variables to improve model performance",
+      "Engineering robots using AI",
+      "The process of deploying ML models to production"
+    ],
+    "a": 1,
+    "explanation": "Feature engineering involves selecting relevant variables (features), transforming them (normalisation, encoding), and creating new features from existing ones to help ML models learn better patterns. It is one of the most impactful steps in the ML pipeline."
+  },
+  {
+    "id": 93,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "Which of the following best describes \"batch processing\" in Big Data?",
+    "o": [
+      "Processing data one record at a time in real time",
+      "Collecting and processing large volumes of data at scheduled intervals",
+      "Processing data streams as they arrive",
+      "Deleting old data in batches"
+    ],
+    "a": 1,
+    "explanation": "Batch processing involves collecting data over a period and processing it all at once (in batches) at scheduled intervals. Hadoop MapReduce is the classic example. It contrasts with stream processing (real-time). Batch processing is efficient for large volumes of data but introduces latency."
+  },
+  {
+    "id": 94,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "What is a \"confusion matrix\" in machine learning?",
+    "o": [
+      "A matrix that generates random numbers",
+      "A table showing predicted vs. actual classification results to evaluate model performance",
+      "A diagram showing the confusion between ML algorithms",
+      "A matrix used in neural network weight initialisation"
+    ],
+    "a": 1,
+    "explanation": "A confusion matrix is a table used to evaluate classification models showing: True Positives (TP), True Negatives (TN), False Positives (FP — Type I error), and False Negatives (FN — Type II error). From it, metrics like accuracy, precision, recall, and F1-score are calculated."
+  },
+  {
+    "id": 95,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "Which of the following best describes \"Transfer Learning\"?",
+    "o": [
+      "Transferring data between servers",
+      "Using knowledge gained from one task to improve performance on a different but related task",
+      "Moving a trained model from one server to another",
+      "Transferring training data between datasets"
+    ],
+    "a": 1,
+    "explanation": "Transfer learning leverages a model pre-trained on a large dataset (e.g., ImageNet for image recognition) and fine-tunes it for a new, related task with less data. It dramatically reduces training time and data requirements. Examples include using BERT for NLP tasks or ResNet for custom image classification."
+  },
+  {
+    "id": 96,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "What is \"Apache Hive\" used for?",
+    "o": [
+      "Real-time stream processing",
+      "Graph processing on Big Data",
+      "SQL-like querying on data stored in Hadoop HDFS",
+      "Machine learning on distributed systems"
+    ],
+    "a": 2,
+    "explanation": "Apache Hive is a data warehouse software built on Hadoop that provides SQL-like querying capabilities (HiveQL) on large datasets stored in HDFS. It translates SQL queries into MapReduce/Tez/Spark jobs. It is designed for batch processing and analytical queries, not real-time operations."
+  },
+  {
+    "id": 97,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "What does \"ETL\" stand for in the context of data pipelines?",
+    "o": [
+      "Extract, Train, Load",
+      "Extract, Transform, Load",
+      "Evaluate, Test, Launch",
+      "Extract, Test, Locate"
+    ],
+    "a": 1,
+    "explanation": "ETL stands for Extract, Transform, Load — a data integration process where data is extracted from source systems, transformed (cleaned, formatted, aggregated) to meet target requirements, and loaded into a destination system (data warehouse, database). It is fundamental to data engineering and business intelligence."
+  },
+  {
+    "id": 98,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "Which of the following is NOT a supervised learning algorithm?",
+    "o": [
+      "Linear Regression",
+      "Decision Tree",
+      "K-Means Clustering",
+      "Support Vector Machine (SVM)"
+    ],
+    "a": 2,
+    "explanation": "K-Means Clustering is an unsupervised learning algorithm — it groups unlabelled data points into k clusters based on similarity without any predefined labels. Linear Regression, Decision Trees, and SVMs are all supervised learning algorithms that require labelled training data."
+  },
+  {
+    "id": 99,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "What is the purpose of \"normalisation\" in data preprocessing for ML?",
+    "o": [
+      "To remove outliers from data",
+      "To scale features to a common range to prevent features with large values from dominating",
+      "To add more features to the dataset",
+      "To convert data to categorical format"
+    ],
+    "a": 1,
+    "explanation": "Normalisation (or feature scaling) transforms features to a common scale (e.g., 0 to 1 or mean=0, std=1). Without it, features with large values (e.g., income in thousands) could dominate features with small values (e.g., age) in distance-based algorithms like KNN, K-Means, or gradient descent optimisation."
+  },
+  {
+    "id": 100,
+    "section": "B",
+    "topic": "Part 11: Basics of Big Data & AI",
+    "q": "What is \"computer vision\" as a subfield of AI?",
+    "o": [
+      "Teaching computers to see with physical eyes",
+      "Building monitors with better resolution",
+      "Enabling computers to interpret and understand visual information from images and videos",
+      "Creating 3D models of real-world objects"
+    ],
+    "a": 2,
+    "explanation": "Computer vision is an AI field focused on enabling machines to interpret and make decisions based on visual data (images, videos). Applications include image classification, object detection, facial recognition, autonomous vehicles, and medical imaging. It uses techniques like CNNs (Convolutional Neural Networks)."
+  }
+];
+
+let currentSection = "A";
+let examStarted = false;
+let examSubmitted = false;
+let sectionALocked = false;
+let timeLeft = {A:60*60, B:60*60};
+let timerInterval = null;
+
+function startExam(){
+    examStarted = true;
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("examScreen").style.display = "block";
+    showSection("A");
+    updateSubmitButton();
+    timerInterval = setInterval(tickTimer, 1000);
+}
+
+function showSection(section){
+    if(section === "A" && sectionALocked && !examSubmitted) return;
+    currentSection = section;
+    document.getElementById("tabA").classList.toggle("active", section==="A");
+    document.getElementById("tabB").classList.toggle("active", section==="B");
+    document.getElementById("tabA").disabled = sectionALocked && !examSubmitted;
+    document.getElementById("timerA").classList.toggle("active", section==="A");
+    document.getElementById("timerB").classList.toggle("active", section==="B");
+    renderQuestions();
+    renderNav();
+    updateSubmitButton();
+}
+
+function renderQuestions(){
+    const qs = questions.filter(q => q.section === currentSection);
+    const title = currentSection === "A"
+        ? "Section A: English, Aptitude, Reasoning, Computer Fundamentals"
+        : "Section B: C Programming, Data Structures, OOP, OS, Networking";
+    let html = `<h2 class="section-title">${title}</h2>`;
+    qs.forEach(q => {
+        html += `<div class="question-card" id="card${q.id}">
+            <span class="topic">${q.topic}</span>
+            <div class="question">Q${q.id}. ${q.q}</div>
+            ${q.code ? `<div class="code">${q.code}</div>` : ""}`;
+        q.o.forEach((opt,i) => {
+            const checked = getSelected(q.id) === i ? "checked" : "";
+            html += `<label class="option">
+                <input type="radio" name="q${q.id}" value="${i}" ${checked} onchange="saveAnswer(${q.id},${i})">
+                ${String.fromCharCode(65+i)}) ${opt}
+            </label>`;
+        });
+        html += `</div>`;
+    });
+    document.getElementById("questions").innerHTML = html;
+}
+
+function renderNav(){
+    const qs = questions.filter(q => q.section === currentSection);
+    let html = "";
+    qs.forEach(q => {
+        const cls = getSelected(q.id) !== null ? "answered" : "";
+        html += `<button class="nav-btn ${cls}" onclick="goToQuestion(${q.id})">${q.id}</button>`;
+    });
+    document.getElementById("navPanel").innerHTML = html;
+}
+
+function saveAnswer(id, value){
+    localStorage.setItem("ccat_" + testId + "_q" + id, value);
+    renderNav();
+}
+
+function getSelected(id){
+    const v = localStorage.getItem("ccat_" + testId + "_q" + id);
+    return v === null ? null : Number(v);
+}
+
+function goToQuestion(id){
+    const q = questions.find(q => q.id === id);
+    if(q.section !== currentSection) showSection(q.section);
+    setTimeout(() => document.getElementById("card"+id).scrollIntoView({behavior:"smooth",block:"start"}), 50);
+}
+
+function tickTimer(){
+    if(!examStarted || examSubmitted) return;
+    timeLeft[currentSection]--;
+    updateTimers();
+    if(timeLeft[currentSection] <= 0){
+        timeLeft[currentSection] = 0;
+        currentSection === "A" ? submitCurrentSection() : submitExam();
+    }
+}
+
+function updateTimers(){
+    document.getElementById("timerA").innerHTML = "Section A: " + formatTime(timeLeft.A);
+    document.getElementById("timerB").innerHTML = "Section B: " + formatTime(timeLeft.B);
+}
+
+function formatTime(s){
+    return `${Math.floor(s/60)}:${(s%60)<10?"0":""}${s%60}`;
+}
+
+function updateSubmitButton(){
+    document.getElementById("submitBtn").innerHTML = currentSection === "A"
+        ? "Submit Section A &amp; Go to Section B"
+        : "Submit Exam";
+}
+
+function submitCurrentSection(){
+    if(currentSection === "A"){
+        sectionALocked = true;
+        showSection("B");
+        window.scrollTo({top:0, behavior:"smooth"});
+        return;
+    }
+    submitExam();
+}
+
+function submitExam(){
+    if(examSubmitted) return;
+    examSubmitted = true;
+    localStorage.setItem('ccat_test_completed', 'true');
+    localStorage.setItem('ccat_test_completed_id', 'free-ccat-mock-test');
+    clearInterval(timerInterval);
+    document.getElementById("submitBtn").disabled = true;
+
+    let score=0, correct=0, wrong=0, attempted=0;
+    let ss={A:0,B:0}, sc={A:0,B:0};
+    questions.forEach(q => {
+        const sel = getSelected(q.id);
+        if(sel !== null){
+            attempted++;
+            if(sel === q.a){ score+=3; ss[q.section]+=3; correct++; sc[q.section]++; }
+            else { score-=1; ss[q.section]-=1; wrong++; }
+        }
+    });
+
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = `
+        <div class="score-box">Total Score<strong>${score}/300</strong></div>
+        <div class="score-box">Correct<strong>${correct}</strong></div>
+        <div class="score-box">Wrong<strong>${wrong}</strong></div>
+        <div class="score-box">Unanswered<strong>${questions.length - attempted}</strong></div>
+        <div class="score-box">Section A<strong>${ss.A}/150</strong><span>${sc.A}/50 correct</span></div>
+        <div class="score-box">Section B<strong>${ss.B}/150</strong><span>${sc.B}/50 correct</span></div>`;
+    renderReview();
+    window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderReview(){
+    let html = "";
+    ["A","B"].forEach(sec => {
+        html += `<h2 class="section-title">Section ${sec} Answer Key</h2>`;
+        questions.filter(q => q.section === sec).forEach(q => {
+            const sel = getSelected(q.id);
+            const selText = sel === null ? "Not attempted" : `${String.fromCharCode(65+sel)}) ${q.o[sel]}`;
+            const corrText = `${String.fromCharCode(65+q.a)}) ${q.o[q.a]}`;
+            const cls = sel === null ? "skipped-answer" : sel === q.a ? "correct-answer" : "wrong-answer";
+            html += `<div class="question-card">
+                <span class="topic">${q.topic}</span>
+                <div class="question">Q${q.id}. ${q.q}</div>
+                ${q.code ? `<div class="code">${q.code}</div>` : ""}
+                <div class="answer-review">
+                    <div>Your Answer: <span class="${cls}">${selText}</span></div>
+                    <div>Correct Answer: <span class="correct-answer">${corrText}</span></div>
+                </div>
+            </div>`;
+        });
+    });
+    document.getElementById("reviewQuestions").innerHTML = html;
+}
+
+function reattemptExam(){
+    questions.forEach(q => localStorage.removeItem("ccat_" + testId + "_q" + q.id));
+    localStorage.removeItem('ccat_test_completed');
+    localStorage.removeItem('ccat_test_completed_id');
+    clearInterval(timerInterval);
+    currentSection="A"; examStarted=false; examSubmitted=false;
+    sectionALocked=false; timeLeft={A:60*60,B:60*60}; timerInterval=null;
+    document.getElementById("submitBtn").disabled = false;
+    document.getElementById("tabA").disabled = false;
+    document.getElementById("examScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "none";
+    document.getElementById("startScreen").style.display = "block";
+    document.getElementById("resultSummary").innerHTML = "";
+    document.getElementById("reviewQuestions").innerHTML = "";
+    updateTimers(); updateSubmitButton();
+    window.scrollTo({top:0, behavior:"smooth"});
+}
+
+updateTimers();
+</script>
+
+
+
+
+
+
+<!-- Supabase CDN and Review Interceptor -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const originalSubmitExam = window.submitExam;
+  if (!originalSubmitExam) return;
+
+  const testId = 'premium-ccat-set-7';
+
+  // Create style element for overlay
+  const style = document.createElement('style');
+  style.textContent = `
+    .review-overlay-container {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .review-card {
+      background: white !important;
+      border-radius: 16px !important;
+      width: 100% !important;
+      max-width: 440px !important;
+      padding: 28px !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+      text-align: center !important;
+      border: 1px solid #e2e8f0 !important;
+      animation: reviewFadeIn 0.3s ease-out;
+    }
+    @keyframes reviewFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .review-icon-wrap {
+      width: 64px !important;
+      height: 64px !important;
+      background: #f0fdf4 !important;
+      color: #15803d !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 auto 16px !important;
+    }
+    .review-icon {
+      font-size: 32px !important;
+      font-weight: bold !important;
+    }
+    .review-title {
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      margin: 0 0 8px 0 !important;
+    }
+    .review-subtitle {
+      font-size: 14px !important;
+      color: #475569 !important;
+      line-height: 1.5 !important;
+      margin: 0 0 20px 0 !important;
+    }
+    .stars-row {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 12px !important;
+      margin-bottom: 20px !important;
+    }
+    .star-btn {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+      font-size: 36px !important;
+      color: #cbd5e1 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      transition: transform 0.1s, color 0.1s !important;
+    }
+    .star-btn:hover,
+    .star-btn:focus,
+    .star-btn:active {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      transform: scale(1.1) !important;
+      color: #cbd5e1 !important;
+    }
+    .star-btn.active {
+      color: #eab308 !important;
+    }
+    .star-btn.active:hover,
+    .star-btn.active:focus,
+    .star-btn.active:active {
+      color: #eab308 !important;
+    }
+    .review-textarea {
+      width: 100% !important;
+      height: 100px !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 12px !important;
+      padding: 12px !important;
+      font-size: 14px !important;
+      resize: none !important;
+      outline: none !important;
+      margin-bottom: 12px !important;
+      transition: border-color 0.2s !important;
+      background: white !important;
+      color: #0f172a !important;
+    }
+    .review-textarea:focus {
+      border-color: #1769d2 !important;
+    }
+    .review-error {
+      color: #b42318 !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      margin: -6px 0 12px !important;
+      text-align: left !important;
+    }
+    .review-btn-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+    .review-submit-btn {
+      background: #1769d2 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 9999px !important;
+      padding: 12px !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      transition: opacity 0.2s !important;
+      width: 100% !important;
+    }
+    .review-submit-btn:hover {
+      background: #0d55b5 !important;
+    }
+    .review-skip-btn {
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      color: #475569 !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      text-decoration: underline !important;
+      width: 100% !important;
+      text-align: center !important;
+      padding: 4px !important;
+    }
+    .review-skip-btn:hover {
+      background: transparent !important;
+      color: #0f172a !important;
+      text-decoration: underline !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.submitExam = async function() {
+    // Call the original exam submit logic to compute result
+    originalSubmitExam();
+
+    const resultScreen = document.getElementById("resultScreen");
+
+    // Initialize Supabase Client
+    let supabaseClient = null;
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(
+        'https://uoqfnvrdbicbepjxapcf.supabase.co',
+        'sb_publishable_msdaGPOf8i6-RbBzziSVpg_NWstOnT1'
+      );
+    }
+
+    let user = null;
+    let alreadyReviewed = false;
+
+    if (supabaseClient) {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        user = session?.user;
+        if (user) {
+          const { data } = await supabaseClient
+            .from('reviews')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('test_id', testId)
+            .maybeSingle();
+          if (data) {
+            alreadyReviewed = true;
+          }
+        }
+      } catch (err) {
+        console.error('Error checking review:', err);
+      }
+    }
+
+    if (alreadyReviewed || !user) {
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+      localStorage.removeItem('ccat_test_completed');
+      localStorage.removeItem('ccat_test_completed_id');
+      return;
+    }
+
+    // Hide result screen immediately
+    if (resultScreen) {
+      resultScreen.style.display = "none";
+    }
+
+    // Create the overlay DOM elements
+    const overlay = document.createElement('div');
+    overlay.className = 'review-overlay-container';
+    overlay.innerHTML = `
+      <div class="review-card">
+        <div class="review-icon-wrap">
+          <span class="review-icon">✍</span>
+        </div>
+        <h2 class="review-title">Submit Test Review</h2>
+        <p class="review-subtitle">
+          Please leave a quick review of your experience. Your feedback helps us improve the quality of our mock tests.
+        </p>
+        <div class="stars-row">
+          <button type="button" class="star-btn active" data-star="1">★</button>
+          <button type="button" class="star-btn active" data-star="2">★</button>
+          <button type="button" class="star-btn active" data-star="3">★</button>
+          <button type="button" class="star-btn active" data-star="4">★</button>
+          <button type="button" class="star-btn active" data-star="5">★</button>
+        </div>
+        <textarea 
+          class="review-textarea" 
+          placeholder="Write your review here (minimum 10 characters)..."
+        ></textarea>
+        <div class="review-error" style="display:none"></div>
+        <div class="review-btn-row">
+          <button type="button" class="review-submit-btn">Submit Review</button>
+          <button type="button" class="review-skip-btn">Skip for now</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let selectedRating = 5;
+    const stars = overlay.querySelectorAll('.star-btn');
+    stars.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rating = parseInt(btn.getAttribute('data-star'));
+        selectedRating = rating;
+        stars.forEach(s => {
+          const sRating = parseInt(s.getAttribute('data-star'));
+          if (sRating <= rating) {
+            s.classList.add('active');
+          } else {
+            s.classList.remove('active');
+          }
+        });
+      });
+    });
+
+    const textarea = overlay.querySelector('.review-textarea');
+    const errDiv = overlay.querySelector('.review-error');
+    const submitBtn = overlay.querySelector('.review-submit-btn');
+    const skipBtn = overlay.querySelector('.review-skip-btn');
+
+    const showResults = () => {
+      overlay.remove();
+      if (resultScreen) {
+        resultScreen.style.display = "block";
+      }
+    };
+
+    submitBtn.addEventListener('click', async () => {
+      const text = textarea.value.trim();
+      if (!text) {
+        errDiv.textContent = 'Review text is required.';
+        errDiv.style.display = 'block';
+        return;
+      }
+      if (text.length < 10) {
+        errDiv.textContent = 'Please write at least 10 characters.';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      errDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        let user = null;
+        if (supabaseClient) {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          user = session?.user;
+        }
+
+        if (!user) {
+          alert('You must be logged in to submit a review. The review will be skipped and you can review later.');
+          showResults();
+          return;
+        }
+
+        const { error } = await supabaseClient.from('reviews').insert({
+          user_id: user.id,
+          user_name: user.user_metadata?.full_name || user.email.split('@')[0] || 'User',
+          user_email: user.email,
+          rating: selectedRating,
+          review_text: text,
+          test_id: testId,
+          is_approved: false
+        });
+
+        if (error) throw error;
+
+        // Success - remove local storage flags since review is submitted
+        localStorage.removeItem('ccat_test_completed');
+        localStorage.removeItem('ccat_test_completed_id');
+        alert('Thank you! Your review has been submitted for admin approval.');
+        showResults();
+      } catch (err) {
+        console.error('Error submitting review:', err);
+        errDiv.textContent = err.message || 'Failed to submit review. Please try skipping.';
+        errDiv.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    });
+
+    skipBtn.addEventListener('click', () => {
+      showResults();
+    });
+  };
+})();
+</script>
+
+</body>
+</html>
