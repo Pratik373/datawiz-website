@@ -12,13 +12,11 @@ export default function Community() {
   // Channels and active channel
   const [groups, setGroups] = useState([])
   const [activeGroup, setActiveGroup] = useState(null)
-  const [userMemberships, setUserMemberships] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
   
   // Messages and input state
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
-  const [uploadingMedia, setUploadingMedia] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
   const [sending, setSending] = useState(false)
@@ -53,10 +51,6 @@ export default function Community() {
         .from('community_group_members')
         .select('group_id')
         .eq('user_email', currentUser.email)
-
-      if (memberData) {
-        setUserMemberships(memberData.map(m => m.group_id))
-      }
 
       await fetchGroups(adminFlag, memberData ? memberData.map(m => m.group_id) : [])
       setLoading(false)
@@ -257,7 +251,6 @@ export default function Community() {
 
     try {
       if (selectedFile && isAdmin) {
-        setUploadingMedia(true)
         const fileExt = selectedFile.name.split('.').pop()
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
         const filePath = `chat_attachments/${fileName}`
@@ -299,7 +292,6 @@ export default function Community() {
       alert(`Could not send message: ${err.message || err}`)
     } finally {
       setSending(false)
-      setUploadingMedia(false)
     }
   }
 
