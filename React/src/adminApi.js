@@ -156,3 +156,15 @@ export function deleteAdminNotification(id) {
   return requestJson({ action: 'delete-notification', id });
 }
 
+export function listAdminSupportThreads() {
+  return requestJson({ action: 'list-support-threads' });
+}
+
+export function getAdminSupportMessages(userId) {
+  return requestJson({ action: 'get-support-messages', user_id: userId });
+}
+
+export function sendAdminSupportReply(userId, message, userEmail) {
+  return requestJson({ action: 'send-support-reply', user_id: userId, message, user_email: userEmail });
+}
+

@@ -3,8 +3,11 @@ import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../supabaseClient'
 import { STARTER_PRICE_INR, STARTER_ORIGINAL_PRICE_INR, PRO_PRICE_INR, PRO_ORIGINAL_PRICE_INR, formatINR } from '../pricingConfig'
 import ProfileDropdown from '../components/ProfileDropdown'
+import SupportChatWidget from '../components/SupportChatWidget'
 
 const heroImg = 'https://lh3.googleusercontent.com/aida-public/AB6AXuAyOXogB7LYDkE7jxtYEi1yAzkvpqJyP5jhpeGAOs4kYoBSp_BQ7pZVodLs7aoLI-_xw6gkKDnki2-ql5CAwKO0I-Mis6aZBzRcYFsR832PVwWTmwlpU7FW5q3YzMKhEo89YFHaEp_ripjxmXwid_Iqi0qELm-O8P636KK31y5y9CJ9aYqU_6k65oAlZZ6HS6ydcPwvfkE9J47FrnKIw0U12gaFYpDslM9N0M_jd8vQ_japZTacf3GYgEBYlqAABZjjM4ZzTonLDiM'
+
+const API_BASE = process.env.REACT_APP_API_URL || ''
 
 
 
@@ -105,6 +108,7 @@ function ReviewCard({ review }) {
 export default function Home() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
+  const [hasPremiumAccess, setHasPremiumAccess] = useState(false)
   const [reviews, setReviews] = useState([])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -113,6 +117,21 @@ export default function Home() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null))
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (!user?.id) {
+      setHasPremiumAccess(false)
+      return
+    }
+    fetch(`${API_BASE}/api/user-test-access`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: user.id }),
+    })
+      .then(res => res.json())
+      .then(data => setHasPremiumAccess(Boolean(data.hasPremiumAccess)))
+      .catch(() => setHasPremiumAccess(false))
+  }, [user])
 
   useEffect(() => {
     const fetchApprovedReviews = async () => {
@@ -584,6 +603,11 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      <SupportChatWidget 
+        user={user} 
+        hasPremiumAccess={hasPremiumAccess} 
+        onOpenUpgradeModal={() => navigate('/tests')} 
+      />
     </div>
   )
 }

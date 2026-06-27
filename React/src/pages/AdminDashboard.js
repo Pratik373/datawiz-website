@@ -18,6 +18,9 @@ import {
   listAdminNotifications,
   createAdminNotification,
   deleteAdminNotification,
+  listAdminSupportThreads,
+  getAdminSupportMessages,
+  sendAdminSupportReply,
 } from '../adminApi';
 import { supabase } from '../supabaseClient';
 import './AdminDashboard.css';
@@ -100,6 +103,7 @@ export default function AdminDashboard() {
           ['whitelist', '🛡 Beta Access'],
           ['reviews', 'Reviews'],
           ['notifications', '📢 Notifications'],
+          ['support', '💬 Support Chat'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -123,6 +127,7 @@ export default function AdminDashboard() {
         {activeTab === 'whitelist' && <WhitelistPanel showNotice={showNotice} />}
         {activeTab === 'reviews' && <ReviewsPanel showNotice={showNotice} />}
         {activeTab === 'notifications' && <NotificationsPanel showNotice={showNotice} />}
+        {activeTab === 'support' && <SupportChatPanel showNotice={showNotice} />}
       </main>
     </div>
   );
@@ -1801,6 +1806,243 @@ function NotificationsPanel({ showNotice }) {
           </table>
         </div>
       )}
+    </section>
+  );
+}
+
+function SupportChatPanel({ showNotice }) {
+  const [threads, setThreads] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedUserEmail, setSelectedUserEmail] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [replyText, setReplyText] = useState('');
+  const [loadingThreads, setLoadingThreads] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sendingReply, setSendingReply] = useState(false);
+
+  const loadThreads = useCallback(async () => {
+    try {
+      let threadList = [];
+      try {
+        const res = await listAdminSupportThreads();
+        if (res?.threads && res.threads.length > 0) {
+          threadList = res.threads;
+        }
+      } catch (_e) {
+        // Fallback to direct client query
+      }
+
+      if (threadList.length === 0) {
+        const { data, error } = await supabase
+          .from('support_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          const threadsMap = new Map();
+          for (const msg of data) {
+            if (!threadsMap.has(msg.user_id)) {
+              threadsMap.set(msg.user_id, {
+                user_id: msg.user_id,
+                user_email: msg.user_email || 'Unknown User',
+                last_message: msg.message,
+                last_message_at: msg.created_at,
+                unread_count: 0,
+              });
+            }
+            if (msg.sender === 'user' && !msg.is_read_by_admin) {
+              const thread = threadsMap.get(msg.user_id);
+              thread.unread_count += 1;
+            }
+          }
+          threadList = Array.from(threadsMap.values());
+        }
+      }
+      setThreads(threadList);
+    } catch (err) {
+      console.error('Failed to load support threads:', err);
+    } finally {
+      setLoadingThreads(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadThreads();
+    const interval = setInterval(loadThreads, 4000);
+    return () => clearInterval(interval);
+  }, [loadThreads]);
+
+  const handleSelectThread = async (thread) => {
+    setSelectedUserId(thread.user_id);
+    setSelectedUserEmail(thread.user_email);
+    setLoadingMessages(true);
+    try {
+      let msgList = [];
+      try {
+        const res = await getAdminSupportMessages(thread.user_id);
+        if (res?.messages && res.messages.length > 0) {
+          msgList = res.messages;
+        }
+      } catch (_e) {}
+
+      if (msgList.length === 0) {
+        await supabase
+          .from('support_messages')
+          .update({ is_read_by_admin: true })
+          .eq('user_id', thread.user_id)
+          .eq('sender', 'user');
+
+        const { data, error } = await supabase
+          .from('support_messages')
+          .select('*')
+          .eq('user_id', thread.user_id)
+          .order('created_at', { ascending: true });
+
+        if (!error && data) {
+          msgList = data;
+        }
+      }
+      setMessages(msgList);
+      loadThreads();
+    } catch (err) {
+      showNotice(err.message || 'Failed to load messages', 'error');
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const handleSendReply = async (e) => {
+    e.preventDefault();
+    if (!replyText.trim() || !selectedUserId || sendingReply) return;
+    const msg = replyText.trim();
+    setReplyText('');
+    setSendingReply(true);
+    try {
+      let sentMsg = null;
+      try {
+        const res = await sendAdminSupportReply(selectedUserId, msg, selectedUserEmail);
+        if (res?.message) {
+          sentMsg = res.message;
+        }
+      } catch (_e) {}
+
+      if (!sentMsg) {
+        const { data, error } = await supabase
+          .from('support_messages')
+          .insert({
+            user_id: selectedUserId,
+            user_email: selectedUserEmail,
+            sender: 'admin',
+            message: msg,
+            is_read_by_admin: true,
+            is_read_by_user: false,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        sentMsg = data;
+      }
+
+      setMessages((prev) => [...prev, sentMsg]);
+      showNotice('Reply sent successfully');
+      loadThreads();
+    } catch (err) {
+      showNotice(err.message || 'Failed to send reply', 'error');
+      setReplyText(msg);
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
+  return (
+    <section className="admin-panel admin-support-chat-panel">
+      <h2>💬 Priority User Support Chat</h2>
+      <p className="admin-panel-subtitle">View and reply directly to support messages sent by Premium users in real time.</p>
+
+      <div className="admin-chat-container">
+        {/* Left Column: Thread List */}
+        <div className="admin-chat-sidebar">
+          <h3>User Threads</h3>
+          {loadingThreads ? (
+            <div className="admin-empty">Loading threads...</div>
+          ) : threads.length === 0 ? (
+            <div className="admin-empty">No support messages yet.</div>
+          ) : (
+            <div className="admin-thread-list">
+              {threads.map((thread) => (
+                <div
+                  key={thread.user_id}
+                  className={`admin-thread-item ${selectedUserId === thread.user_id ? 'active' : ''} ${thread.unread_count > 0 ? 'unread' : ''}`}
+                  onClick={() => handleSelectThread(thread)}
+                >
+                  <div className="thread-header">
+                    <span className="thread-email">{thread.user_email}</span>
+                    {thread.unread_count > 0 && (
+                      <span className="thread-unread-badge">{thread.unread_count} new</span>
+                    )}
+                  </div>
+                  <div className="thread-preview">{thread.last_message}</div>
+                  <div className="thread-date">{formatDate(thread.last_message_at)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Chat Window */}
+        <div className="admin-chat-main">
+          {!selectedUserId ? (
+            <div className="admin-chat-placeholder">
+              <span className="material-symbols-outlined placeholder-icon">chat</span>
+              <p>Select a user thread from the left list to view conversation and send replies.</p>
+            </div>
+          ) : (
+            <>
+              <div className="admin-chat-header">
+                <div>
+                  <h3>Conversation with {selectedUserEmail}</h3>
+                  <span className="user-id-sub">User ID: {selectedUserId}</span>
+                </div>
+              </div>
+
+              <div className="admin-chat-messages">
+                {loadingMessages ? (
+                  <div className="admin-empty">Loading messages...</div>
+                ) : messages.length === 0 ? (
+                  <div className="admin-empty">No messages in this conversation.</div>
+                ) : (
+                  messages.map((msg) => (
+                    <div
+                      key={msg.id || msg.created_at}
+                      className={`admin-msg-bubble ${msg.sender === 'admin' ? 'sent-by-admin' : 'sent-by-user'}`}
+                    >
+                      <div className="msg-meta">
+                        <strong>{msg.sender === 'admin' ? '🛡 Admin (You)' : selectedUserEmail}</strong>
+                        <span>{formatDate(msg.created_at)}</span>
+                      </div>
+                      <div className="msg-text">{msg.message}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <form className="admin-chat-reply-form" onSubmit={handleSendReply}>
+                <input
+                  type="text"
+                  placeholder={`Reply to ${selectedUserEmail}...`}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  disabled={sendingReply}
+                />
+                <button type="submit" className="admin-primary-btn" disabled={!replyText.trim() || sendingReply}>
+                  {sendingReply ? 'Sending...' : 'Send Reply'}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
