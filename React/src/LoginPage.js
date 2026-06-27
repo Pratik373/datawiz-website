@@ -49,8 +49,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [pwFocused, setPwFocused]       = useState(false);
 
-  const logoUrl =
-    'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg';
+  const logoUrl = '/assets/logo.jpeg';
 
   const strength = getStrengthLevel(password);
 

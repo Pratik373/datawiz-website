@@ -58,7 +58,7 @@ export default function MaintenancePage() {
         {/* Logo */}
         <div className="maint-logo-row">
           <img
-            src="https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg"
+            src="/assets/logo.jpeg"
             alt="Datawiz6"
             className="maint-logo"
           />

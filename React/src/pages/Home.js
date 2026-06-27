@@ -204,7 +204,7 @@ export default function Home() {
         <div className="flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto">
           <div className="flex items-center gap-sm">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant bg-white flex items-center justify-center">
-              <img alt="DataWiz Logo" className="w-full h-full object-cover" src="https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg" />
+              <img alt="DataWiz Logo" className="w-full h-full object-cover" src="/assets/logo.jpeg" />
             </div>
             <span className="font-headline-md text-headline-md font-bold text-on-surface">DataWiz</span>
           </div>

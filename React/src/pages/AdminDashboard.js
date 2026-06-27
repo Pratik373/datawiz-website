@@ -25,7 +25,7 @@ import {
 import { supabase } from '../supabaseClient';
 import './AdminDashboard.css';
 
-const logoUrl = 'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg';
+const logoUrl = '/assets/logo.jpeg';
 
 const plans = {
   free: { label: 'Free', amount: 0 },
@@ -1868,8 +1868,25 @@ function SupportChatPanel({ showNotice }) {
 
   useEffect(() => {
     loadThreads();
-    const interval = setInterval(loadThreads, 4000);
-    return () => clearInterval(interval);
+
+    const channel = supabase
+      .channel('admin_support_messages_channel')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_messages',
+        },
+        () => {
+          loadThreads();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [loadThreads]);
 
   const handleSelectThread = async (thread) => {

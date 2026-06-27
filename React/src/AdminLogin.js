@@ -4,7 +4,7 @@ import { getAdminSession } from './adminApi';
 import { supabase } from './supabaseClient';
 import './AdminLogin.css';
 
-const logoUrl = 'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg';
+const logoUrl = '/assets/logo.jpeg';
 
 export default function AdminLogin() {
   const navigate = useNavigate();

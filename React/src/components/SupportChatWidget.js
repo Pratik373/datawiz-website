@@ -59,13 +59,42 @@ export default function SupportChatWidget({ user, hasPremiumAccess, onOpenUpgrad
   };
 
   useEffect(() => {
-    if (user) {
-      fetchMessages(true);
-      const interval = setInterval(() => {
-        fetchMessages(false);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
+    if (!user) return;
+
+    fetchMessages(true);
+
+    const channel = supabase
+      .channel(`support_messages_user_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_messages',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const newMsg = payload.new;
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg];
+            });
+            if (newMsg.sender === 'admin') {
+              setUnreadCount((prev) => (isOpen ? 0 : prev + 1));
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            setMessages((prev) =>
+              prev.map((m) => (m.id === payload.new.id ? payload.new : m))
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isOpen]);
 
