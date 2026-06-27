@@ -19,7 +19,7 @@ import {
 import { supabase } from './supabaseClient';
 import './AdminDashboard.css';
 
-const logoUrl = 'https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg';
+const logoUrl = '/assets/logo.jpeg';
 
 const plans = {
   free: { label: 'Free', amount: 0 },

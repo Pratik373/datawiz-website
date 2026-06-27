@@ -39,7 +39,7 @@ export default function AdminLogin() {
           <div className="mb-sm">
             <div className="w-20 h-20 rounded-full overflow-hidden border border-stone-border p-1 bg-surface">
               <img alt="DataWiz Logo" className="w-full h-full object-cover rounded-full"
-                src="https://uoqfnvrdbicbepjxapcf.supabase.co/storage/v1/object/public/Assests/WhatsApp%20Image%202025-12-24%20at%2010.23.29%20PM.jpeg" />
+                src="/assets/logo.jpeg" />
             </div>
           </div>
 
