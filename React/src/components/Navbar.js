@@ -44,6 +44,10 @@ export default function Navbar() {
           <a className="text-on-surface-variant hover:text-primary font-body-md transition-colors" href="#about">About</a>
           <a className="text-on-surface-variant hover:text-primary font-body-md transition-colors" href="#materials">Study Materials</a>
           <Link className="text-on-surface-variant hover:text-primary font-body-md transition-colors" to="/mock-tests">Mock Test</Link>
+          <Link className="text-primary font-body-md font-bold transition-colors flex items-center gap-1" to="/community">
+            <span>Community</span>
+            <span className="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded-full uppercase tracking-wider">New</span>
+          </Link>
           <a className="text-on-surface-variant hover:text-primary font-body-md transition-colors" href="#pricing">Pricing</a>
           <a className="text-on-surface-variant hover:text-primary font-body-md transition-colors" href="#social">Follow</a>
           <Link className="text-on-surface-variant hover:text-primary font-body-md transition-colors" to="/tests">Your Tests</Link>

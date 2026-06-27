@@ -13,6 +13,7 @@ import AiCoursesBlog from './pages/AiCoursesBlog'
 import WhatsHappeningBlog from './pages/WhatsHappeningBlog'
 import CdacCcatGuideBlog from './pages/CdacCcatGuideBlog'
 import CdacCoursesComparisonBlog from './pages/CdacCoursesComparisonBlog'
+import Community from './pages/Community'
 
 function MaintenanceGate({ children }) {
   const MAINTENANCE = process.env.REACT_APP_MAINTENANCE_MODE === 'true'
@@ -92,6 +93,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/study-material" element={<StudyMaterial />} />
+          <Route path="/community" element={<Community />} />
           <Route path="/tests" element={<MockTestPortal />} />
           <Route path="/mock-tests" element={<MockTestPortal />} />
           <Route path="/blogs" element={<Blogs />} />

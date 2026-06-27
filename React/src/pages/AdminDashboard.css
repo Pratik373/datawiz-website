@@ -1195,3 +1195,218 @@
   border-color: #006565;
 }
 
+/* Community & Batch Management Styles */
+.community-mgmt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .community-mgmt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.community-card {
+  background: #ffffff;
+  border: 1px solid #d3d1c7;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.community-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #181c1c;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8eceb;
+}
+
+.community-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.community-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.community-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3e4949;
+  display: block;
+}
+
+.community-input,
+.community-select,
+.community-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #c0cccc;
+  border-radius: 8px;
+  background: #f8f7f4;
+  font-size: 14px;
+  color: #181c1c;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.community-input:focus,
+.community-select:focus,
+.community-textarea:focus {
+  border-color: #006565;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 101, 101, 0.15);
+}
+
+.community-checkbox-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  cursor: pointer;
+  font-size: 14px !important;
+  color: #181c1c !important;
+  user-select: none;
+}
+
+.community-checkbox {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: #006565;
+  cursor: pointer;
+}
+
+.email-picker-wrapper {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 13.5px;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.email-picker-row:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.email-picker-row.selected {
+  background: #e6f4f4;
+  border-color: #006565;
+  color: #004f4f;
+  font-weight: 600;
+}
+
+.community-checkbox-simple {
+  width: 16px;
+  height: 16px;
+  accent-color: #006565;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.email-text-item {
+  flex: 1;
+  word-break: break-all;
+  line-height: 1.2;
+}
+
+.group-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 580px;
+  overflow-y: auto;
+}
+
+.group-card-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 10px;
+  background: #f8f7f4;
+  border: 1px solid #dae5e4;
+}
+
+.group-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.group-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #181c1c;
+}
+
+.badge-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.badge-tag.dac {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-tag.dbda {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.badge-tag.general {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge-tag.private {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.email-picker-row.selected {
+  background: #e0f2fe;
+  font-weight: 600;
+  border-left: 3px solid #0284c7;
+}
+
+
+
