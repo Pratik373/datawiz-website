@@ -61,24 +61,28 @@ module.exports = async function handler(req, res) {
 
     // Apply coupon if valid
     let discount = 0;
+    let isExplicitlyFree = false;
     if (couponCode) {
       const code = (couponCode || '').toUpperCase().trim();
       if (code === 'DATAWIZ100') {
-        discount = 100;
+        // Cap discount to base amount so it never makes a paid plan accidentally free
+        discount = Math.min(100, baseAmount - 1);
       } else if (code === 'SAVE50') {
-        discount = 50;
+        discount = Math.min(50, baseAmount - 1);
       } else if (code === 'SAVE20') {
-        discount = 20;
+        discount = Math.min(20, baseAmount - 1);
       } else if (code === 'FREE') {
+        // Explicit 100% free coupon — intentionally bypasses Razorpay
         discount = baseAmount;
+        isExplicitlyFree = true;
       }
     }
 
     const finalAmount = Math.max(0, baseAmount - discount);
-    console.log(`[API] Final order amount computed: base ₹${baseAmount} - discount ₹${discount} = ₹${finalAmount}`);
+    console.log(`[API] Final order amount computed: base ₹${baseAmount} - discount ₹${discount} = ₹${finalAmount} (explicitlyFree: ${isExplicitlyFree})`);
 
-    if (finalAmount === 0) {
-      console.log(`[API] Free order requested (Amount: 0). Bypassing Razorpay.`);
+    if (isExplicitlyFree && finalAmount === 0) {
+      console.log(`[API] Free order via explicit FREE coupon. Bypassing Razorpay.`);
       return res.status(200).json({
         id: `free_${plan}_${Date.now()}`,
         amount: 0,

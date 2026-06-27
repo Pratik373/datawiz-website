@@ -55,15 +55,17 @@ module.exports = async function handler(req, res) {
     const code = (couponCode || '').toUpperCase().trim();
 
     if (code === 'DATAWIZ100') {
-      discount = 100;
+      // Cap to (baseAmount - 1) so paid plans are never accidentally made free
+      discount = Math.min(100, baseAmount - 1);
       valid = true;
     } else if (code === 'SAVE50') {
-      discount = 50;
+      discount = Math.min(50, baseAmount - 1);
       valid = true;
     } else if (code === 'SAVE20') {
-      discount = 20;
+      discount = Math.min(20, baseAmount - 1);
       valid = true;
     } else if (code === 'FREE') {
+      // Explicit 100% free coupon — intentionally makes order free
       discount = baseAmount;
       valid = true;
     } else if (code) {
