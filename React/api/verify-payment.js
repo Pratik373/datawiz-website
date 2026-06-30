@@ -108,7 +108,28 @@ module.exports = async function handler(req, res) {
       throw upsertError;
     }
 
-    console.log(`[API] Payment verification and credit update complete! New credits: ${newCredits}`);
+    // 6. Update user_subscriptions to keep plan in sync (Non-blocking / safe)
+    try {
+      console.log(`[API] Updating user subscription to: ${plan || 'starter'}`);
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { error: subError } = await supabase.from('user_subscriptions').upsert(
+        {
+          user_id,
+          plan: plan || 'starter',
+          started_at: new Date().toISOString(),
+          expires_at: expiresAt,
+          updated_at: new Date().toISOString()
+        },
+        { onConflict: 'user_id' }
+      );
+      if (subError) {
+        console.error(`[API] Non-fatal user subscription update error:`, subError);
+      }
+    } catch (subErr) {
+      console.error(`[API] Non-fatal subscription upsert catch:`, subErr);
+    }
+
+    console.log(`[API] Payment verification, credit update and subscription sync complete! New credits: ${newCredits}`);
     return res.status(200).json({ success: true, tests_remaining: newCredits });
 
   } catch (err) {

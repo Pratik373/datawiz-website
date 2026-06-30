@@ -73,11 +73,35 @@ module.exports = async function handler(req, res) {
 
         const newCredits = (existingCredits?.tests_remaining || 0) + tests;
 
-        await supabase.from('user_credits').upsert(
+        const { error: credError } = await supabase.from('user_credits').upsert(
           { user_id: userId, tests_remaining: newCredits, updated_at: new Date().toISOString() },
           { onConflict: 'user_id' }
         );
-        console.log(`[Webhook] Added ${tests} tests to user ${userId}.`);
+        if (credError) {
+          console.error(`[Webhook] Credits upsert error:`, credError);
+        }
+
+        // Sync subscription to user_subscriptions (Non-blocking / safe)
+        try {
+          const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+          const { error: subError } = await supabase.from('user_subscriptions').upsert(
+            {
+              user_id: userId,
+              plan: plan || 'starter',
+              started_at: new Date().toISOString(),
+              expires_at: expiresAt,
+              updated_at: new Date().toISOString()
+            },
+            { onConflict: 'user_id' }
+          );
+          if (subError) {
+            console.error(`[Webhook] Non-fatal user subscription update error:`, subError);
+          }
+        } catch (subErr) {
+          console.error(`[Webhook] Non-fatal subscription upsert catch:`, subErr);
+        }
+
+        console.log(`[Webhook] Added ${tests} tests to user ${userId} and synchronized subscription.`);
       } else {
         console.log(`[Webhook] Payment ${payment.id} was already processed.`);
       }

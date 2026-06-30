@@ -248,6 +248,7 @@ async function assignPlan(payload: Record<string, unknown>) {
     ? null
     : new Date(startedAt.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
+  // 1. Upsert subscription
   const { error } = await supabaseAdmin
     .from('user_subscriptions')
     .upsert({
@@ -259,6 +260,31 @@ async function assignPlan(payload: Record<string, unknown>) {
     }, { onConflict: 'user_id' });
 
   if (error) throw error;
+
+  // 2. Direct credits assignment (Instant Override / safe)
+  let credits = 0;
+  if (plan === 'pro' || plan === 'premium') {
+    credits = 10;
+  } else if (plan === 'basic') {
+    credits = 5;
+  }
+
+  try {
+    const { error: creditsError } = await supabaseAdmin
+      .from('user_credits')
+      .upsert({
+        user_id: userId,
+        tests_remaining: credits,
+        updated_at: startedAt.toISOString(),
+      }, { onConflict: 'user_id' });
+
+    if (creditsError) {
+      console.error('Failed to update credits during assignPlan:', creditsError);
+    }
+  } catch (err) {
+    console.error('Catch block error updating credits during assignPlan:', err);
+  }
+
   return json({ ok: true });
 }
 
@@ -301,6 +327,30 @@ async function recordPayment(payload: Record<string, unknown>) {
       }, { onConflict: 'user_id' });
 
     if (subscriptionError) throw subscriptionError;
+
+    // Direct credits assignment on manual payment record (Instant / safe)
+    let credits = 0;
+    if (plan === 'pro' || plan === 'premium') {
+      credits = 10;
+    } else if (plan === 'basic') {
+      credits = 5;
+    }
+
+    try {
+      const { error: creditsError } = await supabaseAdmin
+        .from('user_credits')
+        .upsert({
+          user_id: userId,
+          tests_remaining: credits,
+          updated_at: paymentDate,
+        }, { onConflict: 'user_id' });
+
+      if (creditsError) {
+        console.error('Failed to update credits during recordPayment:', creditsError);
+      }
+    } catch (err) {
+      console.error('Catch block error updating credits during recordPayment:', err);
+    }
   }
 
   return json({ ok: true });
